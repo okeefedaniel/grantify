@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-25 17:39-0500\n"
+"POT-Creation-Date: 2026-02-26 15:39-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -245,6 +245,11 @@ msgstr "Comment added."
 
 msgid "There was an error adding your comment."
 msgstr "There was an error adding your comment."
+
+#, fuzzy, python-format
+#| msgid "request is rejected (provide a reason)"
+msgid "File rejected: %(reason)s"
+msgstr "request is rejected (provide a reason)"
 
 msgid "Document uploaded successfully."
 msgstr "Document uploaded exitosamente."
@@ -2676,8 +2681,15 @@ msgid ""
 "signature. Once signed, the award will be marked as executed."
 msgstr ""
 
-msgid "CT Grants Management"
+#, fuzzy
+#| msgid "CT Grants Management"
+msgid "State Grants Management"
 msgstr "CT Subvenciones Management"
+
+msgid ""
+"Grantify — State Grants Management Solution for streamlined grant lifecycle "
+"management."
+msgstr ""
 
 msgid "Skip to main content"
 msgstr "Skip to main content"
@@ -3637,11 +3649,22 @@ msgstr "This is an automated message from Grantify. Do not reply directly."
 msgid "State of DOK"
 msgstr "Estado de DOK"
 
+msgid "APPLICATION STATUS UPDATE"
+msgstr "APPLICATION STATUS UPDATE"
+
+#, fuzzy, python-format
+#| msgid "<p>Hello %(name)s,</p>"
+msgid "Hello %(name)s,"
+msgstr "<p>Hello %(name)s,</p>"
+
 msgid "A new grant application has been submitted and requires your review."
 msgstr "A new grant application has been submitted and requires your review."
 
 msgid "Review Application"
 msgstr "Revisar solicitud"
+
+msgid "NEW APPLICATION SUBMITTED"
+msgstr "NEW APPLICATION SUBMITTED"
 
 msgid "Congratulations! Award Created"
 msgstr "Congratulations! Adjudicación Creado"
@@ -3653,6 +3676,9 @@ msgstr ""
 
 msgid "View Award Details"
 msgstr "Ver Detalles de la adjudicación"
+
+msgid "CONGRATULATIONS! AWARD CREATED"
+msgstr "CONGRATULATIONS! AWARD CREATED"
 
 #, fuzzy
 #| msgid "Recommendation"
@@ -3687,6 +3713,9 @@ msgid ""
 "your Grantify dashboard."
 msgstr ""
 
+msgid "NEW GRANT RECOMMENDATION"
+msgstr "NEW GRANT RECOMMENDATION"
+
 msgid "Award Agreement Signed"
 msgstr "Adjudicación Acuerdo Firmado"
 
@@ -3710,6 +3739,20 @@ msgid ""
 "You will receive a separate email from DocuSign with the document to sign. "
 "If you do not receive it, please check your spam folder."
 msgstr ""
+
+msgid "AWARD AGREEMENT SIGNED"
+msgstr "AWARD AGREEMENT SIGNED"
+
+#, python-format
+msgid ""
+"Hello,\n"
+"\n"
+"%(name)s has signed the award agreement. The award has been marked as "
+"executed."
+msgstr ""
+
+msgid "SIGNATURE REQUESTED"
+msgstr "SIGNATURE REQUESTED"
 
 #, python-format
 msgid "Budget - %(title)s"
@@ -4452,7 +4495,8 @@ msgid "Request Drawdowns"
 msgstr "Request Desembolso"
 
 msgid "Submit cash requests against your approved budget with line-item detail"
-msgstr "Enviar cash requests against your approved budget with line-item detail"
+msgstr ""
+"Enviar cash requests against your approved budget with line-item detail"
 
 #, fuzzy
 #| msgid "Submit Report"
@@ -5535,7 +5579,8 @@ msgid ""
 msgstr ""
 
 msgid "Multi-factor authentication (MFA) support for enhanced account security"
-msgstr "Multi-factor authentication (MFA) support for enhanced account security"
+msgstr ""
+"Multi-factor authentication (MFA) support for enhanced account security"
 
 msgid "Comprehensive audit logging of all system activities"
 msgstr "Comprehensive audit logging of all system activities"
@@ -6037,7 +6082,8 @@ msgid "Create, edit, and submit grant applications with supporting documents."
 msgstr "Crear, edit, and submit grant applications with supporting documents."
 
 msgid "Issue awards, manage amendments, and collect e-signatures via DocuSign."
-msgstr "Issue awards, manage amendments, and collect e-signatures via DocuSign."
+msgstr ""
+"Issue awards, manage amendments, and collect e-signatures via DocuSign."
 
 #, fuzzy
 #| msgid "Back to Reports"
@@ -6063,7 +6109,8 @@ msgid ""
 msgstr "Gestiona programas de subvención específicos y revisa solicitudes."
 
 msgid "Agency staff who manage budgets, drawdowns, and financial transactions."
-msgstr "Agencia staff who manage budgets, drawdowns, and financial transactions."
+msgstr ""
+"Agencia staff who manage budgets, drawdowns, and financial transactions."
 
 msgid ""
 "Agency leadership with full control over their agency's programs and staff."
@@ -6180,7 +6227,8 @@ msgid "competitive, non-competitive, formula, continuation, or other"
 msgstr "competitive, non-competitive, formula, continuation, or other"
 
 msgid "posted, accepting applications, under review, awards pending, or closed"
-msgstr "posted, accepting applications, under review, awards pending, or closed"
+msgstr ""
+"posted, accepting applications, under review, awards pending, or closed"
 
 msgid ""
 "Each opportunity card shows the grant type, title, agency, total funding, "
@@ -6291,7 +6339,8 @@ msgid "Reviewing Applications"
 msgstr "Revisar solicitud"
 
 msgid "Your reviewer dashboard shows pending and completed review assignments."
-msgstr "Your reviewer dashboard shows pending and completed review assignments."
+msgstr ""
+"Your reviewer dashboard shows pending and completed review assignments."
 
 msgid "Click on a pending review assignment from your dashboard."
 msgstr "Click on a pending review assignment from your dashboard."
@@ -6615,7 +6664,8 @@ msgid "Fiscal officer reviews and approves, denies, or returns the request."
 msgstr "Fiscal officer reviews and approves, denies, or returns the request."
 
 msgid "Once approved, the transaction is recorded and the grantee is notified."
-msgstr "Once approved, the transaction is recorded and the grantee is notified."
+msgstr ""
+"Once approved, the transaction is recorded and the grantee is notified."
 
 #, fuzzy
 #| msgid "Transactions"
@@ -6932,8 +6982,8 @@ msgstr "O"
 msgid "Sign in with Microsoft"
 msgstr "Iniciar sesión con Microsoft"
 
-msgid "State employees: use your CT.gov account"
-msgstr "Empleados estatales: utilicen su cuenta CT.gov"
+msgid "State employees: use your DOK.gov account"
+msgstr "Empleados estatales: utilicen su cuenta DOK.gov"
 
 msgid "Contact your system administrator to reset your password"
 msgstr "Contacte a su administrador del sistema para restablecer su contraseña"
@@ -7873,7 +7923,8 @@ msgid "The inline value did not match the parent instance."
 msgstr "The inline value did not match the parent instance."
 
 msgid "Select a valid choice. That choice is not one of the available choices."
-msgstr "Seleccionar a valid choice. That choice is not one of the available choices."
+msgstr ""
+"Seleccionar a valid choice. That choice is not one of the available choices."
 
 #, python-format
 msgid "“%(pk)s” is not a valid value."
