@@ -356,6 +356,7 @@ MFA_PASSKEY_LOGIN_ENABLED = True
 # ---------------------------------------------------------------------------
 DOCUSIGN_INTEGRATION_KEY = os.environ.get('DOCUSIGN_INTEGRATION_KEY', '')
 DOCUSIGN_ACCOUNT_ID = os.environ.get('DOCUSIGN_ACCOUNT_ID', '')
+DOCUSIGN_RSA_PRIVATE_KEY = os.environ.get('DOCUSIGN_RSA_PRIVATE_KEY', '')  # Inline PEM key
 DOCUSIGN_RSA_KEY_FILE = os.environ.get('DOCUSIGN_RSA_KEY_FILE', 'docusign_private.pem')
 DOCUSIGN_BASE_URL = os.environ.get('DOCUSIGN_BASE_URL', 'https://demo.docusign.net/restapi')
 DOCUSIGN_OAUTH_BASE = os.environ.get('DOCUSIGN_OAUTH_BASE', 'https://account-d.docusign.com')

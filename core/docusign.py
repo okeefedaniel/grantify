@@ -51,12 +51,24 @@ class DocuSignService:
     # ------------------------------------------------------------------
 
     def _get_private_key(self):
-        """Read the RSA private key from the configured file path."""
+        """Return the RSA private key bytes.
+
+        Prefers the ``DOCUSIGN_RSA_PRIVATE_KEY`` env var (inline PEM) so
+        the key can be stored as a Railway variable instead of a file.
+        Falls back to reading ``DOCUSIGN_RSA_KEY_FILE`` from disk.
+        """
+        # Prefer inline key from env var (ideal for Railway / Heroku)
+        inline_key = getattr(settings, 'DOCUSIGN_RSA_PRIVATE_KEY', '')
+        if inline_key:
+            return inline_key.encode('utf-8')
+
+        # Fallback: read from file
         key_path = Path(settings.BASE_DIR) / settings.DOCUSIGN_RSA_KEY_FILE
         if not key_path.exists():
             raise FileNotFoundError(
                 f'DocuSign RSA private key not found at {key_path}. '
-                'Ensure DOCUSIGN_RSA_KEY_FILE is set correctly.'
+                'Set DOCUSIGN_RSA_PRIVATE_KEY env var or ensure '
+                'DOCUSIGN_RSA_KEY_FILE points to a valid file.'
             )
         return key_path.read_bytes()
 
