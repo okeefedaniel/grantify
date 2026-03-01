@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans "Initiate Signing Packet" %}{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb" class="bg-light border-bottom">
+    <div class="container">
+        <ol class="breadcrumb mb-0 py-2">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% trans "Dashboard" %}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'signatures:flow-list' %}">{% trans "Signature Flows" %}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'signatures:flow-detail' flow.pk %}">{{ flow.name }}</a></li>
+            <li class="breadcrumb-item active">{% trans "Initiate Signing" %}</li>
+        </ol>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <h1 class="fw-bold mb-4">
+            <i class="bi bi-pen me-2"></i>{% trans "Initiate Signing Packet" %}
+        </h1>
+
+        <div class="alert alert-info d-flex align-items-start mb-4">
+            <i class="bi bi-info-circle-fill me-2 fs-5 mt-1"></i>
+            <div>
+                <strong>{% blocktrans with name=flow.name %}Flow: {{ name }}{% endblocktrans %}</strong>
+                <p class="mb-0 mt-1">
+                    {% trans "You are initiating a new signing packet from this flow. Each step in the flow requires a signer to be assigned. Review and assign signers for each step below." %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Flow Steps Summary -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0 fw-bold">
+                    <i class="bi bi-list-ol me-2"></i>{% trans "Signing Steps" %}
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for step in flow.steps.all %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-primary rounded-pill me-2">{{ step.order }}</span>
+                                <span class="fw-semibold">{{ step.label }}</span>
+                            </div>
+                            <div>
+                                {% if step.is_required %}
+                                    <span class="badge bg-danger">{% trans "Required" %}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{% trans "Optional" %}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Initiate Form -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0 fw-bold">
+                    <i class="bi bi-pencil-square me-2"></i>{% trans "Packet Details" %}
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% crispy form %}
+
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'signatures:flow-detail' flow.pk %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>{% trans "Cancel" %}
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-pen me-1"></i>{% trans "Initiate Signing" %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

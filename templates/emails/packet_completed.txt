@@ -1,0 +1,12 @@
+{% load i18n %}{% trans "All Signatures Collected" %}
+
+{% blocktrans with name=recipient.get_full_name %}Hello {{ name }},{% endblocktrans %}
+
+{% trans "All required signatures have been collected for the following document:" %}
+
+{% trans "Document" %}: {{ packet.title }}
+{% trans "Completed" %}: {{ packet.completed_at|date:"M d, Y g:i A" }}
+
+{% trans "View Signed Document" %}: {{ detail_url }}
+
+{% trans "This is an automated message from the Grantify platform." %}

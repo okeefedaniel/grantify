@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block title %}{{ flow.name }}{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb" class="bg-light border-bottom">
+    <div class="container">
+        <ol class="breadcrumb mb-0 py-2">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% trans "Dashboard" %}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'signatures:flow-list' %}">{% trans "Signature Flows" %}</a></li>
+            <li class="breadcrumb-item active">{{ flow.name }}</li>
+        </ol>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<!-- Header Card -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="fw-bold mb-1 fs-3">
+                <i class="bi bi-diagram-3 me-2"></i>{{ flow.name }}
+            </h1>
+            <p class="text-muted mb-0">
+                {% if flow.is_active %}
+                    <span class="badge bg-success me-1">{% trans "Active" %}</span>
+                {% else %}
+                    <span class="badge bg-secondary me-1">{% trans "Inactive" %}</span>
+                {% endif %}
+                {% if flow.grant_program %}
+                    &middot; <i class="bi bi-folder me-1"></i>{{ flow.grant_program.title }}
+                {% endif %}
+                &middot; {% trans "Created" %} {{ flow.created_at|date:"M d, Y" }}
+                {% if flow.created_by %}
+                    {% blocktrans with name=flow.created_by.get_full_name %}by {{ name }}{% endblocktrans %}
+                {% endif %}
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'signatures:flow-edit' flow.pk %}" class="btn btn-outline-secondary">
+                <i class="bi bi-pencil me-1"></i>{% trans "Edit" %}
+            </a>
+            <a href="{% url 'signatures:packet-initiate' flow.pk %}" class="btn btn-primary">
+                <i class="bi bi-pen me-1"></i>{% trans "Initiate Signing" %}
+            </a>
+        </div>
+    </div>
+    {% if flow.description %}
+    <div class="card-body">
+        <p class="mb-0">{{ flow.description }}</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Steps Section -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0 fw-bold">
+            <i class="bi bi-list-ol me-2"></i>{% trans "Steps" %}
+        </h5>
+        <a href="{% url 'signatures:step-create' flow.pk %}" class="btn btn-sm btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>{% trans "Add Step" %}
+        </a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 80px;">{% trans "Order" %}</th>
+                    <th>{% trans "Label" %}</th>
+                    <th>{% trans "Assignment" %}</th>
+                    <th class="text-center">{% trans "Required" %}</th>
+                    <th class="text-center">{% trans "Actions" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for step in steps %}
+                <tr>
+                    <td>
+                        <span class="badge bg-primary rounded-pill">{{ step.order }}</span>
+                    </td>
+                    <td class="fw-semibold">{{ step.label }}</td>
+                    <td>
+                        {% if step.assignment_type == 'user' %}
+                            <i class="bi bi-person me-1"></i>
+                            {% if step.assigned_user %}
+                                {{ step.assigned_user.get_full_name }}
+                            {% else %}
+                                <span class="text-muted">{% trans "No user assigned" %}</span>
+                            {% endif %}
+                        {% else %}
+                            <i class="bi bi-people me-1"></i>
+                            {% if step.assigned_role %}
+                                {{ step.assigned_role }}
+                            {% else %}
+                                <span class="text-muted">{% trans "No role assigned" %}</span>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        {% if step.is_required %}
+                            <i class="bi bi-check-circle-fill text-success" title="{% trans 'Required' %}"></i>
+                        {% else %}
+                            <i class="bi bi-dash-circle text-muted" title="{% trans 'Optional' %}"></i>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'signatures:step-edit' step.pk %}" class="btn btn-outline-secondary"
+                               title="{% trans 'Edit Step' %}">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'signatures:step-delete' step.pk %}" class="btn btn-outline-danger"
+                               title="{% trans 'Delete Step' %}">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-4 text-muted">
+                        <i class="bi bi-list-ol display-6 d-block mb-2"></i>
+                        <p class="mb-1">{% trans "No steps have been added to this flow." %}</p>
+                        <a href="{% url 'signatures:step-create' flow.pk %}" class="btn btn-sm btn-primary mt-1">
+                            <i class="bi bi-plus-lg me-1"></i>{% trans "Add First Step" %}
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Documents Section -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0 fw-bold">
+            <i class="bi bi-file-earmark-pdf me-2"></i>{% trans "Documents" %}
+        </h5>
+        <a href="{% url 'signatures:document-upload' flow.pk %}" class="btn btn-sm btn-primary">
+            <i class="bi bi-upload me-1"></i>{% trans "Upload Document" %}
+        </a>
+    </div>
+    <div class="card-body">
+        {% for document in documents %}
+        <div class="d-flex justify-content-between align-items-center py-2 {% if not forloop.last %}border-bottom{% endif %}">
+            <div>
+                <i class="bi bi-file-earmark-pdf me-2 text-danger"></i>
+                <span class="fw-semibold">{{ document.title }}</span>
+                {% if document.description %}
+                    <br><small class="text-muted ms-4">{{ document.description|truncatewords:15 }}</small>
+                {% endif %}
+                <br>
+                <small class="text-muted ms-4">
+                    {{ document.page_count }} {% trans "pages" %}
+                    &middot; {% trans "Uploaded" %} {{ document.created_at|date:"M d, Y" }}
+                </small>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'signatures:placement-editor' document.pk %}" class="btn btn-sm btn-outline-primary"
+                   title="{% trans 'Edit Placements' %}">
+                    <i class="bi bi-crosshair me-1"></i>{% trans "Placements" %}
+                </a>
+                <a href="{% url 'signatures:document-delete' document.pk %}" class="btn btn-sm btn-outline-danger"
+                   title="{% trans 'Delete Document' %}">
+                    <i class="bi bi-trash"></i>
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-4 text-muted">
+            <i class="bi bi-file-earmark-pdf display-6 d-block mb-2"></i>
+            <p class="mb-1">{% trans "No documents have been uploaded to this flow." %}</p>
+            <a href="{% url 'signatures:document-upload' flow.pk %}" class="btn btn-sm btn-primary mt-1">
+                <i class="bi bi-upload me-1"></i>{% trans "Upload First Document" %}
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Recent Packets Section -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0 fw-bold">
+            <i class="bi bi-envelope-paper me-2"></i>{% trans "Recent Signing Packets" %}
+        </h5>
+        <a href="{% url 'signatures:packet-list' %}?flow={{ flow.pk }}" class="btn btn-sm btn-outline-primary">
+            {% trans "View All" %}
+        </a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>{% trans "Title" %}</th>
+                    <th>{% trans "Status" %}</th>
+                    <th>{% trans "Initiated By" %}</th>
+                    <th>{% trans "Created" %}</th>
+                    <th class="text-center">{% trans "Progress" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for packet in recent_packets %}
+                <tr>
+                    <td>
+                        <a href="{% url 'signatures:packet-detail' packet.pk %}" class="fw-semibold text-decoration-none">
+                            {{ packet.title }}
+                        </a>
+                    </td>
+                    <td>
+                        {% if packet.status == 'completed' %}<span class="badge bg-success">{% trans "Completed" %}</span>
+                        {% elif packet.status == 'in_progress' %}<span class="badge bg-primary">{% trans "In Progress" %}</span>
+                        {% elif packet.status == 'declined' %}<span class="badge bg-danger">{% trans "Declined" %}</span>
+                        {% elif packet.status == 'cancelled' %}<span class="badge bg-warning text-dark">{% trans "Cancelled" %}</span>
+                        {% else %}<span class="badge bg-secondary">{% trans "Draft" %}</span>{% endif %}
+                    </td>
+                    <td>{{ packet.initiated_by.get_full_name|default:"--" }}</td>
+                    <td>{{ packet.created_at|date:"M d, Y" }}</td>
+                    <td class="text-center">
+                        {% with progress=packet.progress %}
+                            <span class="text-muted small">{{ progress.0 }}/{{ progress.1 }}</span>
+                        {% endwith %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-4 text-muted">
+                        <p class="mb-0">{% trans "No signing packets have been created from this flow yet." %}</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

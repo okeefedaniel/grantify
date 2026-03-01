@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans "Delete Signature" %}{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb" class="bg-light border-bottom">
+    <div class="container">
+        <ol class="breadcrumb mb-0 py-2">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% trans "Dashboard" %}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'signatures:my-signatures' %}">{% trans "My Signatures" %}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'signatures:user-signature-list' %}">{% trans "Saved Signatures" %}</a></li>
+            <li class="breadcrumb-item active">{% trans "Delete" %}</li>
+        </ol>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body p-4 text-center">
+                <i class="bi bi-exclamation-triangle text-danger display-4 d-block mb-3"></i>
+                <h2 class="fw-bold mb-3">{% trans "Delete Signature" %}</h2>
+
+                <!-- Signature Preview -->
+                <div class="mb-4 p-3 bg-light rounded mx-auto" style="max-width: 300px; min-height: 80px; display: flex; align-items: center; justify-content: center;">
+                    {% if object.signature_type == 'typed' %}
+                        <span class="fs-4 fst-italic" style="font-family: 'Brush Script MT', cursive, serif;">
+                            {{ object.typed_name }}
+                        </span>
+                    {% elif object.signature_image %}
+                        <img src="{{ object.signature_image.url }}" alt="{% trans 'Signature preview' %}"
+                             class="img-fluid" style="max-height: 60px;">
+                    {% else %}
+                        <span class="text-muted">
+                            <i class="bi bi-pen display-6"></i>
+                        </span>
+                    {% endif %}
+                </div>
+
+                <p class="text-muted mb-4">
+                    {% blocktrans with label=object.label %}
+                    Are you sure you want to delete the signature <strong>"{{ label }}"</strong>? This action cannot be undone.
+                    {% endblocktrans %}
+                </p>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{% url 'signatures:user-signature-list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>{% trans "Cancel" %}
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash me-1"></i>{% trans "Delete Signature" %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% load i18n %}{% trans "Signature Declined" %}
+
+{% blocktrans with name=recipient.get_full_name %}Hello {{ name }},{% endblocktrans %}
+
+{% trans "A signer has declined to sign the following document:" %}
+
+{% trans "Document" %}: {{ packet.title }}
+{% trans "Declined By" %}: {{ declined_step.signer.get_full_name }}
+{% trans "Step" %}: {{ declined_step.flow_step.label }}
+{% trans "Reason" %}: {{ declined_step.decline_reason }}
+
+{% trans "View Details" %}: {{ detail_url }}
+
+{% trans "This is an automated message from the Grantify platform." %}

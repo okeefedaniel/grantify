@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     'financial.apps.FinancialConfig',
     'reporting.apps.ReportingConfig',
     'closeout.apps.CloseoutConfig',
+    'signatures.apps.SignaturesConfig',
 ]
 
 MIDDLEWARE = [

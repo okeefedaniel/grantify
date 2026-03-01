@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Placement Editor" %} — {{ document.title }}{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/signatures.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2><i class="bi bi-cursor me-2"></i>{% trans "Placement Editor" %}</h2>
+        <p class="text-muted mb-0">
+            {{ document.title }} &mdash; {{ flow.name }}
+            ({{ document.page_count }} {% trans "pages" %})
+        </p>
+    </div>
+    <a href="{% url 'signatures:flow-detail' flow.pk %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>{% trans "Back to Flow" %}
+    </a>
+</div>
+
+{% csrf_token %}
+
+<!-- Toolbar -->
+<div class="placement-toolbar mb-3">
+    <div class="row align-items-center g-2">
+        <div class="col-md-4">
+            <label class="form-label fw-semibold mb-1">{% trans "Signing Step" %}</label>
+            <select id="step-selector" class="form-select form-select-sm">
+                <option value="">-- {% trans "Select Step" %} --</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label fw-semibold mb-1">{% trans "Field Type" %}</label>
+            <div class="btn-group btn-group-sm w-100" role="group">
+                <button type="button" class="btn btn-outline-primary active" data-field-type="signature">
+                    <i class="bi bi-pen"></i> {% trans "Signature" %}
+                </button>
+                <button type="button" class="btn btn-outline-primary" data-field-type="initials">
+                    {% trans "Initials" %}
+                </button>
+                <button type="button" class="btn btn-outline-primary" data-field-type="date">
+                    <i class="bi bi-calendar"></i> {% trans "Date" %}
+                </button>
+                <button type="button" class="btn btn-outline-primary" data-field-type="name">
+                    {% trans "Name" %}
+                </button>
+            </div>
+        </div>
+        <div class="col-md-4 text-end">
+            <label class="form-label fw-semibold mb-1">&nbsp;</label>
+            <div>
+                <button id="save-placements" class="btn btn-primary btn-sm">
+                    <i class="bi bi-save me-1"></i>{% trans "Save Placements" %}
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="mt-2">
+        <small class="text-muted">
+            <i class="bi bi-info-circle me-1"></i>
+            {% trans "Select a step and field type, then click on the PDF to place a marker. Drag markers to reposition. Hover to delete." %}
+        </small>
+    </div>
+</div>
+
+<!-- Page Navigation -->
+<div class="pdf-page-nav d-flex justify-content-center align-items-center gap-3 mb-3">
+    <button id="prev-page" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-chevron-left"></i> {% trans "Previous" %}
+    </button>
+    <span id="page-info" class="fw-semibold">1 / 1</span>
+    <button id="next-page" class="btn btn-sm btn-outline-secondary">
+        {% trans "Next" %} <i class="bi bi-chevron-right"></i>
+    </button>
+</div>
+
+<!-- PDF Canvas + Markers -->
+<div class="text-center overflow-auto pb-4">
+    <div id="canvas-wrapper" class="placement-canvas d-inline-block position-relative">
+        <canvas id="pdf-canvas"></canvas>
+        <div id="markers-layer" style="position: absolute; top: 0; left: 0; cursor: crosshair;"></div>
+    </div>
+</div>
+
+<!-- Legend -->
+<div class="card shadow-sm mt-3">
+    <div class="card-body">
+        <h6 class="card-title">{% trans "Step Legend" %}</h6>
+        <div class="d-flex flex-wrap gap-3">
+            {% for step in steps %}
+            <span class="badge bg-light text-dark border" style="border-left: 4px solid
+                {% if step.order == 1 %}#1F64E5{% elif step.order == 2 %}#198754{% elif step.order == 3 %}#F27124{% elif step.order == 4 %}#6f42c1{% else %}#d63384{% endif %} !important;">
+                Step {{ step.order }}: {{ step.label }}
+            </span>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div id="placement-editor"
+     data-document-id="{{ document.pk }}"
+     data-api-url="{% url 'signatures:placement-api' document.pk %}"
+     data-pdf-url="{{ document.file.url }}"
+     data-placements="{{ placements_json }}"
+     data-steps="{{ steps_json }}">
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="{% static 'js/placement-editor.js' %}"></script>
+{% endblock %}

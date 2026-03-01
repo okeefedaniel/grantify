@@ -1,0 +1,247 @@
+/* ===================================================================
+   Signatures Module Styles
+   =================================================================== */
+
+/* Placement Editor */
+.placement-canvas {
+    position: relative;
+    display: inline-block;
+    border: 1px solid #dee2e6;
+    background: #f8f9fa;
+}
+
+.placement-marker {
+    position: absolute;
+    border: 2px dashed var(--ct-blue, #1F64E5);
+    background: rgba(31, 100, 229, 0.08);
+    cursor: move;
+    z-index: 10;
+    border-radius: 4px;
+    transition: border-color 0.15s, background-color 0.15s;
+    font-size: 0.7rem;
+    color: var(--ct-dark-blue, #00214D);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+    user-select: none;
+}
+
+.placement-marker:hover {
+    background: rgba(31, 100, 229, 0.15);
+}
+
+.placement-marker.active,
+.placement-marker.dragging {
+    border-color: var(--ct-orange, #F27124);
+    background: rgba(242, 113, 36, 0.12);
+    z-index: 20;
+}
+
+.placement-marker .resize-handle {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    background: var(--ct-blue, #1F64E5);
+    cursor: se-resize;
+    border-radius: 2px;
+}
+
+.placement-marker .delete-btn {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 18px;
+    height: 18px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 10px;
+    line-height: 18px;
+    text-align: center;
+    cursor: pointer;
+    display: none;
+    z-index: 30;
+    padding: 0;
+}
+
+.placement-marker:hover .delete-btn {
+    display: block;
+}
+
+/* Step color coding for placement markers */
+.placement-marker[data-step-order="1"] { border-color: #1F64E5; background: rgba(31, 100, 229, 0.08); }
+.placement-marker[data-step-order="2"] { border-color: #198754; background: rgba(25, 135, 84, 0.08); }
+.placement-marker[data-step-order="3"] { border-color: #F27124; background: rgba(242, 113, 36, 0.08); }
+.placement-marker[data-step-order="4"] { border-color: #6f42c1; background: rgba(111, 66, 193, 0.08); }
+.placement-marker[data-step-order="5"] { border-color: #d63384; background: rgba(214, 51, 132, 0.08); }
+
+/* Placement toolbar */
+.placement-toolbar {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+}
+
+/* PDF page navigation */
+.pdf-page-nav {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
+}
+
+/* Signature Pad */
+.signature-pad-wrapper {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    background: white;
+    position: relative;
+}
+
+.signature-pad-wrapper canvas {
+    width: 100%;
+    height: 200px;
+    display: block;
+    border-radius: 0.375rem;
+    touch-action: none;
+}
+
+.signature-pad-actions {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+}
+
+/* Typed signature preview */
+.typed-signature-preview {
+    font-family: 'Dancing Script', cursive, serif;
+    font-size: 2rem;
+    color: #1a1a2e;
+    padding: 1rem;
+    border-bottom: 2px solid #1a1a2e;
+    min-height: 60px;
+}
+
+/* Signature method tabs */
+.signature-method-tabs .nav-link {
+    color: var(--ct-dark-blue, #00214D);
+    border: 1px solid #dee2e6;
+}
+
+.signature-method-tabs .nav-link.active {
+    background-color: var(--ct-blue, #1F64E5);
+    color: white;
+    border-color: var(--ct-blue, #1F64E5);
+}
+
+/* Signing progress timeline */
+.signing-progress {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.signing-progress::before {
+    content: '';
+    position: absolute;
+    left: 0.75rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.signing-progress .step-item {
+    position: relative;
+    padding-bottom: 1.5rem;
+    padding-left: 1rem;
+}
+
+.signing-progress .step-item:last-child {
+    padding-bottom: 0;
+}
+
+.signing-progress .step-dot {
+    position: absolute;
+    left: -1.65rem;
+    top: 0.2rem;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    color: white;
+    z-index: 1;
+}
+
+.signing-progress .step-dot.pending { background: #6c757d; }
+.signing-progress .step-dot.active { background: var(--ct-blue, #1F64E5); animation: pulse 2s infinite; }
+.signing-progress .step-dot.signed { background: #198754; }
+.signing-progress .step-dot.declined { background: #dc3545; }
+.signing-progress .step-dot.skipped { background: #ffc107; }
+
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(31, 100, 229, 0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(31, 100, 229, 0); }
+}
+
+/* Signing highlight areas on PDF */
+.sign-here-marker {
+    position: absolute;
+    border: 3px solid var(--ct-orange, #F27124);
+    background: rgba(242, 113, 36, 0.15);
+    border-radius: 4px;
+    cursor: pointer;
+    animation: glow 2s ease-in-out infinite;
+    z-index: 10;
+}
+
+.sign-here-marker::after {
+    content: 'Sign Here';
+    position: absolute;
+    top: -20px;
+    left: 0;
+    font-size: 0.65rem;
+    color: var(--ct-orange, #F27124);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+@keyframes glow {
+    0%, 100% { box-shadow: 0 0 5px rgba(242, 113, 36, 0.3); }
+    50% { box-shadow: 0 0 15px rgba(242, 113, 36, 0.6); }
+}
+
+/* Upload area */
+.signature-upload-area {
+    border: 2px dashed #dee2e6;
+    border-radius: 0.375rem;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.signature-upload-area:hover {
+    border-color: var(--ct-blue, #1F64E5);
+    background: rgba(31, 100, 229, 0.03);
+}
+
+.signature-upload-area img {
+    max-height: 80px;
+    max-width: 100%;
+}
+
+/* Print styles */
+@media print {
+    .placement-toolbar,
+    .pdf-page-nav,
+    .signature-pad-actions { display: none !important; }
+}

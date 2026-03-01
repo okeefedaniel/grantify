@@ -1,0 +1,310 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block title %}{{ packet.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .signing-timeline {
+        position: relative;
+        padding-left: 2.5rem;
+    }
+    .signing-timeline::before {
+        content: '';
+        position: absolute;
+        left: 1rem;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background-color: #dee2e6;
+    }
+    .timeline-item {
+        position: relative;
+        padding-bottom: 1.5rem;
+    }
+    .timeline-item:last-child {
+        padding-bottom: 0;
+    }
+    .timeline-icon {
+        position: absolute;
+        left: -2.5rem;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        z-index: 1;
+    }
+    .timeline-icon.signed {
+        background-color: #198754;
+        color: #fff;
+    }
+    .timeline-icon.active {
+        background-color: #0d6efd;
+        color: #fff;
+        animation: pulse 2s infinite;
+    }
+    .timeline-icon.pending {
+        background-color: #dee2e6;
+        color: #6c757d;
+    }
+    .timeline-icon.declined {
+        background-color: #dc3545;
+        color: #fff;
+    }
+    .timeline-icon.skipped {
+        background-color: #6c757d;
+        color: #fff;
+    }
+    @keyframes pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.4); }
+        50% { box-shadow: 0 0 0 8px rgba(13, 110, 253, 0); }
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb" class="bg-light border-bottom">
+    <div class="container">
+        <ol class="breadcrumb mb-0 py-2">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% trans "Dashboard" %}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'signatures:packet-list' %}">{% trans "Signing Packets" %}</a></li>
+            <li class="breadcrumb-item active">{{ packet.title|truncatewords:5 }}</li>
+        </ol>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h1 class="fw-bold mb-1">{{ packet.title }}</h1>
+        <p class="text-muted mb-0">
+            {% if packet.status == 'completed' %}<span class="badge bg-success">{% trans "Completed" %}</span>
+            {% elif packet.status == 'in_progress' %}<span class="badge bg-primary">{% trans "In Progress" %}</span>
+            {% elif packet.status == 'declined' %}<span class="badge bg-danger">{% trans "Declined" %}</span>
+            {% elif packet.status == 'cancelled' %}<span class="badge bg-warning text-dark">{% trans "Cancelled" %}</span>
+            {% else %}<span class="badge bg-secondary">{% trans "Draft" %}</span>{% endif %}
+            &middot;
+            <i class="bi bi-diagram-3 me-1"></i>{{ packet.flow.name }}
+        </p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'signatures:packet-audit' packet.pk %}" class="btn btn-outline-secondary">
+            <i class="bi bi-clock-history me-1"></i>{% trans "Audit Trail" %}
+        </a>
+        {% if packet.status == 'in_progress' %}
+        <a href="{% url 'signatures:packet-cancel' packet.pk %}" class="btn btn-outline-danger">
+            <i class="bi bi-x-circle me-1"></i>{% trans "Cancel Packet" %}
+        </a>
+        {% endif %}
+        {% if packet.status == 'completed' and packet.signed_document %}
+        <a href="{{ packet.signed_document.url }}" class="btn btn-success" target="_blank">
+            <i class="bi bi-file-earmark-pdf me-1"></i>{% trans "Download Signed Document" %}
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Left Column: Details & Timeline -->
+    <div class="col-lg-8">
+        <!-- Packet Details -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0 fw-bold">
+                    <i class="bi bi-info-circle me-2"></i>{% trans "Packet Details" %}
+                </h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 text-muted">{% trans "Flow" %}</dt>
+                    <dd class="col-sm-8">
+                        <a href="{% url 'signatures:flow-detail' packet.flow.pk %}">{{ packet.flow.name }}</a>
+                    </dd>
+
+                    <dt class="col-sm-4 text-muted">{% trans "Initiated By" %}</dt>
+                    <dd class="col-sm-8">{{ packet.initiated_by.get_full_name|default:"--" }}</dd>
+
+                    <dt class="col-sm-4 text-muted">{% trans "Created" %}</dt>
+                    <dd class="col-sm-8">{{ packet.created_at|date:"M d, Y H:i" }}</dd>
+
+                    {% if packet.completed_at %}
+                    <dt class="col-sm-4 text-muted">{% trans "Completed" %}</dt>
+                    <dd class="col-sm-8">{{ packet.completed_at|date:"M d, Y H:i" }}</dd>
+                    {% endif %}
+
+                    {% if packet.cancelled_at %}
+                    <dt class="col-sm-4 text-muted">{% trans "Cancelled" %}</dt>
+                    <dd class="col-sm-8">
+                        {{ packet.cancelled_at|date:"M d, Y H:i" }}
+                        {% if packet.cancelled_by %}
+                            {% blocktrans with name=packet.cancelled_by.get_full_name %}by {{ name }}{% endblocktrans %}
+                        {% endif %}
+                    </dd>
+                    {% endif %}
+
+                    {% if packet.cancel_reason %}
+                    <dt class="col-sm-4 text-muted">{% trans "Cancel Reason" %}</dt>
+                    <dd class="col-sm-8">{{ packet.cancel_reason }}</dd>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+
+        <!-- Signing Progress Timeline -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0 fw-bold">
+                    <i class="bi bi-signpost me-2"></i>{% trans "Signing Progress" %}
+                </h5>
+            </div>
+            <div class="card-body">
+                {% with progress=packet.progress %}
+                <div class="d-flex align-items-center mb-4">
+                    <div class="progress flex-grow-1 me-3" style="height: 10px;">
+                        {% if progress.1 > 0 %}
+                        <div class="progress-bar bg-success" role="progressbar"
+                             style="width: {% widthratio progress.0 progress.1 100 %}%"
+                             aria-valuenow="{{ progress.0 }}"
+                             aria-valuemin="0"
+                             aria-valuemax="{{ progress.1 }}">
+                        </div>
+                        {% endif %}
+                    </div>
+                    <span class="fw-semibold">{{ progress.0 }}/{{ progress.1 }} {% trans "signed" %}</span>
+                </div>
+                {% endwith %}
+
+                <div class="signing-timeline">
+                    {% for step in signing_steps %}
+                    <div class="timeline-item">
+                        <div class="timeline-icon {% if step.status == 'signed' %}signed{% elif step.status == 'active' %}active{% elif step.status == 'declined' %}declined{% elif step.status == 'skipped' %}skipped{% else %}pending{% endif %}">
+                            {% if step.status == 'signed' %}
+                                <i class="bi bi-check-lg"></i>
+                            {% elif step.status == 'active' %}
+                                <i class="bi bi-pen"></i>
+                            {% elif step.status == 'declined' %}
+                                <i class="bi bi-x-lg"></i>
+                            {% elif step.status == 'skipped' %}
+                                <i class="bi bi-skip-forward"></i>
+                            {% else %}
+                                <i class="bi bi-hourglass"></i>
+                            {% endif %}
+                        </div>
+                        <div class="card border-0 bg-light">
+                            <div class="card-body py-2 px-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="fw-semibold">{% trans "Step" %} {{ step.order }}: {{ step.flow_step.label }}</span>
+                                        <br>
+                                        <small class="text-muted">
+                                            <i class="bi bi-person me-1"></i>{{ step.signer.get_full_name }}
+                                        </small>
+                                    </div>
+                                    <div class="text-end">
+                                        {% if step.status == 'signed' %}
+                                            <span class="badge bg-success">{% trans "Signed" %}</span>
+                                            {% if step.signed_at %}
+                                            <br><small class="text-muted">{{ step.signed_at|date:"M d, Y H:i" }}</small>
+                                            {% endif %}
+                                        {% elif step.status == 'active' %}
+                                            <span class="badge bg-primary">{% trans "Awaiting Signature" %}</span>
+                                        {% elif step.status == 'declined' %}
+                                            <span class="badge bg-danger">{% trans "Declined" %}</span>
+                                            {% if step.declined_at %}
+                                            <br><small class="text-muted">{{ step.declined_at|date:"M d, Y H:i" }}</small>
+                                            {% endif %}
+                                        {% elif step.status == 'skipped' %}
+                                            <span class="badge bg-secondary">{% trans "Skipped" %}</span>
+                                        {% else %}
+                                            <span class="badge bg-light text-dark border">{% trans "Pending" %}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% if step.status == 'declined' and step.decline_reason %}
+                                <div class="mt-2">
+                                    <small class="text-danger">
+                                        <i class="bi bi-chat-left-text me-1"></i>{{ step.decline_reason }}
+                                    </small>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Summary -->
+    <div class="col-lg-4">
+        <!-- Quick Stats -->
+        <div class="card shadow-sm mb-4 border-start border-4 border-primary">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0 fw-bold">
+                    <i class="bi bi-speedometer2 me-2"></i>{% trans "Summary" %}
+                </h5>
+            </div>
+            <div class="card-body">
+                {% with progress=packet.progress %}
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">{% trans "Total Steps" %}</span>
+                    <span class="fw-bold">{{ progress.1 }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">{% trans "Signed" %}</span>
+                    <span class="fw-bold text-success">{{ progress.0 }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">{% trans "Remaining" %}</span>
+                    {% with remaining=progress.1|add:"-"|add:progress.0|default:0 %}
+                    <span class="fw-bold">{{ remaining }}</span>
+                    {% endwith %}
+                </div>
+                {% endwith %}
+            </div>
+        </div>
+
+        <!-- Signed Document -->
+        {% if packet.status == 'completed' and packet.signed_document %}
+        <div class="card shadow-sm mb-4 border-start border-4 border-success">
+            <div class="card-body text-center">
+                <i class="bi bi-file-earmark-check display-4 text-success d-block mb-2"></i>
+                <h6 class="fw-bold">{% trans "Signed Document Available" %}</h6>
+                <p class="text-muted small">{% trans "All signers have completed their signatures." %}</p>
+                <a href="{{ packet.signed_document.url }}" class="btn btn-success" target="_blank">
+                    <i class="bi bi-download me-1"></i>{% trans "Download PDF" %}
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Current Step Info -->
+        {% if packet.current_step %}
+        <div class="card shadow-sm mb-4 border-start border-4 border-warning">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0 fw-bold">
+                    <i class="bi bi-hourglass-split me-2"></i>{% trans "Current Step" %}
+                </h5>
+            </div>
+            <div class="card-body">
+                <h6 class="fw-bold">{{ packet.current_step.flow_step.label }}</h6>
+                <p class="text-muted small mb-2">
+                    <i class="bi bi-person me-1"></i>{{ packet.current_step.signer.get_full_name }}
+                </p>
+                <p class="text-muted small mb-0">
+                    <i class="bi bi-envelope me-1"></i>{{ packet.current_step.signer.email }}
+                </p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

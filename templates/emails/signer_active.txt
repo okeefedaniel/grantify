@@ -1,0 +1,13 @@
+{% load i18n %}{% trans "Signature Required" %}
+
+{% blocktrans with name=signer.get_full_name %}Hello {{ name }},{% endblocktrans %}
+
+{% trans "You have been asked to review and sign a document." %}
+
+{% trans "Document" %}: {{ packet.title }}
+{% trans "Step" %}: {{ step.flow_step.label }} ({% trans "Step" %} {{ step.order }})
+{% trans "Initiated By" %}: {{ packet.initiated_by.get_full_name }}
+
+{% trans "Review & Sign" %}: {{ sign_url }}
+
+{% trans "This is an automated message from the Grantify platform." %}

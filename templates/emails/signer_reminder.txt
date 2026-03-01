@@ -1,0 +1,12 @@
+{% load i18n %}{% trans "Reminder: Signature Needed" %}
+
+{% blocktrans with name=signer.get_full_name %}Hello {{ name }},{% endblocktrans %}
+
+{% trans "This is a reminder that you have a document awaiting your signature." %}
+
+{% trans "Document" %}: {{ packet.title }}
+{% trans "Step" %}: {{ step.flow_step.label }} ({% trans "Step" %} {{ step.order }})
+
+{% trans "Review & Sign Now" %}: {{ sign_url }}
+
+{% trans "This is an automated message from the Grantify platform." %}

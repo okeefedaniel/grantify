@@ -1,0 +1,224 @@
+from django import forms
+from django.utils.translation import gettext_lazy as _
+
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Fieldset, Layout, Row, Column, Submit
+
+from .models import SignatureDocument, SignatureFlow, SignatureFlowStep
+
+
+class SignatureFlowForm(forms.ModelForm):
+    class Meta:
+        model = SignatureFlow
+        fields = ['name', 'description', 'grant_program', 'is_active']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            Fieldset(
+                _('Signature Flow'),
+                'name',
+                'description',
+                'grant_program',
+                'is_active',
+            ),
+            Submit('submit', _('Save Flow'), css_class='btn-primary'),
+        )
+
+
+class FlowStepForm(forms.ModelForm):
+    class Meta:
+        model = SignatureFlowStep
+        fields = ['order', 'label', 'assignment_type', 'assigned_user', 'assigned_role', 'is_required']
+        widgets = {
+            'order': forms.NumberInput(attrs={'min': 1}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.flow = kwargs.pop('flow', None)
+        super().__init__(*args, **kwargs)
+        # Filter assigned_user to agency staff only
+        from core.models import User
+        staff_roles = [
+            User.Role.SYSTEM_ADMIN,
+            User.Role.AGENCY_ADMIN,
+            User.Role.PROGRAM_OFFICER,
+            User.Role.FISCAL_OFFICER,
+            User.Role.FEDERAL_COORDINATOR,
+            User.Role.REVIEWER,
+        ]
+        self.fields['assigned_user'].queryset = User.objects.filter(
+            role__in=staff_roles,
+        ).order_by('last_name', 'first_name')
+        self.fields['assigned_role'].widget = forms.Select(
+            choices=[('', '---------')] + [
+                (role.value, role.label) for role in User.Role
+                if role.value in [r.value for r in staff_roles]
+            ],
+        )
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            Fieldset(
+                _('Signing Step'),
+                Row(
+                    Column('order', css_class='col-md-2'),
+                    Column('label', css_class='col-md-10'),
+                ),
+                Row(
+                    Column('assignment_type', css_class='col-md-4'),
+                    Column('assigned_user', css_class='col-md-4'),
+                    Column('assigned_role', css_class='col-md-4'),
+                ),
+                'is_required',
+            ),
+            Submit('submit', _('Save Step'), css_class='btn-primary'),
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        assignment_type = cleaned_data.get('assignment_type')
+        if assignment_type == SignatureFlowStep.AssignmentType.USER:
+            if not cleaned_data.get('assigned_user'):
+                self.add_error('assigned_user', _('A user is required when assignment type is "Specific User".'))
+        elif assignment_type == SignatureFlowStep.AssignmentType.ROLE:
+            if not cleaned_data.get('assigned_role'):
+                self.add_error('assigned_role', _('A role is required when assignment type is "Role".'))
+        return cleaned_data
+
+
+class SignatureDocumentForm(forms.ModelForm):
+    class Meta:
+        model = SignatureDocument
+        fields = ['title', 'description', 'file']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.attrs = {'enctype': 'multipart/form-data'}
+        self.helper.layout = Layout(
+            Fieldset(
+                _('Upload Document'),
+                'title',
+                'description',
+                'file',
+            ),
+            Submit('submit', _('Upload'), css_class='btn-primary'),
+        )
+
+    def clean_file(self):
+        f = self.cleaned_data.get('file')
+        if f:
+            if not f.name.lower().endswith('.pdf'):
+                raise forms.ValidationError(_('Only PDF files are accepted.'))
+            if f.content_type != 'application/pdf':
+                raise forms.ValidationError(_('Only PDF files are accepted.'))
+        return f
+
+
+class PacketInitiateForm(forms.Form):
+    """Dynamic form — renders one user selector per flow step."""
+
+    title = forms.CharField(
+        max_length=255,
+        label=_('Packet Title'),
+        help_text=_('Descriptive title for this signing session.'),
+    )
+
+    def __init__(self, *args, flow=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.flow = flow
+        if flow:
+            from core.models import User
+            staff_roles = [
+                User.Role.SYSTEM_ADMIN,
+                User.Role.AGENCY_ADMIN,
+                User.Role.PROGRAM_OFFICER,
+                User.Role.FISCAL_OFFICER,
+                User.Role.FEDERAL_COORDINATOR,
+                User.Role.REVIEWER,
+            ]
+            staff_qs = User.objects.filter(
+                role__in=staff_roles,
+            ).order_by('last_name', 'first_name')
+
+            for step in flow.steps.all():
+                field_name = f'signer_{step.pk}'
+                if step.assignment_type == SignatureFlowStep.AssignmentType.USER and step.assigned_user:
+                    # Pre-assigned user — show as read-only
+                    self.fields[field_name] = forms.ModelChoiceField(
+                        queryset=User.objects.filter(pk=step.assigned_user_id),
+                        initial=step.assigned_user,
+                        label=f"Step {step.order}: {step.label}",
+                        required=step.is_required,
+                    )
+                else:
+                    # Role-based or unassigned — show dropdown
+                    qs = staff_qs
+                    if step.assigned_role:
+                        qs = qs.filter(role=step.assigned_role)
+                    self.fields[field_name] = forms.ModelChoiceField(
+                        queryset=qs,
+                        label=f"Step {step.order}: {step.label}",
+                        required=step.is_required,
+                        help_text=_(
+                            'Select the signer for this step (role: %(role)s).'
+                        ) % {'role': step.get_assigned_role_display() if step.assigned_role else _('any staff')},
+                    )
+
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.add_input(Submit('submit', _('Start Signing'), css_class='btn-primary'))
+
+
+class SigningForm(forms.Form):
+    """Form for capturing a signature."""
+
+    SIGNATURE_CHOICES = [
+        ('typed', _('Type my name')),
+        ('uploaded', _('Upload an image')),
+        ('drawn', _('Draw my signature')),
+    ]
+
+    signature_type = forms.ChoiceField(
+        choices=SIGNATURE_CHOICES,
+        widget=forms.RadioSelect,
+        label=_('Signature Method'),
+    )
+    typed_name = forms.CharField(
+        max_length=255,
+        required=False,
+        label=_('Type your full name'),
+    )
+    signature_image = forms.FileField(
+        required=False,
+        label=_('Upload signature image'),
+        help_text=_('PNG or JPG file of your signature.'),
+    )
+    drawn_data = forms.CharField(
+        widget=forms.HiddenInput,
+        required=False,
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        sig_type = cleaned_data.get('signature_type')
+        if sig_type == 'typed' and not cleaned_data.get('typed_name'):
+            self.add_error('typed_name', _('Please type your name.'))
+        elif sig_type == 'uploaded' and not cleaned_data.get('signature_image'):
+            self.add_error('signature_image', _('Please upload a signature image.'))
+        elif sig_type == 'drawn' and not cleaned_data.get('drawn_data'):
+            self.add_error('drawn_data', _('Please draw your signature.'))
+        return cleaned_data
+
+
+class DeclineForm(forms.Form):
+    """Form for declining to sign."""
+    decline_reason = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 3}),
+        label=_('Reason for declining'),
+        help_text=_('Please explain why you are declining to sign.'),
+    )

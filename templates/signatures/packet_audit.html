@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block title %}{% trans "Audit Trail" %} - {{ packet.title }}{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb" class="bg-light border-bottom">
+    <div class="container">
+        <ol class="breadcrumb mb-0 py-2">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% trans "Dashboard" %}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'signatures:packet-list' %}">{% trans "Signing Packets" %}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'signatures:packet-detail' packet.pk %}">{{ packet.title|truncatewords:5 }}</a></li>
+            <li class="breadcrumb-item active">{% trans "Audit Trail" %}</li>
+        </ol>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="fw-bold mb-1">
+            <i class="bi bi-clock-history me-2"></i>{% trans "Audit Trail" %}
+        </h1>
+        <p class="text-muted mb-0">
+            {{ packet.title }} &middot;
+            {% if packet.status == 'completed' %}<span class="badge bg-success">{% trans "Completed" %}</span>
+            {% elif packet.status == 'in_progress' %}<span class="badge bg-primary">{% trans "In Progress" %}</span>
+            {% elif packet.status == 'declined' %}<span class="badge bg-danger">{% trans "Declined" %}</span>
+            {% elif packet.status == 'cancelled' %}<span class="badge bg-warning text-dark">{% trans "Cancelled" %}</span>
+            {% else %}<span class="badge bg-secondary">{% trans "Draft" %}</span>{% endif %}
+        </p>
+    </div>
+    <a href="{% url 'signatures:packet-detail' packet.pk %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>{% trans "Back to Packet" %}
+    </a>
+</div>
+
+<!-- Packet Summary Card -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <small class="text-muted d-block">{% trans "Flow" %}</small>
+                <span class="fw-semibold">{{ packet.flow.name }}</span>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted d-block">{% trans "Initiated By" %}</small>
+                <span class="fw-semibold">{{ packet.initiated_by.get_full_name|default:"--" }}</span>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted d-block">{% trans "Created" %}</small>
+                <span class="fw-semibold">{{ packet.created_at|date:"M d, Y H:i" }}</span>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted d-block">{% trans "Progress" %}</small>
+                {% with progress=packet.progress %}
+                <span class="fw-semibold">{{ progress.0 }}/{{ progress.1 }} {% trans "signed" %}</span>
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Audit Entries Table -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <h5 class="card-title mb-0 fw-bold">
+            <i class="bi bi-journal-text me-2"></i>{% trans "Activity Log" %}
+        </h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 200px;">{% trans "Timestamp" %}</th>
+                    <th style="width: 180px;">{% trans "User" %}</th>
+                    <th style="width: 160px;">{% trans "Action" %}</th>
+                    <th>{% trans "Description" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in audit_entries %}
+                <tr>
+                    <td>
+                        <span class="text-muted small">
+                            <i class="bi bi-clock me-1"></i>{{ entry.timestamp|date:"M d, Y H:i:s" }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if entry.user %}
+                            <i class="bi bi-person me-1"></i>{{ entry.user.get_full_name }}
+                        {% else %}
+                            <span class="text-muted"><i class="bi bi-gear me-1"></i>{% trans "System" %}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if entry.action == 'created' %}
+                            <span class="badge bg-info text-dark"><i class="bi bi-plus-circle me-1"></i>{% trans "Created" %}</span>
+                        {% elif entry.action == 'signed' %}
+                            <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>{% trans "Signed" %}</span>
+                        {% elif entry.action == 'declined' %}
+                            <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>{% trans "Declined" %}</span>
+                        {% elif entry.action == 'cancelled' %}
+                            <span class="badge bg-warning text-dark"><i class="bi bi-slash-circle me-1"></i>{% trans "Cancelled" %}</span>
+                        {% elif entry.action == 'completed' %}
+                            <span class="badge bg-success"><i class="bi bi-flag me-1"></i>{% trans "Completed" %}</span>
+                        {% elif entry.action == 'reminded' %}
+                            <span class="badge bg-secondary"><i class="bi bi-bell me-1"></i>{% trans "Reminded" %}</span>
+                        {% elif entry.action == 'viewed' %}
+                            <span class="badge bg-light text-dark border"><i class="bi bi-eye me-1"></i>{% trans "Viewed" %}</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ entry.action }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ entry.description }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center py-5 text-muted">
+                        <i class="bi bi-clock-history display-4 d-block mb-3"></i>
+                        <p class="mb-0">{% trans "No audit entries recorded yet." %}</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% load i18n %}<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f4f4f4;">
+    <div style="background-color: #00457C; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+        <h1 style="margin: 0; font-size: 24px; font-weight: 600;">{% trans "Grantify" %}</h1>
+        <p style="margin: 5px 0 0; font-size: 14px; opacity: 0.9;">{% trans "State Grants Management Solution" %}</p>
+    </div>
+    <div style="padding: 30px; background: #ffffff; border: 1px solid #e0e0e0; border-top: none;">
+        <h2 style="color: #dc3545; margin-top: 0; font-size: 20px;">{% trans "Signature Declined" %}</h2>
+
+        {% blocktrans with name=recipient.get_full_name %}
+        <p>Hello {{ name }},</p>
+        {% endblocktrans %}
+
+        <p>{% trans "A signer has declined to sign the following document:" %}</p>
+
+        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+            <tr>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #eee; font-weight: bold; color: #555; width: 40%;">{% trans "Document" %}</td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #eee;"><strong>{{ packet.title }}</strong></td>
+            </tr>
+            <tr>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #eee; font-weight: bold; color: #555;">{% trans "Declined By" %}</td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #eee; color: #dc3545; font-weight: bold;">{{ declined_step.signer.get_full_name }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #eee; font-weight: bold; color: #555;">{% trans "Step" %}</td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #eee;">{{ declined_step.flow_step.label }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #eee; font-weight: bold; color: #555;">{% trans "Reason" %}</td>
+                <td style="padding: 10px 12px; border-bottom: 1px solid #eee;">{{ declined_step.decline_reason }}</td>
+            </tr>
+        </table>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{ detail_url }}" style="display: inline-block; background-color: #00457C; color: white; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-weight: 600; font-size: 16px;">{% trans "View Details" %}</a>
+        </div>
+    </div>
+    <div style="padding: 15px 20px; text-align: center; color: #888; font-size: 12px; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 8px 8px; background: #fafafa;">
+        <p style="margin: 0;">{% trans "This is an automated message from the Grantify platform." %}</p>
+    </div>
+</body>
+</html>

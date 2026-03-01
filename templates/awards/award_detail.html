@@ -545,8 +545,13 @@
             <div class="d-flex gap-2">
                 {% if award.status == 'approved' and user.can_manage_grants %}
                 <a href="{% url 'awards:signature_request' award.pk %}" class="btn btn-sm btn-success">
-                    <i class="bi bi-pen me-1"></i>{% trans "Request Signature" %}
+                    <i class="bi bi-pen me-1"></i>{% trans "Request Signature (DocuSign)" %}
                 </a>
+                {% if signature_flow %}
+                <a href="{% url 'signatures:packet-initiate' signature_flow.pk %}" class="btn btn-sm btn-outline-success">
+                    <i class="bi bi-diagram-3 me-1"></i>{% trans "Start Signing Flow" %}
+                </a>
+                {% endif %}
                 {% endif %}
                 <a href="{% url 'awards:document-upload' award.pk %}" class="btn btn-sm btn-primary">
                     <i class="bi bi-upload me-1"></i>{% trans "Upload Document" %}
@@ -606,6 +611,77 @@
                                     <span class="text-muted small">
                                         <i class="bi bi-hourglass-split me-1"></i>{% trans "Awaiting signature" %}
                                     </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Native Signing Packets -->
+        {% if signing_packets %}
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0 fw-bold">
+                    <i class="bi bi-diagram-3 me-1"></i>{% trans "Signing Packets" %}
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>{% trans "Title" %}</th>
+                                <th>{% trans "Flow" %}</th>
+                                <th>{% trans "Status" %}</th>
+                                <th>{% trans "Progress" %}</th>
+                                <th>{% trans "Initiated" %}</th>
+                                <th class="text-center">{% trans "Actions" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pkt in signing_packets %}
+                            <tr>
+                                <td class="fw-semibold">{{ pkt.title }}</td>
+                                <td>{{ pkt.flow.name }}</td>
+                                <td>
+                                    {% if pkt.status == 'completed' %}
+                                        <span class="badge bg-success">{% trans "Completed" %}</span>
+                                    {% elif pkt.status == 'in_progress' %}
+                                        <span class="badge bg-primary">{% trans "In Progress" %}</span>
+                                    {% elif pkt.status == 'declined' %}
+                                        <span class="badge bg-danger">{% trans "Declined" %}</span>
+                                    {% elif pkt.status == 'cancelled' %}
+                                        <span class="badge bg-warning text-dark">{% trans "Cancelled" %}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ pkt.get_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% with progress=pkt.progress %}
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="progress flex-grow-1" style="height: 8px;">
+                                            {% if progress.1 > 0 %}
+                                            <div class="progress-bar bg-success" style="width: {% widthratio progress.0 progress.1 100 %}%"></div>
+                                            {% endif %}
+                                        </div>
+                                        <small class="text-muted">{{ progress.0 }}/{{ progress.1 }}</small>
+                                    </div>
+                                    {% endwith %}
+                                </td>
+                                <td>{{ pkt.created_at|date:"M d, Y" }}</td>
+                                <td class="text-center">
+                                    <a href="{% url 'signatures:packet-detail' pkt.pk %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye me-1"></i>{% trans "View" %}
+                                    </a>
+                                    {% if pkt.signed_document %}
+                                    <a href="{{ pkt.signed_document.url }}" class="btn btn-sm btn-outline-success" target="_blank">
+                                        <i class="bi bi-download me-1"></i>{% trans "Signed PDF" %}
+                                    </a>
                                     {% endif %}
                                 </td>
                             </tr>

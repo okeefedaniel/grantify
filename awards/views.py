@@ -181,6 +181,22 @@ class AwardDetailView(LoginRequiredMixin, DetailView):
             }
         )
 
+        # Native signing flow (signatures app)
+        from signatures.models import SignatureFlow, SigningPacket
+        from django.contrib.contenttypes.models import ContentType
+        context['signature_flow'] = (
+            SignatureFlow.objects
+            .filter(grant_program=award.grant_program, is_active=True)
+            .first()
+        )
+        award_ct = ContentType.objects.get_for_model(Award)
+        context['signing_packets'] = (
+            SigningPacket.objects
+            .filter(content_type=award_ct, object_id=str(award.pk))
+            .select_related('flow', 'initiated_by')
+            .order_by('-created_at')
+        )
+
         return context
 
 

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block title %}{% trans "Saved Signatures" %}{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb" class="bg-light border-bottom">
+    <div class="container">
+        <ol class="breadcrumb mb-0 py-2">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% trans "Dashboard" %}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'signatures:my-signatures' %}">{% trans "My Signatures" %}</a></li>
+            <li class="breadcrumb-item active">{% trans "Saved Signatures" %}</li>
+        </ol>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="fw-bold mb-0">
+        <i class="bi bi-person-badge me-2"></i>{% trans "Saved Signatures" %}
+    </h1>
+    <a href="{% url 'signatures:user-signature-create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>{% trans "Create Signature" %}
+    </a>
+</div>
+
+<div class="row g-4">
+    {% for signature in signatures %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm mb-4 h-100 {% if signature.is_default %}border-primary border-2{% endif %}">
+            {% if signature.is_default %}
+            <div class="card-header bg-primary text-white py-1 text-center">
+                <small class="fw-bold"><i class="bi bi-star-fill me-1"></i>{% trans "Default" %}</small>
+            </div>
+            {% endif %}
+            <div class="card-body text-center">
+                <div class="mb-3 p-3 bg-light rounded" style="min-height: 100px; display: flex; align-items: center; justify-content: center;">
+                    {% if signature.signature_type == 'typed' %}
+                        <span class="fs-3 fst-italic" style="font-family: 'Brush Script MT', cursive, serif;">
+                            {{ signature.typed_name }}
+                        </span>
+                    {% elif signature.signature_image %}
+                        <img src="{{ signature.signature_image.url }}" alt="{% trans 'Signature preview' %}"
+                             class="img-fluid" style="max-height: 80px;">
+                    {% else %}
+                        <span class="text-muted">
+                            <i class="bi bi-pen display-6"></i>
+                        </span>
+                    {% endif %}
+                </div>
+
+                <h6 class="fw-bold mb-1">{{ signature.label }}</h6>
+                <p class="text-muted small mb-3">
+                    {% if signature.signature_type == 'typed' %}
+                        <i class="bi bi-type me-1"></i>{% trans "Typed" %}
+                    {% elif signature.signature_type == 'uploaded' %}
+                        <i class="bi bi-upload me-1"></i>{% trans "Uploaded" %}
+                    {% elif signature.signature_type == 'drawn' %}
+                        <i class="bi bi-brush me-1"></i>{% trans "Drawn" %}
+                    {% endif %}
+                    &middot; {{ signature.updated_at|date:"M d, Y" }}
+                </p>
+
+                <div class="d-flex justify-content-center gap-2">
+                    {% if not signature.is_default %}
+                    <form method="post" action="{% url 'signatures:user-signature-set-default' signature.pk %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-primary" title="{% trans 'Set as Default' %}">
+                            <i class="bi bi-star me-1"></i>{% trans "Set Default" %}
+                        </button>
+                    </form>
+                    {% endif %}
+                    <a href="{% url 'signatures:user-signature-delete' signature.pk %}" class="btn btn-sm btn-outline-danger"
+                       title="{% trans 'Delete' %}">
+                        <i class="bi bi-trash me-1"></i>{% trans "Delete" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-person-badge display-4 d-block mb-3 text-muted"></i>
+                <h5 class="text-muted mb-3">{% trans "No saved signatures yet" %}</h5>
+                <p class="text-muted mb-4">{% trans "Create a signature to use when signing documents. You can type your name, upload an image, or draw your signature." %}</p>
+                <a href="{% url 'signatures:user-signature-create' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-lg me-1"></i>{% trans "Create Your First Signature" %}
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

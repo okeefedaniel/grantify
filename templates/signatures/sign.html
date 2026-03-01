@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Sign Document" %} — {{ packet.title }}{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/signatures.css' %}" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Left: Document Viewer -->
+    <div class="col-lg-7 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-file-earmark-pdf me-2"></i>{{ packet.title }}</h5>
+                <button id="jump-to-sign" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-cursor me-1"></i>{% trans "Jump to Signature" %}
+                </button>
+            </div>
+            <div class="card-body p-0">
+                <!-- Page Navigation -->
+                <div class="pdf-page-nav d-flex justify-content-center align-items-center gap-3 py-2 border-bottom">
+                    <button id="signing-prev-page" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <span id="signing-page-info" class="fw-semibold small">1 / 1</span>
+                    <button id="signing-next-page" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+                <!-- PDF Canvas -->
+                <div class="text-center overflow-auto p-2" style="max-height: 70vh;">
+                    {% for doc in documents %}
+                    <div id="signing-viewer"
+                         data-pdf-url="{{ doc.file.url }}"
+                         data-placements="{{ placements_json }}">
+                        <div id="signing-canvas-wrapper" class="d-inline-block position-relative">
+                            <canvas id="signing-canvas"></canvas>
+                            <div id="signing-markers-layer" style="position: absolute; top: 0; left: 0;"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Signature Capture -->
+    <div class="col-lg-5">
+        <!-- Step Info -->
+        <div class="card shadow-sm mb-3">
+            <div class="card-body">
+                <h6 class="card-title text-muted mb-1">{% trans "Signing Step" %} {{ step.order }}</h6>
+                <h5 class="mb-2">{{ step.flow_step.label }}</h5>
+                <p class="mb-0 text-muted small">
+                    {% trans "Initiated by" %} {{ packet.initiated_by.get_full_name }}
+                    &mdash; {{ packet.created_at|date:"M d, Y" }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Signature Capture -->
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-pen me-2"></i>{% trans "Your Signature" %}</h5>
+            </div>
+            <div class="card-body">
+                <form id="signing-form" method="post" action="{% url 'signatures:sign-complete' step.pk %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <!-- Hidden radio for signature_type (set by JS) -->
+                    <div class="d-none">
+                        <input type="radio" name="signature_type" value="typed" checked>
+                        <input type="radio" name="signature_type" value="uploaded">
+                        <input type="radio" name="signature_type" value="drawn">
+                    </div>
+
+                    <!-- Method Tabs -->
+                    <ul class="nav nav-pills signature-method-tabs mb-3" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#" data-sig-method="typed">
+                                <i class="bi bi-type me-1"></i>{% trans "Type" %}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-sig-method="uploaded">
+                                <i class="bi bi-upload me-1"></i>{% trans "Upload" %}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-sig-method="drawn">
+                                <i class="bi bi-pencil me-1"></i>{% trans "Draw" %}
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Type Panel -->
+                    <div class="sig-panel" data-sig-panel="typed">
+                        <div class="mb-3">
+                            <label for="id_typed_name" class="form-label">{% trans "Type your full name" %}</label>
+                            <input type="text" name="typed_name" id="id_typed_name" class="form-control"
+                                   placeholder="{{ request.user.get_full_name }}"
+                                   value="{{ request.user.get_full_name }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">{% trans "Preview" %}</label>
+                            <div id="typed-preview" class="typed-signature-preview">
+                                {{ request.user.get_full_name }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upload Panel -->
+                    <div class="sig-panel" data-sig-panel="uploaded" style="display: none;">
+                        <div class="mb-3">
+                            <label for="id_signature_image" class="form-label">{% trans "Upload signature image" %}</label>
+                            <input type="file" name="signature_image" id="id_signature_image"
+                                   class="form-control" accept="image/png,image/jpeg">
+                            <div class="form-text">{% trans "PNG or JPG file of your signature." %}</div>
+                        </div>
+                        <div id="upload-preview" class="signature-upload-area mb-3">
+                            <i class="bi bi-cloud-upload fs-3 text-muted"></i>
+                            <p class="text-muted small mb-0">{% trans "Upload preview will appear here" %}</p>
+                        </div>
+                    </div>
+
+                    <!-- Draw Panel -->
+                    <div class="sig-panel" data-sig-panel="drawn" style="display: none;">
+                        <div class="mb-3">
+                            <label class="form-label">{% trans "Draw your signature" %}</label>
+                            <div class="signature-pad-wrapper">
+                                <canvas id="signature-canvas"></canvas>
+                                <div class="signature-pad-actions">
+                                    <button type="button" id="sig-clear" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-eraser me-1"></i>{% trans "Clear" %}
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="form-text">{% trans "Use your mouse or finger to draw your signature." %}</div>
+                        </div>
+                        <input type="hidden" name="drawn_data" id="id_drawn_data">
+                    </div>
+
+                    {% if saved_signatures %}
+                    <hr>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">{% trans "Saved Signatures" %}</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for sig in saved_signatures %}
+                            <button type="button" class="btn btn-sm btn-outline-secondary"
+                                    data-apply-signature
+                                    data-sig-type="{{ sig.signature_type }}"
+                                    data-sig-value="{{ sig.typed_name }}">
+                                <i class="bi bi-bookmark me-1"></i>{{ sig.label }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <hr>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-check-circle me-2"></i>{% trans "Sign & Submit" %}
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Decline option -->
+                <div class="mt-3 text-center">
+                    <button class="btn btn-link text-danger btn-sm" data-bs-toggle="collapse" data-bs-target="#declineSection">
+                        <i class="bi bi-x-circle me-1"></i>{% trans "Decline to Sign" %}
+                    </button>
+                    <div id="declineSection" class="collapse mt-2">
+                        <form method="post" action="{% url 'signatures:sign-decline' step.pk %}">
+                            {% csrf_token %}
+                            <div class="mb-2">
+                                <textarea name="decline_reason" class="form-control" rows="2"
+                                          placeholder="{% trans 'Reason for declining...' %}" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                <i class="bi bi-x-circle me-1"></i>{% trans "Confirm Decline" %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@5.0.4/dist/signature_pad.umd.min.js"></script>
+<script src="{% static 'js/signing-view.js' %}"></script>
+<script src="{% static 'js/signature-pad.js' %}"></script>
+{% endblock %}

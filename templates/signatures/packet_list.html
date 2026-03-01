@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block title %}{% trans "Signing Packets" %}{% endblock %}
+
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb" class="bg-light border-bottom">
+    <div class="container">
+        <ol class="breadcrumb mb-0 py-2">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% trans "Dashboard" %}</a></li>
+            <li class="breadcrumb-item active">{% trans "Signing Packets" %}</li>
+        </ol>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="fw-bold mb-0">
+        <i class="bi bi-envelope-paper me-2"></i>{% trans "Signing Packets" %}
+    </h1>
+</div>
+
+<!-- Filter Bar -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label for="status" class="form-label fw-semibold">{% trans "Status" %}</label>
+                <select name="status" id="status" class="form-select">
+                    <option value="">{% trans "All Statuses" %}</option>
+                    <option value="draft" {% if request.GET.status == 'draft' %}selected{% endif %}>{% trans "Draft" %}</option>
+                    <option value="in_progress" {% if request.GET.status == 'in_progress' %}selected{% endif %}>{% trans "In Progress" %}</option>
+                    <option value="completed" {% if request.GET.status == 'completed' %}selected{% endif %}>{% trans "Completed" %}</option>
+                    <option value="declined" {% if request.GET.status == 'declined' %}selected{% endif %}>{% trans "Declined" %}</option>
+                    <option value="cancelled" {% if request.GET.status == 'cancelled' %}selected{% endif %}>{% trans "Cancelled" %}</option>
+                </select>
+            </div>
+            <div class="col-md-5">
+                <label for="q" class="form-label fw-semibold">{% trans "Search" %}</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" name="q" id="q" class="form-control"
+                           placeholder="{% trans "Packet title..." %}"
+                           value="{{ request.GET.q }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-funnel me-1"></i>{% trans "Filter" %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Packets Table -->
+<div class="card shadow-sm mb-4">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>{% trans "Title" %}</th>
+                    <th>{% trans "Flow" %}</th>
+                    <th>{% trans "Status" %}</th>
+                    <th>{% trans "Initiated By" %}</th>
+                    <th>{% trans "Created" %}</th>
+                    <th class="text-center">{% trans "Progress" %}</th>
+                    <th class="text-center">{% trans "Actions" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for packet in packets %}
+                <tr>
+                    <td>
+                        <a href="{% url 'signatures:packet-detail' packet.pk %}" class="fw-semibold text-decoration-none">
+                            <i class="bi bi-envelope-paper me-1 text-muted"></i>{{ packet.title }}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{% url 'signatures:flow-detail' packet.flow.pk %}" class="text-decoration-none text-muted">
+                            {{ packet.flow.name }}
+                        </a>
+                    </td>
+                    <td>
+                        {% if packet.status == 'completed' %}<span class="badge bg-success">{% trans "Completed" %}</span>
+                        {% elif packet.status == 'in_progress' %}<span class="badge bg-primary">{% trans "In Progress" %}</span>
+                        {% elif packet.status == 'declined' %}<span class="badge bg-danger">{% trans "Declined" %}</span>
+                        {% elif packet.status == 'cancelled' %}<span class="badge bg-warning text-dark">{% trans "Cancelled" %}</span>
+                        {% else %}<span class="badge bg-secondary">{% trans "Draft" %}</span>{% endif %}
+                    </td>
+                    <td>{{ packet.initiated_by.get_full_name|default:"--" }}</td>
+                    <td>{{ packet.created_at|date:"M d, Y" }}</td>
+                    <td class="text-center">
+                        {% with progress=packet.progress %}
+                        <div class="d-flex align-items-center justify-content-center gap-2">
+                            <div class="progress flex-grow-1" style="height: 8px; max-width: 80px;">
+                                {% if progress.1 > 0 %}
+                                <div class="progress-bar bg-success" role="progressbar"
+                                     style="width: {% widthratio progress.0 progress.1 100 %}%"
+                                     aria-valuenow="{{ progress.0 }}"
+                                     aria-valuemin="0"
+                                     aria-valuemax="{{ progress.1 }}">
+                                </div>
+                                {% endif %}
+                            </div>
+                            <span class="text-muted small">{{ progress.0 }}/{{ progress.1 }}</span>
+                        </div>
+                        {% endwith %}
+                    </td>
+                    <td class="text-center">
+                        <a href="{% url 'signatures:packet-detail' packet.pk %}" class="btn btn-sm btn-outline-primary"
+                           title="{% trans 'View Details' %}">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-5 text-muted">
+                        <i class="bi bi-envelope-paper display-4 d-block mb-3"></i>
+                        <p class="mb-0">{% trans "No signing packets found matching your criteria." %}</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if is_paginated %}
+<nav aria-label="{% trans 'Packet list pagination' %}" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page=1{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                <i class="bi bi-chevron-double-left"></i>
+            </a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                <i class="bi bi-chevron-left"></i>
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-double-left"></i></span></li>
+        <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-left"></i></span></li>
+        {% endif %}
+
+        <li class="page-item disabled">
+            <span class="page-link">
+                {% blocktrans with current=page_obj.number total=page_obj.paginator.num_pages %}Page {{ current }} of {{ total }}{% endblocktrans %}
+            </span>
+        </li>
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                <i class="bi bi-chevron-right"></i>
+            </a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                <i class="bi bi-chevron-double-right"></i>
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-right"></i></span></li>
+        <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-double-right"></i></span></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}
