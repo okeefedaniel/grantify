@@ -659,12 +659,12 @@ class AnalyticsDashboardView(LoginRequiredMixin, TemplateView):
         agency_stats = list(
             Agency.objects.filter(is_active=True)
             .annotate(
-                programs=Count('grantprogram', distinct=True),
-                applications=Count('grantprogram__application', distinct=True),
-                awards_count=Count('award', distinct=True),
+                programs=Count('grant_programs', distinct=True),
+                applications=Count('grant_programs__applications', distinct=True),
+                awards_count=Count('awards', distinct=True),
                 total_funding=Sum(
-                    'award__award_amount',
-                    filter=Q(award__status__in=['active', 'executed', 'completed']),
+                    'awards__award_amount',
+                    filter=Q(awards__status__in=['active', 'executed', 'completed']),
                 ),
             )
             .order_by('name')
