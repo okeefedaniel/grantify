@@ -8,15 +8,15 @@ extend the correct base template in both Grantify and standalone mode.
 from .compat import is_grantify
 
 
-def signflow_context(request):
+def signstreamer_context(request):
     if is_grantify():
         return {
             'sig_base_template': 'base.html',
             'sig_dashboard_url': 'dashboard',
-            'signflow_brand': 'Grantify',
+            'signstreamer_brand': 'Grantify',
         }
     return {
-        'sig_base_template': 'signflow/base.html',
+        'sig_base_template': 'signstreamer/base.html',
         'sig_dashboard_url': 'signatures:packet-list',
-        'signflow_brand': 'SignFlow',
+        'signstreamer_brand': 'SignStreamer',
     }

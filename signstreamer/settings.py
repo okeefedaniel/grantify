@@ -1,5 +1,5 @@
 """
-SignFlow — Standalone Document Signing Platform
+SignStreamer — Standalone Document Signing Platform
 Django settings for standalone deployment.
 """
 import os
@@ -12,7 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('true', '1', 'yes')
 
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-signflow-dev-key-change-in-production')
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-signstreamer-dev-key-change-in-production')
 
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
@@ -21,7 +21,7 @@ if RAILWAY_DOMAIN:
     ALLOWED_HOSTS.append(RAILWAY_DOMAIN)
     CSRF_TRUSTED_ORIGINS = [f'https://{RAILWAY_DOMAIN}']
 
-SIGNFLOW_SITE_URL = os.environ.get('SITE_URL', 'http://localhost:8000')
+SIGNSTREAMER_SITE_URL = os.environ.get('SITE_URL', 'http://localhost:8000')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -33,7 +33,7 @@ INSTALLED_APPS = [
     # Third-party
     'crispy_forms',
     'crispy_bootstrap5',
-    # SignFlow
+    # SignStreamer
     'signatures.apps.SignaturesConfig',
 ]
 
@@ -48,7 +48,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'signflow.urls'
+ROOT_URLCONF = 'signstreamer.urls'
 
 TEMPLATES = [
     {
@@ -60,18 +60,18 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'signatures.context_processors.signflow_context',
+                'signatures.context_processors.signstreamer_context',
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'signflow.wsgi.application'
+WSGI_APPLICATION = 'signstreamer.wsgi.application'
 
 DATABASES = {
     'default': {
         'ENGINE': os.environ.get('DB_ENGINE', 'django.db.backends.sqlite3'),
-        'NAME': os.environ.get('DB_NAME', BASE_DIR / 'db_signflow.sqlite3'),
+        'NAME': os.environ.get('DB_NAME', BASE_DIR / 'db_signstreamer.sqlite3'),
         'USER': os.environ.get('DB_USER', ''),
         'PASSWORD': os.environ.get('DB_PASSWORD', ''),
         'HOST': os.environ.get('DB_HOST', ''),
@@ -90,7 +90,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = BASE_DIR / 'staticfiles_signflow'
+STATIC_ROOT = BASE_DIR / 'staticfiles_signstreamer'
 STORAGES = {
     'default': {
         'BACKEND': 'django.core.files.storage.FileSystemStorage',
@@ -110,11 +110,11 @@ LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@signflow.app')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@signstreamer.com')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Use separate migrations directory for standalone mode
 # (avoids the grants app dependency in the default migration)
 MIGRATION_MODULES = {
-    'signatures': 'signflow.migrations.signatures',
+    'signatures': 'signstreamer.migrations.signatures',
 }

@@ -1,5 +1,5 @@
 """
-Compatibility layer for running the signatures app standalone (SignFlow)
+Compatibility layer for running the signatures app standalone (SignStreamer)
 or within the full Grantify project.
 
 Detection is based on ``django.apps.apps.is_installed('core')``.
@@ -83,7 +83,7 @@ def build_absolute_url(path):
     if is_grantify():
         from core.notifications import _build_absolute_url
         return _build_absolute_url(path)
-    domain = getattr(settings, 'SIGNFLOW_SITE_URL', None)
+    domain = getattr(settings, 'SIGNSTREAMER_SITE_URL', None)
     if not domain:
         domain = os.environ.get('SITE_URL', 'http://localhost:8000')
     return f'{domain.rstrip("/")}{path}'
@@ -119,7 +119,7 @@ def send_notification_email(recipient_email, subject, template_name, context):
             subject=subject,
             message=text_body,
             from_email=getattr(
-                settings, 'DEFAULT_FROM_EMAIL', 'noreply@signflow.app',
+                settings, 'DEFAULT_FROM_EMAIL', 'noreply@signstreamer.com',
             ),
             recipient_list=[recipient_email],
             html_message=html_body,

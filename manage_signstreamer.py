@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-"""Django management for SignFlow standalone deployment."""
+"""Django management for SignStreamer standalone deployment."""
 import os
 import sys
 
 
 def main():
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'signflow.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'signstreamer.settings')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

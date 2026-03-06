@@ -12,10 +12,10 @@ env/
 # Django
 db.sqlite3
 db.sqlite3-journal
-db_signflow.sqlite3
+db_signstreamer.sqlite3
 /media/
 /staticfiles/
-/staticfiles_signflow/
+/staticfiles_signstreamer/
 *.log
 
 # Environment

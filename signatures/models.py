@@ -51,7 +51,7 @@ class SignatureFlow(models.Model):
 
 
 # Conditionally add the grant_program FK only when the grants app is installed.
-# This ensures standalone (SignFlow) deployments have no dependency on grants.
+# This ensures standalone (SignStreamer) deployments have no dependency on grants.
 if _GRANTS_INSTALLED:
     SignatureFlow.add_to_class(
         'grant_program',
