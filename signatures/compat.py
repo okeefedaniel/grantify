@@ -140,14 +140,22 @@ class _StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return self.request.user.is_staff
 
 
-# Import mixins at module level using try/except (needed because views
-# import them at class-definition time, before the app registry is ready).
-try:
+# Import mixins at module level.  We cannot rely on try/except ImportError
+# because the core/ package exists on disk even in standalone (SignStreamer)
+# deployments — the import succeeds but the mixin expects the custom User
+# model.  Instead, check settings.INSTALLED_APPS directly (available before
+# the app registry is fully populated).
+_core_in_apps = any(
+    app == 'core' or app.startswith('core.')
+    for app in settings.INSTALLED_APPS
+)
+
+if _core_in_apps:
     from core.mixins import (  # noqa: F401
         AgencyStaffRequiredMixin,
         GrantManagerRequiredMixin,
     )
-except ImportError:
+else:
     AgencyStaffRequiredMixin = _StaffRequiredMixin
     GrantManagerRequiredMixin = _StaffRequiredMixin
 
