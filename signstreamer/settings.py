@@ -84,7 +84,7 @@ WSGI_APPLICATION = 'signstreamer.wsgi.application'
 # Database — uses DATABASE_URL (provided automatically by Railway Postgres)
 import dj_database_url
 
-_db_url = os.environ.get('DATABASE_URL', '').strip()
+_db_url = os.environ.get('DATABASE_URL', '').strip().lstrip('= ')
 if _db_url and '://' in _db_url:
     # Use parse() with the value we already read, NOT config() which
     # re-reads from os.environ and can get a stale/empty value.
