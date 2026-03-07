@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+export PYTHONUNBUFFERED=1
 
 # Detect standalone SignStreamer mode vs Grantify mode
 if [ "$DJANGO_SETTINGS_MODULE" = "signstreamer.settings" ]; then
@@ -20,7 +21,7 @@ $MANAGE_CMD collectstatic --noinput
 
 echo "=== Starting gunicorn ==="
 # Start gunicorn first so healthcheck passes, then run background tasks
-gunicorn $WSGI_MODULE --bind 0.0.0.0:$PORT --workers 2 &
+gunicorn $WSGI_MODULE --bind 0.0.0.0:$PORT --workers 2 --access-logfile - --error-logfile - &
 GUNICORN_PID=$!
 
 # Grantify-only background tasks (skip in SignStreamer mode)
