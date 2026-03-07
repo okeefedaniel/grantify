@@ -19,11 +19,12 @@
                 </div>
 
                 <!-- Login Form -->
-                <form method="post">
+                <form method="post" data-loading>
                     {% csrf_token %}
 
                     {% if form.non_field_errors %}
                     <div class="alert alert-danger" role="alert">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
                         {% for error in form.non_field_errors %}
                         <div>{{ error }}</div>
                         {% endfor %}
@@ -32,7 +33,7 @@
 
                     <div class="mb-3">
                         <label for="{{ form.username.id_for_label }}" class="form-label fw-semibold">
-                            {% trans "Username" %}
+                            <i class="bi bi-person me-1"></i>{% trans "Username" %}
                         </label>
                         {{ form.username }}
                         {% if form.username.errors %}
@@ -44,7 +45,7 @@
 
                     <div class="mb-3">
                         <label for="{{ form.password.id_for_label }}" class="form-label fw-semibold">
-                            {% trans "Password" %}
+                            <i class="bi bi-lock me-1"></i>{% trans "Password" %}
                         </label>
                         {{ form.password }}
                         {% if form.password.errors %}
@@ -55,7 +56,7 @@
                     </div>
 
                     <div class="d-grid mt-4">
-                        <button type="submit" class="btn btn-primary btn-lg">
+                        <button type="submit" class="btn btn-primary btn-lg" data-loading-text="{% trans 'Signing in...' %}">
                             <i class="bi bi-box-arrow-in-right me-2"></i>{% trans "Sign In" %}
                         </button>
                     </div>
