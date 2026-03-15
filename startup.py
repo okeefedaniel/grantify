@@ -137,8 +137,26 @@ def main():
     log("=== Running migrations ===")
     run(f"{manage_cmd} migrate --noinput")
 
-    # Grantify-only background tasks
-    if settings_module != 'signstreamer.settings':
+    # Mode-specific post-migration tasks
+    if settings_module == 'signstreamer.settings':
+        # Auto-create superuser if DJANGO_SUPERUSER_* env vars are set
+        su_user = os.environ.get('DJANGO_SUPERUSER_USERNAME', '')
+        su_email = os.environ.get('DJANGO_SUPERUSER_EMAIL', '')
+        su_pass = os.environ.get('DJANGO_SUPERUSER_PASSWORD', '')
+        if su_user and su_pass:
+            log(f"=== Ensuring superuser '{su_user}' exists ===")
+            run(f"{manage_cmd} shell -c \""
+                f"from django.contrib.auth import get_user_model; "
+                f"User = get_user_model(); "
+                f"u, created = User.objects.get_or_create("
+                f"username='{su_user}', "
+                f"defaults={{'email': '{su_email}', 'is_staff': True, 'is_superuser': True}}); "
+                f"u.set_password('{su_pass}'); u.save(); "
+                f"print('Created' if created else 'Updated', 'superuser:', u.username)"
+                f"\"")
+        else:
+            log("Skipping superuser creation (DJANGO_SUPERUSER_* env vars not set)")
+    else:
         log("=== Running background startup tasks ===")
         run(f"{manage_cmd} shell < seed_data.py")
         run(f"{manage_cmd} sync_federal_grants --limit 10")
