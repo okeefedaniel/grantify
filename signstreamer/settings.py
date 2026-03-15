@@ -86,6 +86,13 @@ WSGI_APPLICATION = 'signstreamer.wsgi.application'
 import dj_database_url
 
 _db_url = os.environ.get('DATABASE_URL', '').strip().lstrip('= ')
+if not _db_url:
+    # Railway sometimes stores variable names with trailing whitespace;
+    # fall back to scanning env vars if the exact key isn't found.
+    for _key, _val in os.environ.items():
+        if _key.strip() == 'DATABASE_URL' and _val.strip():
+            _db_url = _val.strip().lstrip('= ')
+            break
 if _db_url and '://' in _db_url:
     # Use parse() with the value we already read, NOT config() which
     # re-reads from os.environ and can get a stale/empty value.
@@ -100,6 +107,12 @@ else:
             f'{_db_url[:20]}...',
             stacklevel=1,
         )
+    import warnings
+    warnings.warn(
+        'DATABASE_URL not found — using SQLite fallback. '
+        'Set DATABASE_URL for production use.',
+        stacklevel=1,
+    )
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
