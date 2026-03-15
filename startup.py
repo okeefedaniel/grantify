@@ -140,9 +140,9 @@ def main():
     # Mode-specific post-migration tasks
     if settings_module == 'signstreamer.settings':
         # Auto-create superuser if DJANGO_SUPERUSER_* env vars are set
-        su_user = os.environ.get('DJANGO_SUPERUSER_USERNAME', '')
-        su_email = os.environ.get('DJANGO_SUPERUSER_EMAIL', '')
-        su_pass = os.environ.get('DJANGO_SUPERUSER_PASSWORD', '')
+        su_user = os.environ.get('DJANGO_SUPERUSER_USERNAME', '').strip()
+        su_email = os.environ.get('DJANGO_SUPERUSER_EMAIL', '').strip()
+        su_pass = os.environ.get('DJANGO_SUPERUSER_PASSWORD', '').strip()
         if su_user and su_pass:
             log(f"=== Ensuring superuser '{su_user}' exists ===")
             run(f"{manage_cmd} shell -c \""
