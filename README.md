@@ -42,10 +42,14 @@ Log in with any demo account (password: `demo2026`):
 - Relevance scoring with natural language explanations
 - Thumbs up/down feedback loop to improve recommendations
 
-### DocuSign e-Signatures
-- JWT authentication with RSA key signing
-- Envelope creation for award agreements
-- Webhook handler for real-time signature status updates
+### Document Signing & Signature Workflows
+- Configurable signature flows with sequential approval steps
+- Template builder wizard for drag-and-drop flow creation
+- PDF placement editor for positioning signature fields on documents
+- Three signature methods: typed, uploaded image, or drawn on-screen
+- Role-based signing steps (assign by user or by organizational role)
+- DocuSign integration for external e-signatures (JWT auth, webhooks)
+- Also available as **[SignStreamer](https://www.signstreamer.com)** &mdash; a standalone document signing platform
 
 ### Interactive Map View
 - Mapbox GL JS choropleth showing grant distribution by municipality

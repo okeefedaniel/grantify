@@ -40,7 +40,7 @@ Grantify is the state grants management system, built to streamline the entire g
 - **Grant opportunity discovery** -- browse and search available funding programs
 - **Online application submission** -- create, edit, and submit grant applications with supporting documents
 - **Peer review and scoring** -- assign reviewers and score applications using configurable rubrics
-- **Award management** -- issue awards, manage amendments, and collect e-signatures via DocuSign
+- **Award management** -- issue awards, manage amendments, and collect e-signatures via built-in signature flows or DocuSign
 - **Financial tracking** -- manage budgets, process drawdown requests, and record transactions
 - **Compliance reporting** -- submit progress and fiscal reports, generate SF-425 federal financial reports
 - **Grant closeout** -- complete closeout checklists, document fund returns, and archive records
@@ -416,7 +416,7 @@ After approving an application:
 5. Review and adjust the details as needed, including terms and conditions.
 6. Click **Save**.
 
-### 6.10 Requesting E-Signatures
+### 6.10 Requesting E-Signatures (DocuSign)
 
 To send an award agreement for electronic signature via DocuSign:
 
@@ -427,6 +427,105 @@ To send an award agreement for electronic signature via DocuSign:
 5. Click **Send for Signature**.
 
 The system creates a DocuSign envelope and tracks its status. Once signed, the signed document is automatically downloaded and the award status updates to **Executed**.
+
+### 6.11 Signature Flows (Built-In)
+
+Grantify includes a built-in document signing system as an alternative to DocuSign. Signature flows define a sequential series of signing steps, each assigned to a specific user or organizational role.
+
+#### Overview
+
+| Feature | DocuSign (6.10) | Built-In Flows (6.11) |
+|---------|----------------|----------------------|
+| External service | Yes (requires DocuSign account) | No (fully self-contained) |
+| Signing methods | DocuSign's UI | Typed, uploaded image, or drawn |
+| PDF field placement | Via DocuSign | Built-in PDF placement editor |
+| Multi-step approval | Single signer | Sequential steps with roles |
+| Standalone deployment | No | Yes (available as SignStreamer) |
+
+#### Creating a Signature Flow
+
+**Manual creation:**
+
+1. Navigate to **Signature Flows** from the main navigation.
+2. Click **Create Flow**.
+3. Enter a name and description for the flow.
+4. Optionally upload a PDF document template.
+5. Click **Save**.
+
+**Using the Template Builder wizard:**
+
+1. Navigate to **Signature Flows** and click **Template Builder**.
+2. **Step 1 — Flow Details**: Enter the flow name, description, and active status.
+3. **Step 2 — Signing Steps**: Add one or more steps. For each step, specify:
+   - **Step order** (sequence number)
+   - **Assignment**: Choose a specific user or an organizational role (e.g., Director, Manager)
+   - **Instructions** for the signer
+4. **Step 3 — PDF Placement** *(optional)*: Upload a PDF and use the visual placement editor to position signature fields on the document pages.
+5. **Step 4 — Review**: Confirm all settings and click **Save Flow**.
+
+#### Adding Signing Steps
+
+Each step in a flow represents one signer in the approval chain:
+
+1. Open an existing flow and click **Add Step**.
+2. Set the **step order** (steps execute sequentially, lowest number first).
+3. Choose the assignment type:
+   - **User**: Assign to a specific person.
+   - **Role**: Assign to anyone holding that organizational role (e.g., "Director"). When a packet is initiated, the system resolves the role to available users.
+4. Add optional **instructions** that the signer will see.
+5. Click **Save**.
+
+#### PDF Placement Editor
+
+The placement editor lets you position signature fields visually on a PDF document:
+
+1. Upload a PDF to the signature flow.
+2. Open the **Placement Editor** from the flow detail page.
+3. Click on the PDF page where you want to place a signature field.
+4. Drag to resize the field as needed.
+5. Assign the field to a specific signing step.
+6. Save the placements.
+
+Fields are rendered at the correct position when signers view the document.
+
+#### Initiating a Signing Packet
+
+A signing packet is a single instance of a signature flow applied to a specific document:
+
+1. Navigate to **Packets** and click **New Packet**.
+2. Select the signature flow to use.
+3. Upload the document to be signed (if the flow doesn't already have a template).
+4. Click **Initiate**.
+
+The system creates the packet and notifies the first signer in the step sequence.
+
+#### Signing a Document
+
+When it is your turn to sign:
+
+1. Open the signing packet from your notifications or the **Packets** list.
+2. Review the document.
+3. Choose your signature method:
+   - **Type**: Enter your name to generate a signature.
+   - **Upload**: Upload an image of your signature.
+   - **Draw**: Draw your signature using a mouse or touchscreen.
+4. Click **Submit Signature**.
+
+The system records your signature and advances to the next step. Once all steps are complete, the packet status changes to **Completed**.
+
+#### Managing Signature Roles
+
+Roles allow you to assign signing steps by position rather than by individual user:
+
+1. Navigate to **Roles** from the main navigation.
+2. Click **Create Role**.
+3. Enter:
+   - **Key**: A machine-readable identifier (e.g., `director`, `legal`)
+   - **Label**: A human-readable name (e.g., "Director", "Legal Counsel")
+   - **Description** *(optional)*
+4. Click **Save**.
+
+Roles can be edited, deactivated (soft-disabled), or deleted. Deactivated roles remain visible in existing flows but are not available for new assignments.
 
 ---
 
