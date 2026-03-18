@@ -5,7 +5,7 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![Django 6.x](https://img.shields.io/badge/django-6.x-green.svg)](https://www.djangoproject.com/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
-[![CI](https://github.com/okeefedaniel/grantify/actions/workflows/ci.yml/badge.svg)](https://github.com/okeefedaniel/grantify/actions)
+[![CI](https://github.com/okeefedaniel/beacon/actions/workflows/ci.yml/badge.svg)](https://github.com/okeefedaniel/beacon/actions)
 
 ![Beacon Demo](static/img/beacon-sizzle-reel.gif)
 
@@ -106,7 +106,7 @@ beacon/
 
 ```bash
 # Clone
-git clone https://github.com/okeefedaniel/grantify.git
+git clone https://github.com/okeefedaniel/beacon.git
 cd beacon
 
 # Virtual environment
