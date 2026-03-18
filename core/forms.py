@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.utils.translation import gettext_lazy as _lazy
 
-from .models import Agency, Organization
+from .models import Agency, Organization, OrganizationClaim, OrganizationContact
 
 User = get_user_model()
 
@@ -204,3 +204,53 @@ class UserRoleForm(forms.ModelForm):
             is_active=True
         ).order_by('name')
         self.fields['agency'].required = False
+
+
+# ---------------------------------------------------------------------------
+# Organization Claim Review
+# ---------------------------------------------------------------------------
+class ClaimReviewForm(forms.Form):
+    """Form for Program Officers to approve or deny an organization claim."""
+
+    action = forms.ChoiceField(
+        choices=[('approve', _lazy('Approve')), ('deny', _lazy('Deny'))],
+        widget=forms.RadioSelect(attrs={'class': 'form-check-input'}),
+    )
+    reviewer_notes = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 3,
+            'placeholder': _lazy('Optional notes about this decision...'),
+        }),
+    )
+
+
+# ---------------------------------------------------------------------------
+# Organization Contact Assignment
+# ---------------------------------------------------------------------------
+class OrganizationContactForm(forms.ModelForm):
+    """Form for assigning a staff contact to an organization."""
+
+    class Meta:
+        model = OrganizationContact
+        fields = ('assigned_to', 'notes')
+        widgets = {
+            'assigned_to': forms.Select(attrs={'class': 'form-select'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+        labels = {
+            'assigned_to': _lazy('Assign To'),
+            'notes': _lazy('Notes'),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['assigned_to'].queryset = User.objects.filter(
+            is_active=True,
+            role__in=[
+                User.Role.PROGRAM_OFFICER,
+                User.Role.AGENCY_ADMIN,
+                User.Role.SYSTEM_ADMIN,
+            ],
+        ).order_by('last_name', 'first_name')

@@ -51,6 +51,26 @@ urlpatterns = [
         name='notification-read',
     ),
     path(
+        'organizations/<uuid:pk>/claim/',
+        views.OrganizationClaimView.as_view(),
+        name='organization-claim',
+    ),
+    path(
+        'organization-claims/',
+        views.OrganizationClaimListView.as_view(),
+        name='organization-claims',
+    ),
+    path(
+        'organization-claims/<uuid:pk>/review/',
+        views.OrganizationClaimReviewView.as_view(),
+        name='organization-claim-review',
+    ),
+    path(
+        'organizations/<uuid:pk>/assign-contact/',
+        views.OrganizationContactAssignView.as_view(),
+        name='organization-assign-contact',
+    ),
+    path(
         'analytics/',
         views.AnalyticsDashboardView.as_view(),
         name='analytics',

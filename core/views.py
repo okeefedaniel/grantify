@@ -18,9 +18,12 @@ from django.views.generic import CreateView, ListView, TemplateView, UpdateView
 
 from applications.models import Application
 from awards.models import Award
-from core.forms import OrganizationForm, ProfileForm, RegistrationForm, UserRoleForm
+from core.forms import (
+    ClaimReviewForm, OrganizationContactForm, OrganizationForm,
+    ProfileForm, RegistrationForm, UserRoleForm,
+)
 from core.mixins import SortableListMixin
-from core.models import Agency, Notification
+from core.models import Agency, Notification, Organization, OrganizationClaim, OrganizationContact
 from core.utils import rate_limit, safe_redirect_url
 
 User = get_user_model()
@@ -299,6 +302,195 @@ def user_api_key_update(request, pk):
 
 
 # ---------------------------------------------------------------------------
+# Organization Claims
+# ---------------------------------------------------------------------------
+class OrganizationClaimView(LoginRequiredMixin, View):
+    """Allow an authenticated user to claim an organization."""
+
+    def post(self, request, pk):
+        org = get_object_or_404(Organization, pk=pk, is_active=True)
+
+        # Check for existing pending claim
+        existing = OrganizationClaim.objects.filter(
+            organization=org, user=request.user, status=OrganizationClaim.Status.PENDING,
+        ).exists()
+        if existing:
+            messages.info(request, _('You already have a pending claim for this organization.'))
+            return redirect('dashboard')
+
+        OrganizationClaim.objects.create(organization=org, user=request.user)
+        messages.success(
+            request,
+            _('Your claim for "%(org)s" has been submitted for review.') % {'org': org.name},
+        )
+
+        # Notify Program Officers
+        from core.notifications import notify_organization_claim_submitted
+        notify_organization_claim_submitted(org, request.user)
+
+        return redirect('dashboard')
+
+    def get(self, request, pk):
+        org = get_object_or_404(Organization, pk=pk, is_active=True)
+        existing = OrganizationClaim.objects.filter(
+            organization=org, user=request.user, status=OrganizationClaim.Status.PENDING,
+        ).exists()
+        return redirect('dashboard') if existing else self._render(request, org)
+
+    def _render(self, request, org):
+        from django.shortcuts import render
+        return render(request, 'core/organization_claim.html', {'organization': org})
+
+
+class OrganizationClaimListView(LoginRequiredMixin, ListView):
+    """List pending organization claims for Program Officers to review."""
+
+    model = OrganizationClaim
+    template_name = 'core/organization_claim_list.html'
+    context_object_name = 'claims'
+    paginate_by = 25
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated or request.user.role not in (
+            User.Role.PROGRAM_OFFICER, User.Role.AGENCY_ADMIN, User.Role.SYSTEM_ADMIN,
+        ):
+            messages.error(request, _('Access denied.'))
+            return redirect('dashboard')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        qs = OrganizationClaim.objects.select_related('organization', 'user', 'reviewed_by')
+        status_filter = self.request.GET.get('status', 'pending')
+        if status_filter and status_filter in dict(OrganizationClaim.Status.choices):
+            qs = qs.filter(status=status_filter)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_status'] = self.request.GET.get('status', 'pending')
+        context['statuses'] = OrganizationClaim.Status.choices
+        context['pending_count'] = OrganizationClaim.objects.filter(
+            status=OrganizationClaim.Status.PENDING,
+        ).count()
+        return context
+
+
+class OrganizationClaimReviewView(LoginRequiredMixin, View):
+    """Allow Program Officers to approve or deny an organization claim."""
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated or request.user.role not in (
+            User.Role.PROGRAM_OFFICER, User.Role.AGENCY_ADMIN, User.Role.SYSTEM_ADMIN,
+        ):
+            messages.error(request, _('Access denied.'))
+            return redirect('dashboard')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, pk):
+        claim = get_object_or_404(
+            OrganizationClaim.objects.select_related('organization', 'user'),
+            pk=pk,
+        )
+        form = ClaimReviewForm()
+        return self._render(request, claim, form)
+
+    def post(self, request, pk):
+        claim = get_object_or_404(
+            OrganizationClaim.objects.select_related('organization', 'user'),
+            pk=pk,
+        )
+        if claim.status != OrganizationClaim.Status.PENDING:
+            messages.info(request, _('This claim has already been reviewed.'))
+            return redirect('core:organization-claims')
+
+        form = ClaimReviewForm(request.POST)
+        if not form.is_valid():
+            return self._render(request, claim, form)
+
+        action = form.cleaned_data['action']
+        claim.reviewed_by = request.user
+        claim.reviewed_at = timezone.now()
+        claim.reviewer_notes = form.cleaned_data.get('reviewer_notes', '')
+
+        if action == 'approve':
+            claim.status = OrganizationClaim.Status.APPROVED
+            # Link the user to the organization if not already linked
+            if not claim.user.organization_id:
+                claim.user.organization = claim.organization
+                claim.user.save(update_fields=['organization'])
+            messages.success(
+                request,
+                _('Claim approved. %(user)s is now linked to %(org)s.') % {
+                    'user': claim.user.get_full_name() or claim.user.username,
+                    'org': claim.organization.name,
+                },
+            )
+        else:
+            claim.status = OrganizationClaim.Status.DENIED
+            messages.warning(request, _('Claim denied.'))
+
+        claim.save()
+
+        # Notify the claimant
+        from core.notifications import notify_organization_claim_reviewed
+        notify_organization_claim_reviewed(claim)
+
+        return redirect('core:organization-claims')
+
+    def _render(self, request, claim, form):
+        from django.shortcuts import render
+        return render(request, 'core/organization_claim_review.html', {
+            'claim': claim,
+            'form': form,
+        })
+
+
+class OrganizationContactAssignView(LoginRequiredMixin, View):
+    """Assign a staff contact to an organization."""
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated or request.user.role not in (
+            User.Role.PROGRAM_OFFICER, User.Role.AGENCY_ADMIN, User.Role.SYSTEM_ADMIN,
+        ):
+            messages.error(request, _('Access denied.'))
+            return redirect('dashboard')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, pk):
+        org = get_object_or_404(Organization, pk=pk)
+        existing = OrganizationContact.objects.filter(organization=org).first()
+        form = OrganizationContactForm(instance=existing)
+        return self._render(request, org, form, existing)
+
+    def post(self, request, pk):
+        org = get_object_or_404(Organization, pk=pk)
+        existing = OrganizationContact.objects.filter(organization=org).first()
+        form = OrganizationContactForm(request.POST, instance=existing)
+        if form.is_valid():
+            contact = form.save(commit=False)
+            contact.organization = org
+            contact.assigned_by = request.user
+            contact.save()
+            messages.success(
+                request,
+                _('%(user)s assigned as contact for %(org)s.') % {
+                    'user': contact.assigned_to.get_full_name() or contact.assigned_to.username,
+                    'org': org.name,
+                },
+            )
+            return redirect('core:organization-claims')
+        return self._render(request, org, form, existing)
+
+    def _render(self, request, org, form, existing):
+        from django.shortcuts import render
+        return render(request, 'core/organization_contact_assign.html', {
+            'organization': org,
+            'form': form,
+            'existing_contact': existing,
+        })
+
+
+# ---------------------------------------------------------------------------
 # Dashboard
 # ---------------------------------------------------------------------------
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -445,6 +637,9 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                 .filter(status=Application.Status.UNDER_REVIEW)
                 .count()
             ),
+            'pending_claims_count': OrganizationClaim.objects.filter(
+                status=OrganizationClaim.Status.PENDING,
+            ).count(),
         }
 
     @staticmethod

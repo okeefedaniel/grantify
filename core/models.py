@@ -67,6 +67,11 @@ class Organization(models.Model):
     website = models.URLField(blank=True)
 
     is_active = models.BooleanField(default=True)
+    is_high_priority = models.BooleanField(
+        default=False,
+        verbose_name=_('High Priority'),
+        help_text=_('Manually flagged as high-priority for assigned contact tracking.'),
+    )
     notes = models.TextField(blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -462,3 +467,98 @@ class ArchivedRecord(models.Model):
 
     def __str__(self):
         return f"Archived {self.get_entity_type_display()} - {self.entity_id}"
+
+
+# ---------------------------------------------------------------------------
+# OrganizationClaim
+# ---------------------------------------------------------------------------
+class OrganizationClaim(models.Model):
+    """A user's request to be recognized as the primary contact for an organization."""
+
+    class Status(models.TextChoices):
+        PENDING = 'pending', _('Pending')
+        APPROVED = 'approved', _('Approved')
+        DENIED = 'denied', _('Denied')
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.CASCADE,
+        related_name='claims',
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='organization_claims',
+    )
+    status = models.CharField(
+        max_length=10,
+        choices=Status.choices,
+        default=Status.PENDING,
+    )
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='reviewed_claims',
+    )
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewer_notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = _('Organization Claim')
+        verbose_name_plural = _('Organization Claims')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['organization', 'user'],
+                condition=models.Q(status='pending'),
+                name='unique_pending_claim_per_user_org',
+            ),
+        ]
+        indexes = [
+            models.Index(
+                fields=['status', 'created_at'],
+                name='idx_claim_status_created',
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.user} → {self.organization} ({self.get_status_display()})"
+
+
+# ---------------------------------------------------------------------------
+# OrganizationContact (assigned staff contact for high-priority orgs)
+# ---------------------------------------------------------------------------
+class OrganizationContact(models.Model):
+    """Staff member assigned as the primary contact for an organization."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    organization = models.OneToOneField(
+        Organization,
+        on_delete=models.CASCADE,
+        related_name='assigned_contact',
+    )
+    assigned_to = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='contact_assignments',
+    )
+    assigned_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='contact_assignments_made',
+    )
+    notes = models.TextField(blank=True)
+    assigned_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = _('Organization Contact')
+        verbose_name_plural = _('Organization Contacts')
+
+    def __str__(self):
+        return f"{self.assigned_to} → {self.organization}"

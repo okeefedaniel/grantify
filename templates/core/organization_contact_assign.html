@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Assign Contact" %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% trans "Dashboard" %}</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'core:organization-claims' %}">{% trans "Claims" %}</a></li>
+                <li class="breadcrumb-item active">{% trans "Assign Contact" %}</li>
+            </ol>
+        </nav>
+
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-person-plus me-2"></i>{% trans "Assign Staff Contact" %}</h5>
+            </div>
+            <div class="card-body">
+                <div class="card bg-light mb-4">
+                    <div class="card-body">
+                        <h6>{{ organization.name }}</h6>
+                        <p class="mb-1 small text-muted">{{ organization.get_org_type_display }}</p>
+                        {% if organization.is_high_priority %}
+                        <span class="badge bg-danger">{% trans "High Priority" %}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if existing_contact %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    {% trans "Currently assigned to:" %} <strong>{{ existing_contact.assigned_to.get_full_name|default:existing_contact.assigned_to.username }}</strong>
+                    <br><small class="text-muted">{% trans "Assigned by" %} {{ existing_contact.assigned_by.get_full_name|default:"-" }} {% trans "on" %} {{ existing_contact.assigned_at|date:"M d, Y" }}</small>
+                </div>
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="{{ form.assigned_to.id_for_label }}" class="form-label fw-bold">{{ form.assigned_to.label }}</label>
+                        {{ form.assigned_to }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.notes.id_for_label }}" class="form-label fw-bold">{{ form.notes.label }}</label>
+                        {{ form.notes }}
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-1"></i>{% if existing_contact %}{% trans "Update Contact" %}{% else %}{% trans "Assign Contact" %}{% endif %}
+                        </button>
+                        <a href="{% url 'core:organization-claims' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -519,6 +519,53 @@ def notify_closeout_initiated(closeout):
         )
 
 
+def notify_organization_claim_submitted(organization, claimant):
+    """Notify Program Officers that a new organization claim was submitted."""
+    full_name = claimant.get_full_name() or claimant.username
+    claims_path = reverse('core:organization-claims')
+
+    staff_qs = User.objects.filter(
+        role__in=[
+            User.Role.PROGRAM_OFFICER,
+            User.Role.AGENCY_ADMIN,
+            User.Role.SYSTEM_ADMIN,
+        ],
+        is_active=True,
+    )
+
+    message = _(
+        '%(name)s has claimed "%(org)s" as their organization. '
+        'Please review and approve or deny this claim.'
+    ) % {'name': full_name, 'org': organization.name}
+
+    for staff_user in staff_qs.distinct():
+        _create_notification(
+            recipient=staff_user,
+            title=_('New Organization Claim'),
+            message=message,
+            link=claims_path,
+            priority='medium',
+        )
+
+
+def notify_organization_claim_reviewed(claim):
+    """Notify the claimant that their organization claim was reviewed."""
+    status_display = claim.get_status_display()
+    message = _(
+        'Your claim for "%(org)s" has been %(status)s.'
+    ) % {'org': claim.organization.name, 'status': status_display.lower()}
+    if claim.reviewer_notes:
+        message += _(' Notes: %(notes)s') % {'notes': claim.reviewer_notes}
+
+    _create_notification(
+        recipient=claim.user,
+        title=_('Organization Claim %(status)s') % {'status': status_display},
+        message=message,
+        link=reverse('dashboard'),
+        priority='high',
+    )
+
+
 def notify_new_user_registered(user):
     """Notify system admins that a new user has registered."""
     full_name = user.get_full_name() or user.username

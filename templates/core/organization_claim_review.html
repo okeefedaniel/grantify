@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Review Claim" %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% trans "Dashboard" %}</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'core:organization-claims' %}">{% trans "Claims" %}</a></li>
+                <li class="breadcrumb-item active">{% trans "Review" %}</li>
+            </ol>
+        </nav>
+
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-clipboard-check me-2"></i>{% trans "Review Organization Claim" %}</h5>
+            </div>
+            <div class="card-body">
+                {# -- Claim Details -- #}
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-title"><i class="bi bi-building me-1"></i>{% trans "Organization" %}</h6>
+                                <p class="mb-1"><strong>{{ claim.organization.name }}</strong></p>
+                                <p class="mb-1 small text-muted">{{ claim.organization.get_org_type_display }}</p>
+                                {% if claim.organization.city %}
+                                <p class="mb-1 small text-muted">{{ claim.organization.city }}, {{ claim.organization.state }}</p>
+                                {% endif %}
+                                {% if claim.organization.ein %}
+                                <p class="mb-0 small text-muted">{% trans "EIN:" %} {{ claim.organization.ein }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-title"><i class="bi bi-person me-1"></i>{% trans "Claimant" %}</h6>
+                                <p class="mb-1"><strong>{{ claim.user.get_full_name|default:claim.user.username }}</strong></p>
+                                <p class="mb-1 small text-muted">{{ claim.user.email }}</p>
+                                <p class="mb-1 small text-muted">{% trans "Role:" %} {{ claim.user.get_role_display }}</p>
+                                <p class="mb-0 small text-muted">{% trans "Submitted:" %} {{ claim.created_at|date:"M d, Y H:i" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if claim.status != 'pending' %}
+                <div class="alert {% if claim.status == 'approved' %}alert-success{% else %}alert-danger{% endif %}">
+                    <i class="bi bi-check-circle me-2"></i>
+                    {% trans "This claim has already been" %} {{ claim.get_status_display|lower }}
+                    {% if claim.reviewed_by %} {% trans "by" %} {{ claim.reviewed_by.get_full_name|default:claim.reviewed_by.username }}{% endif %}.
+                    {% if claim.reviewer_notes %}<br><strong>{% trans "Notes:" %}</strong> {{ claim.reviewer_notes }}{% endif %}
+                </div>
+                {% else %}
+                {# -- Review Form -- #}
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">{% trans "Decision" %}</label>
+                        <div class="d-flex gap-4">
+                            {% for radio in form.action %}
+                            <div class="form-check">
+                                {{ radio }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if form.action.errors %}
+                        <div class="text-danger small mt-1">{{ form.action.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.reviewer_notes.id_for_label }}" class="form-label fw-bold">{% trans "Notes" %}</label>
+                        {{ form.reviewer_notes }}
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-1"></i>{% trans "Submit Review" %}
+                        </button>
+                        <a href="{% url 'core:organization-claims' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

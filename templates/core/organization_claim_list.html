@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load humanize %}
+
+{% block title %}{% trans "Organization Claims" %}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-building-check me-2"></i>{% trans "Organization Claims" %}</h2>
+    {% if pending_count %}
+    <span class="badge bg-warning text-dark fs-6">{{ pending_count }} {% trans "pending" %}</span>
+    {% endif %}
+</div>
+
+{# -- Status Filter -- #}
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">{% trans "Status" %}</label>
+                <select name="status" class="form-select">
+                    {% for value, label in statuses %}
+                    <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-funnel me-1"></i>{% trans "Filter" %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{# -- Claims Table -- #}
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>{% trans "Organization" %}</th>
+                        <th>{% trans "Claimant" %}</th>
+                        <th>{% trans "Status" %}</th>
+                        <th>{% trans "Submitted" %}</th>
+                        <th>{% trans "Reviewed By" %}</th>
+                        <th>{% trans "Actions" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for claim in claims %}
+                    <tr>
+                        <td>
+                            <strong>{{ claim.organization.name }}</strong>
+                            <br><small class="text-muted">{{ claim.organization.get_org_type_display }}</small>
+                        </td>
+                        <td>
+                            {{ claim.user.get_full_name|default:claim.user.username }}
+                            <br><small class="text-muted">{{ claim.user.email }}</small>
+                        </td>
+                        <td>
+                            {% if claim.status == 'pending' %}
+                                <span class="badge bg-warning text-dark">{% trans "Pending" %}</span>
+                            {% elif claim.status == 'approved' %}
+                                <span class="badge bg-success">{% trans "Approved" %}</span>
+                            {% else %}
+                                <span class="badge bg-danger">{% trans "Denied" %}</span>
+                            {% endif %}
+                        </td>
+                        <td class="small text-muted">{{ claim.created_at|date:"M d, Y" }}</td>
+                        <td class="small text-muted">{{ claim.reviewed_by.get_full_name|default:"-" }}</td>
+                        <td>
+                            {% if claim.status == 'pending' %}
+                            <a href="{% url 'core:organization-claim-review' claim.pk %}" class="btn btn-sm btn-outline-primary" title="{% trans 'Review' %}">
+                                <i class="bi bi-eye me-1"></i>{% trans "Review" %}
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'core:organization-assign-contact' claim.organization.pk %}" class="btn btn-sm btn-outline-secondary" title="{% trans 'Assign Contact' %}">
+                                <i class="bi bi-person-plus"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            <i class="bi bi-check-circle display-4 d-block mb-2"></i>
+                            {% trans "No claims found." %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{# -- Pagination -- #}
+{% if page_obj.has_other_pages %}
+<nav class="mt-4" aria-label="{% trans 'Claims navigation' %}">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&status={{ current_status }}">{% trans "Previous" %}</a>
+        </li>
+        {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+            <a class="page-link" href="?page={{ num }}&status={{ current_status }}">{{ num }}</a>
+        </li>
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}&status={{ current_status }}">{% trans "Next" %}</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

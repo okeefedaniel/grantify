@@ -103,6 +103,13 @@
                             </ul>
                         </li>
                         {% endif %}
+                        {% if user.role == 'program_officer' or user.role == 'agency_admin' or user.role == 'system_admin' %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'organization-claims' or request.resolver_match.url_name == 'organization-claim-review' %}active{% endif %}" href="{% url 'core:organization-claims' %}">
+                                <i class="bi bi-building-check me-1"></i>{% trans "Claims" %}
+                            </a>
+                        </li>
+                        {% endif %}
                         {% if user.role == 'system_admin' %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'core:analytics' %}">

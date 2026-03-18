@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Claim Organization" %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% trans "Dashboard" %}</a></li>
+                <li class="breadcrumb-item active">{% trans "Claim Organization" %}</li>
+            </ol>
+        </nav>
+
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-building-check me-2"></i>{% trans "Claim Organization" %}</h5>
+            </div>
+            <div class="card-body">
+                <p>{% trans "You are requesting to be recognized as a point of contact for:" %}</p>
+
+                <div class="card bg-light mb-4">
+                    <div class="card-body">
+                        <h5>{{ organization.name }}</h5>
+                        <p class="mb-1"><strong>{% trans "Type:" %}</strong> {{ organization.get_org_type_display }}</p>
+                        {% if organization.city %}
+                        <p class="mb-1"><strong>{% trans "Location:" %}</strong> {{ organization.city }}, {{ organization.state }}</p>
+                        {% endif %}
+                        {% if organization.ein %}
+                        <p class="mb-0"><strong>{% trans "EIN:" %}</strong> {{ organization.ein }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    {% trans "A Program Officer will review your claim. You will be notified when a decision is made." %}
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-1"></i>{% trans "Submit Claim" %}
+                        </button>
+                        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
