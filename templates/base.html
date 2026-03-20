@@ -172,7 +172,7 @@
                             <a class="nav-link position-relative" href="{% url 'core:notifications' %}" aria-label="{% trans "Notifications" %}{% if unread_notification_count %} ({{ unread_notification_count }} {% trans "unread" %}){% endif %}">
                                 <i class="bi bi-bell"></i>
                                 {% if unread_notification_count %}
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                <span class="position-absolute badge rounded-pill bg-danger" style="top: 2px; right: -2px; font-size: 0.6rem; padding: 0.2em 0.45em;">
                                     {{ unread_notification_count }}
                                 </span>
                                 {% endif %}
