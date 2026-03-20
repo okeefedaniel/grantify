@@ -39,6 +39,7 @@ urlpatterns = [
     path('signatures/', include('signatures.urls')),
     path('api/', include('api.urls')),
     path('i18n/', include('django.conf.urls.i18n')),
+    path('keel/requests/', include('keel.requests.urls')),
 ]
 
 if settings.DEBUG:

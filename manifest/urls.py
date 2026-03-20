@@ -17,6 +17,7 @@ urlpatterns = [
     path('demo-login/', demo_login_view, name='demo_login'),
     path('notifications/', include('keel.notifications.urls')),
     path('', include('signatures.urls')),
+    path('keel/requests/', include('keel.requests.urls')),
 ]
 
 if settings.DEBUG:
