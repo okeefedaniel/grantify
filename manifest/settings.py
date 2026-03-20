@@ -44,6 +44,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    # Keel (DockLabs shared platform)
+    'keel.core',
+    'keel.security',
     # Third-party
     'crispy_forms',
     'crispy_bootstrap5',
@@ -53,6 +56,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'keel.security.middleware.SecurityHeadersMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -60,6 +64,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'keel.core.middleware.AuditMiddleware',
+    'keel.security.middleware.FailedLoginMonitor',
 ]
 
 ROOT_URLCONF = 'manifest.urls'
@@ -218,6 +224,8 @@ MIGRATION_MODULES = {
 }
 
 # ---------------------------------------------------------------------------
-# Keel shared platform
+# Keel (DockLabs Shared Platform)
 # ---------------------------------------------------------------------------
 KEEL_PRODUCT_NAME = 'Manifest'
+KEEL_AUDIT_LOG_MODEL = 'signatures.AuditLog'
+KEEL_CSP_POLICY = {}  # Start permissive, tighten later

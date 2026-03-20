@@ -9,6 +9,8 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from keel.core.models import AbstractAuditLog
+
 logger = logging.getLogger(__name__)
 
 
@@ -288,39 +290,10 @@ class User(AbstractUser):
 # ---------------------------------------------------------------------------
 # AuditLog
 # ---------------------------------------------------------------------------
-class AuditLog(models.Model):
-    """Immutable log of user actions for compliance and auditing."""
+class AuditLog(AbstractAuditLog):
+    """Harbor audit log — inherits from Keel's immutable AbstractAuditLog."""
 
-    class Action(models.TextChoices):
-        CREATE = 'create', _('Create')
-        UPDATE = 'update', _('Update')
-        DELETE = 'delete', _('Delete')
-        STATUS_CHANGE = 'status_change', _('Status Change')
-        SUBMIT = 'submit', _('Submit')
-        APPROVE = 'approve', _('Approve')
-        REJECT = 'reject', _('Reject')
-        LOGIN = 'login', _('Login')
-        EXPORT = 'export', _('Export')
-        VIEW = 'view', _('View')
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='audit_logs',
-    )
-    action = models.CharField(max_length=20, choices=Action.choices)
-    entity_type = models.CharField(max_length=100)
-    entity_id = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
-    changes = models.JSONField(default=dict, blank=True)
-    ip_address = models.GenericIPAddressField(null=True, blank=True)
-    timestamp = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ['-timestamp']
+    class Meta(AbstractAuditLog.Meta):
         verbose_name = _('Audit Log')
         verbose_name_plural = _('Audit Logs')
         indexes = [
@@ -333,10 +306,6 @@ class AuditLog(models.Model):
                 name='idx_audit_user_ts',
             ),
         ]
-
-    def __str__(self):
-        user_display = self.user if self.user else 'System'
-        return f"{user_display} - {self.get_action_display()} - {self.entity_type} ({self.timestamp:%Y-%m-%d %H:%M})"
 
 
 # ---------------------------------------------------------------------------

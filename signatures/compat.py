@@ -59,19 +59,28 @@ def log_audit(user, action, entity_type, entity_id,
         from core.audit import log_audit as _core_log
         return _core_log(user, action, entity_type, entity_id,
                          description, changes, ip_address)
-    username = getattr(user, 'username', 'system') if user else 'system'
-    logger.info(
-        'AUDIT [%s] %s %s(%s): %s',
-        username, action, entity_type, entity_id, description,
-    )
+    from .models import AuditLog
+    try:
+        AuditLog.objects.create(
+            user=user,
+            action=action,
+            entity_type=entity_type,
+            entity_id=str(entity_id),
+            description=description,
+            changes=changes or {},
+            ip_address=ip_address,
+        )
+    except Exception:
+        logger.exception('Failed to create audit log entry')
 
 
 def get_audit_log_model():
-    """Return ``core.models.AuditLog`` if available, else ``None``."""
+    """Return the AuditLog model for the current deployment mode."""
     if is_harbor():
         from core.models import AuditLog
         return AuditLog
-    return None
+    from .models import AuditLog
+    return AuditLog
 
 
 # ---------------------------------------------------------------------------

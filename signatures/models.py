@@ -6,6 +6,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from keel.core.models import AbstractAuditLog
+
 # Detect whether the grants app is installed so we can conditionally
 # define the grant_program FK.  This runs at class-definition time
 # (after Django settings are loaded) and affects both the model AND
@@ -554,3 +556,15 @@ class SignatureRole(models.Model):
 
     def __str__(self):
         return self.label
+
+
+# ---------------------------------------------------------------------------
+# AuditLog — Used by Manifest standalone (KEEL_AUDIT_LOG_MODEL = 'signatures.AuditLog')
+# In Harbor mode, core.AuditLog is used instead.
+# ---------------------------------------------------------------------------
+class AuditLog(AbstractAuditLog):
+    """Manifest audit log — inherits from Keel's immutable AbstractAuditLog."""
+
+    class Meta(AbstractAuditLog.Meta):
+        verbose_name = _('Audit Log')
+        verbose_name_plural = _('Audit Logs')

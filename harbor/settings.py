@@ -48,6 +48,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'django.contrib.sites',
+    # Keel (DockLabs shared platform)
+    'keel.core',
+    'keel.security',
     # Third party
     'rest_framework',
     'crispy_forms',
@@ -74,6 +77,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'keel.security.middleware.SecurityHeadersMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -83,7 +87,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
-    'core.middleware.AuditMiddleware',
+    'keel.core.middleware.AuditMiddleware',
+    'keel.security.middleware.FailedLoginMonitor',
 ]
 
 ROOT_URLCONF = 'harbor.urls'
@@ -368,6 +373,8 @@ DOCUSIGN_OAUTH_BASE = os.environ.get('DOCUSIGN_OAUTH_BASE', 'https://account-d.d
 DOCUSIGN_USER_ID = os.environ.get('DOCUSIGN_USER_ID', '')  # DocuSign user GUID
 
 # ---------------------------------------------------------------------------
-# Keel shared platform
+# Keel (DockLabs Shared Platform)
 # ---------------------------------------------------------------------------
 KEEL_PRODUCT_NAME = 'Harbor'
+KEEL_AUDIT_LOG_MODEL = 'core.AuditLog'
+KEEL_CSP_POLICY = {}  # Start permissive, tighten later
