@@ -99,11 +99,22 @@ def build_absolute_url(path):
 
 
 def create_notification(recipient, title, message, link='', priority='medium'):
-    """Create an in-app notification (Harbor) or just log it."""
+    """Create an in-app notification (Harbor) or standalone Notification record."""
     if is_harbor():
         from core.notifications import _create_notification
         return _create_notification(recipient, title, message, link, priority)
-    logger.info('NOTIFICATION [%s] %s: %s', recipient, title, message)
+    # Standalone mode: create a Notification record in the signatures app
+    try:
+        from .models import Notification
+        Notification.objects.create(
+            recipient=recipient,
+            title=title,
+            message=message,
+            link=link,
+            priority=priority,
+        )
+    except Exception:
+        logger.exception('Failed to create notification for %s', recipient)
 
 
 def send_notification_email(recipient_email, subject, template_name, context):

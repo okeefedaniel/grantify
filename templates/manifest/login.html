@@ -1,6 +1,5 @@
 {% extends "manifest/base.html" %}
-{% load i18n %}
-{% load crispy_forms_tags %}
+{% load i18n crispy_forms_tags keel_demo %}
 
 {% block title %}{% trans "Sign In" %}{% endblock %}
 
@@ -61,6 +60,8 @@
                         </button>
                     </div>
                 </form>
+
+                {% demo_login_buttons %}
             </div>
         </div>
     </div>

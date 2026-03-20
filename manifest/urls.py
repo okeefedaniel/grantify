@@ -5,6 +5,7 @@ from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
 from keel.core.views import health_check, robots_txt
+from keel.core.demo import demo_login_view
 
 
 urlpatterns = [
@@ -13,6 +14,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/login/', LoginView.as_view(template_name='manifest/login.html'), name='login'),
     path('accounts/', include('django.contrib.auth.urls')),
+    path('demo-login/', demo_login_view, name='demo_login'),
+    path('notifications/', include('keel.notifications.urls')),
     path('', include('signatures.urls')),
 ]
 

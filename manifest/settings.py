@@ -11,6 +11,8 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() in ('true', '1', 'yes')
+DEMO_MODE = os.environ.get('DEMO_MODE', 'False').lower() in ('true', '1', 'yes')
+DEMO_ROLES = ['admin', 'signer']
 
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '')
 if not SECRET_KEY:
@@ -47,6 +49,7 @@ INSTALLED_APPS = [
     # Keel (DockLabs shared platform)
     'keel.core',
     'keel.security',
+    'keel.notifications',
     # Third-party
     'crispy_forms',
     'crispy_bootstrap5',
@@ -81,6 +84,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'signatures.context_processors.manifest_context',
+                'keel.core.context_processors.site_context',
             ],
         },
     },
@@ -228,4 +232,6 @@ MIGRATION_MODULES = {
 # ---------------------------------------------------------------------------
 KEEL_PRODUCT_NAME = 'Manifest'
 KEEL_AUDIT_LOG_MODEL = 'signatures.AuditLog'
+KEEL_NOTIFICATION_MODEL = 'signatures.Notification'
+KEEL_NOTIFICATION_PREFERENCE_MODEL = 'signatures.NotificationPreference'
 KEEL_CSP_POLICY = {}  # Start permissive, tighten later

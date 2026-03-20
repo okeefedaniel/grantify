@@ -6,7 +6,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from keel.core.models import AbstractAuditLog
+from keel.core.models import AbstractAuditLog, AbstractNotification
+from keel.notifications.models import AbstractNotificationPreference
 
 # Detect whether the grants app is installed so we can conditionally
 # define the grant_program FK.  This runs at class-definition time
@@ -556,6 +557,26 @@ class SignatureRole(models.Model):
 
     def __str__(self):
         return self.label
+
+
+# ---------------------------------------------------------------------------
+# Notification — Used by Manifest standalone
+# In Harbor mode, core.Notification is used instead.
+# ---------------------------------------------------------------------------
+class Notification(AbstractNotification):
+    """Manifest in-app notification."""
+
+    class Meta(AbstractNotification.Meta):
+        verbose_name = _('Notification')
+        verbose_name_plural = _('Notifications')
+
+
+class NotificationPreference(AbstractNotificationPreference):
+    """Manifest per-user notification channel preferences."""
+
+    class Meta(AbstractNotificationPreference.Meta):
+        verbose_name = _('Notification Preference')
+        verbose_name_plural = _('Notification Preferences')
 
 
 # ---------------------------------------------------------------------------

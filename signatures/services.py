@@ -8,6 +8,7 @@ import io
 import logging
 
 from django.core.files.base import ContentFile
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
@@ -22,12 +23,22 @@ from .compat import (
 logger = logging.getLogger(__name__)
 
 
+def _try_keel_notify(event, **kwargs):
+    """Attempt to use Keel's event-driven notify(); fall back to legacy helpers."""
+    try:
+        from keel.notifications import notify
+        return notify(event=event, **kwargs)
+    except Exception:
+        logger.debug('Keel notify() unavailable, using legacy helpers', exc_info=True)
+        return None
+
+
 # ---------------------------------------------------------------------------
 # Packet lifecycle
 # ---------------------------------------------------------------------------
 
 def initiate_packet(flow, title, initiated_by, signer_assignments,
-                    content_type=None, object_id=''):
+                    content_type=None, object_id='', ip_address=None):
     """Create a SigningPacket and its SigningStep records.
 
     Args:
@@ -37,6 +48,7 @@ def initiate_packet(flow, title, initiated_by, signer_assignments,
         signer_assignments: dict mapping flow_step.pk (UUID) -> User instance
         content_type: ContentType (optional, for linking to Award etc.)
         object_id: str (optional)
+        ip_address: client IP for audit trail
 
     Returns:
         SigningPacket instance
@@ -52,6 +64,7 @@ def initiate_packet(flow, title, initiated_by, signer_assignments,
         object_id=str(object_id) if object_id else '',
     )
 
+    created_steps = []
     steps = list(flow.steps.order_by('order'))
     for flow_step in steps:
         signer = signer_assignments.get(flow_step.pk)
@@ -61,13 +74,14 @@ def initiate_packet(flow, title, initiated_by, signer_assignments,
             raise ValueError(
                 f'No signer assigned for required step "{flow_step.label}".'
             )
-        SigningStep.objects.create(
+        signing_step = SigningStep.objects.create(
             packet=packet,
             flow_step=flow_step,
             order=flow_step.order,
             signer=signer,
             status=SigningStep.Status.PENDING,
         )
+        created_steps.append(signing_step)
 
     # Activate the first step
     first_step = packet.steps.order_by('order').first()
@@ -81,7 +95,22 @@ def initiate_packet(flow, title, initiated_by, signer_assignments,
         action=get_audit_action().CREATE,
         entity_type='SigningPacket',
         entity_id=str(packet.pk),
-        description=f'Initiated signing packet "{title}" with {len(steps)} steps.',
+        description=f'Initiated signing packet "{title}" with {len(created_steps)} steps.',
+        changes={
+            'flow': str(flow.pk),
+            'flow_name': flow.name,
+            'title': title,
+            'steps': [
+                {
+                    'order': s.order,
+                    'label': s.flow_step.label,
+                    'signer': s.signer.get_full_name(),
+                    'signer_id': str(s.signer.pk),
+                }
+                for s in created_steps
+            ],
+        },
+        ip_address=ip_address,
     )
 
     return packet
@@ -127,6 +156,17 @@ def complete_step(signing_step, signature_type, signature_data, ip_address=None)
             f'{signing_step.signer.get_full_name()} signed step {signing_step.order} '
             f'("{signing_step.flow_step.label}") via {signature_type}.'
         ),
+        changes={
+            'packet_id': str(signing_step.packet.pk),
+            'packet_title': signing_step.packet.title,
+            'step_order': signing_step.order,
+            'step_label': signing_step.flow_step.label,
+            'signature_type': signature_type,
+            'signed_at': signing_step.signed_at.isoformat(),
+            'signed_ip': ip_address or '',
+            'signer': signing_step.signer.get_full_name(),
+            'signer_id': str(signing_step.signer.pk),
+        },
         ip_address=ip_address,
     )
 
@@ -170,12 +210,31 @@ def _complete_packet(packet):
 
     _notify_packet_completed(packet)
 
+    # Build a summary of all signatures for the audit record
+    signature_summary = []
+    for step in packet.steps.select_related('signer', 'flow_step').order_by('order'):
+        signature_summary.append({
+            'order': step.order,
+            'label': step.flow_step.label,
+            'signer': step.signer.get_full_name(),
+            'signer_id': str(step.signer.pk),
+            'status': step.status,
+            'signature_type': step.signature_type or '',
+            'signed_at': step.signed_at.isoformat() if step.signed_at else '',
+            'signed_ip': step.signed_ip or '',
+        })
+
     log_audit(
         user=None,
         action=get_audit_action().STATUS_CHANGE,
         entity_type='SigningPacket',
         entity_id=str(packet.pk),
         description=f'Signing packet "{packet.title}" completed — all signatures collected.',
+        changes={
+            'completed_at': packet.completed_at.isoformat(),
+            'initiated_by': packet.initiated_by.get_full_name() if packet.initiated_by else '',
+            'signatures': signature_summary,
+        },
     )
 
 
@@ -203,15 +262,25 @@ def decline_step(signing_step, reason, ip_address=None):
             f'{signing_step.signer.get_full_name()} declined step {signing_step.order} '
             f'("{signing_step.flow_step.label}"): {reason}'
         ),
+        changes={
+            'packet_id': str(packet.pk),
+            'packet_title': packet.title,
+            'step_order': signing_step.order,
+            'step_label': signing_step.flow_step.label,
+            'declined_at': signing_step.declined_at.isoformat(),
+            'decline_reason': reason,
+            'signer': signing_step.signer.get_full_name(),
+            'signer_id': str(signing_step.signer.pk),
+        },
         ip_address=ip_address,
     )
 
 
-def cancel_packet(packet, cancelled_by, reason=''):
+def cancel_packet(packet, cancelled_by, reason='', ip_address=None):
     """Cancel all pending/active steps and mark the packet as cancelled."""
     from .models import SigningPacket, SigningStep
 
-    packet.steps.filter(
+    skipped_count = packet.steps.filter(
         status__in=[SigningStep.Status.PENDING, SigningStep.Status.ACTIVE],
     ).update(status=SigningStep.Status.SKIPPED)
 
@@ -229,6 +298,12 @@ def cancel_packet(packet, cancelled_by, reason=''):
         entity_type='SigningPacket',
         entity_id=str(packet.pk),
         description=f'Signing packet "{packet.title}" cancelled by {cancelled_by.get_full_name()}.',
+        changes={
+            'cancel_reason': reason,
+            'cancelled_at': packet.cancelled_at.isoformat(),
+            'steps_skipped': skipped_count,
+        },
+        ip_address=ip_address,
     )
 
 
@@ -348,26 +423,44 @@ def generate_signed_pdf(packet):
 
 def _notify_signer_active(signing_step):
     """Notify a signer that it's their turn to sign."""
-    from django.urls import reverse
-
     sign_url = reverse('signatures:sign', kwargs={'step_id': signing_step.pk})
     absolute_url = build_absolute_url(sign_url)
+    msg = _(
+        'You have been asked to sign "%(packet)s" (Step %(order)s: %(label)s). '
+        'Please review and sign the document.'
+    ) % {
+        'packet': signing_step.packet.title,
+        'order': signing_step.order,
+        'label': signing_step.flow_step.label,
+    }
 
+    # Try Keel's event-driven system first
+    result = _try_keel_notify(
+        event='signature_required',
+        recipients=[signing_step.signer],
+        title=_('Signature Required'),
+        message=msg,
+        link=sign_url,
+        priority='high',
+        context={
+            'signer': signing_step.signer,
+            'packet': signing_step.packet,
+            'step': signing_step,
+            'sign_url': absolute_url,
+        },
+        force=True,  # Signature requests should not be mutable
+    )
+    if result and result.get('sent', 0) > 0:
+        return
+
+    # Fallback to legacy helpers
     create_notification(
         recipient=signing_step.signer,
         title=_('Signature Required'),
-        message=_(
-            'You have been asked to sign "%(packet)s" (Step %(order)s: %(label)s). '
-            'Please review and sign the document.'
-        ) % {
-            'packet': signing_step.packet.title,
-            'order': signing_step.order,
-            'label': signing_step.flow_step.label,
-        },
+        message=msg,
         link=sign_url,
         priority='high',
     )
-
     send_notification_email(
         recipient_email=signing_step.signer.email,
         subject=_('Action Required: Signature Needed — %(packet)s') % {
@@ -385,24 +478,52 @@ def _notify_signer_active(signing_step):
 
 def _notify_packet_completed(packet):
     """Notify the initiator and all signers that signing is complete."""
-    from django.urls import reverse
-
     detail_url = reverse('signatures:packet-detail', kwargs={'pk': packet.pk})
     absolute_url = build_absolute_url(detail_url)
 
-    notified = set()
-
-    # Notify initiator
+    # Collect all recipients (initiator + signers, deduplicated)
+    recipients = []
+    seen = set()
     if packet.initiated_by:
+        recipients.append(packet.initiated_by)
+        seen.add(packet.initiated_by.pk)
+    for step in packet.steps.select_related('signer'):
+        if step.signer.pk not in seen:
+            recipients.append(step.signer)
+            seen.add(step.signer.pk)
+
+    msg = _('All signatures have been collected for "%(packet)s".') % {
+        'packet': packet.title,
+    }
+
+    # Try Keel's event-driven system first
+    result = _try_keel_notify(
+        event='signing_complete',
+        recipients=recipients,
+        title=_('Signing Complete'),
+        message=msg,
+        link=detail_url,
+        priority='high',
+        context={
+            'packet': packet,
+            'detail_url': absolute_url,
+        },
+    )
+    if result and result.get('sent', 0) > 0:
+        return
+
+    # Fallback to legacy helpers
+    for recipient in recipients:
+        priority = 'high' if recipient == packet.initiated_by else 'medium'
         create_notification(
-            recipient=packet.initiated_by,
+            recipient=recipient,
             title=_('Signing Complete'),
-            message=_('All signatures have been collected for "%(packet)s".') % {
-                'packet': packet.title,
-            },
+            message=msg,
             link=detail_url,
-            priority='high',
+            priority=priority,
         )
+
+    if packet.initiated_by:
         send_notification_email(
             recipient_email=packet.initiated_by.email,
             subject=_('Signing Complete — %(packet)s') % {'packet': packet.title},
@@ -413,50 +534,52 @@ def _notify_packet_completed(packet):
                 'detail_url': absolute_url,
             },
         )
-        notified.add(packet.initiated_by.pk)
-
-    # Notify each signer
-    for step in packet.steps.select_related('signer'):
-        if step.signer.pk not in notified:
-            create_notification(
-                recipient=step.signer,
-                title=_('Signing Complete'),
-                message=_('All signatures have been collected for "%(packet)s".') % {
-                    'packet': packet.title,
-                },
-                link=detail_url,
-                priority='medium',
-            )
-            notified.add(step.signer.pk)
 
 
 def _notify_packet_declined(packet, declined_step):
     """Notify the initiator that a signer declined."""
-    from django.urls import reverse
-
     if not packet.initiated_by:
         return
 
     detail_url = reverse('signatures:packet-detail', kwargs={'pk': packet.pk})
     absolute_url = build_absolute_url(detail_url)
+    msg = _(
+        '%(signer)s declined to sign "%(packet)s" (Step %(order)s: %(label)s). '
+        'Reason: %(reason)s'
+    ) % {
+        'signer': declined_step.signer.get_full_name(),
+        'packet': packet.title,
+        'order': declined_step.order,
+        'label': declined_step.flow_step.label,
+        'reason': declined_step.decline_reason,
+    }
 
+    # Try Keel's event-driven system first
+    result = _try_keel_notify(
+        event='signing_declined',
+        recipients=[packet.initiated_by],
+        title=_('Signature Declined'),
+        message=msg,
+        link=detail_url,
+        priority='high',
+        context={
+            'recipient': packet.initiated_by,
+            'packet': packet,
+            'declined_step': declined_step,
+            'detail_url': absolute_url,
+        },
+    )
+    if result and result.get('sent', 0) > 0:
+        return
+
+    # Fallback to legacy helpers
     create_notification(
         recipient=packet.initiated_by,
         title=_('Signature Declined'),
-        message=_(
-            '%(signer)s declined to sign "%(packet)s" (Step %(order)s: %(label)s). '
-            'Reason: %(reason)s'
-        ) % {
-            'signer': declined_step.signer.get_full_name(),
-            'packet': packet.title,
-            'order': declined_step.order,
-            'label': declined_step.flow_step.label,
-            'reason': declined_step.decline_reason,
-        },
+        message=msg,
         link=detail_url,
         priority='high',
     )
-
     send_notification_email(
         recipient_email=packet.initiated_by.email,
         subject=_('Signature Declined — %(packet)s') % {'packet': packet.title},
@@ -472,17 +595,24 @@ def _notify_packet_declined(packet, declined_step):
 
 def send_reminder(signing_step):
     """Send a reminder email to the active signer."""
-    from django.urls import reverse
-
     sign_url = reverse('signatures:sign', kwargs={'step_id': signing_step.pk})
     absolute_url = build_absolute_url(sign_url)
 
-    send_notification_email(
-        recipient_email=signing_step.signer.email,
-        subject=_('Reminder: Signature Needed — %(packet)s') % {
+    # Try Keel's event-driven system first
+    result = _try_keel_notify(
+        event='signature_reminder',
+        recipients=[signing_step.signer],
+        title=_('Reminder: Signature Needed'),
+        message=_(
+            'A reminder that your signature is needed for "%(packet)s" '
+            '(Step %(order)s: %(label)s).'
+        ) % {
             'packet': signing_step.packet.title,
+            'order': signing_step.order,
+            'label': signing_step.flow_step.label,
         },
-        template_name='emails/signer_reminder.html',
+        link=sign_url,
+        priority='high',
         context={
             'signer': signing_step.signer,
             'packet': signing_step.packet,
@@ -490,6 +620,22 @@ def send_reminder(signing_step):
             'sign_url': absolute_url,
         },
     )
+
+    # Always send email (even if Keel handled in-app)
+    if not result or result.get('sent', 0) == 0:
+        send_notification_email(
+            recipient_email=signing_step.signer.email,
+            subject=_('Reminder: Signature Needed — %(packet)s') % {
+                'packet': signing_step.packet.title,
+            },
+            template_name='emails/signer_reminder.html',
+            context={
+                'signer': signing_step.signer,
+                'packet': signing_step.packet,
+                'step': signing_step,
+                'sign_url': absolute_url,
+            },
+        )
 
     signing_step.reminded_at = timezone.now()
     signing_step.save(update_fields=['reminded_at', 'updated_at'])

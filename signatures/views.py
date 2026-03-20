@@ -404,11 +404,13 @@ class PacketInitiateView(AgencyStaffRequiredMixin, View):
             if user:
                 signer_assignments[step.pk] = user
 
+        ip_address = getattr(request, 'audit_ip', request.META.get('REMOTE_ADDR'))
         packet = services.initiate_packet(
             flow=flow,
             title=form.cleaned_data['title'],
             initiated_by=request.user,
             signer_assignments=signer_assignments,
+            ip_address=ip_address,
         )
 
         messages.success(request, _('Signing packet initiated successfully.'))
@@ -443,7 +445,8 @@ class PacketCancelView(AgencyStaffRequiredMixin, View):
             return redirect('signatures:packet-detail', pk=pk)
 
         reason = request.POST.get('cancel_reason', '')
-        services.cancel_packet(packet, request.user, reason)
+        ip_address = getattr(request, 'audit_ip', request.META.get('REMOTE_ADDR'))
+        services.cancel_packet(packet, request.user, reason, ip_address=ip_address)
         messages.success(request, _('Signing packet has been cancelled.'))
         return redirect('signatures:packet-detail', pk=pk)
 
