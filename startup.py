@@ -62,10 +62,10 @@ def main():
     log(f"PATH: {os.environ.get('PATH', 'NOT SET')}")
 
     # Detect mode
-    if settings_module == 'signstreamer.settings':
+    if settings_module == 'manifest.settings':
         log("=== Manifest Mode ===")
-        manage_cmd = f"{sys.executable} manage_signstreamer.py"
-        wsgi_module = "signstreamer.wsgi"
+        manage_cmd = f"{sys.executable} manage_manifest.py"
+        wsgi_module = "manifest.wsgi"
     else:
         log("=== Harbor Mode ===")
         manage_cmd = f"{sys.executable} manage.py"
@@ -138,7 +138,7 @@ def main():
     run(f"{manage_cmd} migrate --noinput")
 
     # Mode-specific post-migration tasks
-    if settings_module == 'signstreamer.settings':
+    if settings_module == 'manifest.settings':
         # Auto-create superuser if DJANGO_SUPERUSER_* env vars are set
         su_user = os.environ.get('DJANGO_SUPERUSER_USERNAME', '').strip()
         su_email = os.environ.get('DJANGO_SUPERUSER_EMAIL', '').strip()

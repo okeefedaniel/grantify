@@ -8,15 +8,15 @@ extend the correct base template in both Harbor and standalone mode.
 from .compat import is_harbor
 
 
-def signstreamer_context(request):
+def manifest_context(request):
     if is_harbor():
         return {
             'sig_base_template': 'base.html',
             'sig_dashboard_url': 'dashboard',
-            'signstreamer_brand': 'Harbor',
+            'manifest_brand': 'Harbor',
         }
     return {
-        'sig_base_template': 'signstreamer/base.html',
+        'sig_base_template': 'manifest/base.html',
         'sig_dashboard_url': 'signatures:packet-list',
-        'signstreamer_brand': 'Manifest',
+        'manifest_brand': 'Manifest',
     }

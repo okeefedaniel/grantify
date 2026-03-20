@@ -15,7 +15,7 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() in ('true', '1', 'yes')
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '')
 if not SECRET_KEY:
     if DEBUG:
-        SECRET_KEY = 'django-insecure-signstreamer-dev-key-change-in-production'
+        SECRET_KEY = 'django-insecure-manifest-dev-key-change-in-production'
     else:
         from django.core.exceptions import ImproperlyConfigured
         raise ImproperlyConfigured('DJANGO_SECRET_KEY must be set in production')
@@ -34,7 +34,7 @@ if RAILWAY_DOMAIN:
     CSRF_TRUSTED_ORIGINS.append(f'https://{RAILWAY_DOMAIN}')
 CSRF_TRUSTED_ORIGINS = [o for o in CSRF_TRUSTED_ORIGINS if o]  # filter blanks
 
-SIGNSTREAMER_SITE_URL = os.environ.get('SITE_URL', 'https://manifest.docklabs.ai')
+MANIFEST_SITE_URL = os.environ.get('SITE_URL', 'https://manifest.docklabs.ai')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -62,7 +62,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'signstreamer.urls'
+ROOT_URLCONF = 'manifest.urls'
 
 TEMPLATES = [
     {
@@ -74,13 +74,13 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'signatures.context_processors.signstreamer_context',
+                'signatures.context_processors.manifest_context',
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'signstreamer.wsgi.application'
+WSGI_APPLICATION = 'manifest.wsgi.application'
 
 # Database — uses DATABASE_URL (provided automatically by Railway Postgres)
 import dj_database_url
@@ -116,7 +116,7 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db_signstreamer.sqlite3',
+            'NAME': BASE_DIR / 'db_manifest.sqlite3',
         }
     }
 
@@ -131,7 +131,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = BASE_DIR / 'staticfiles_signstreamer'
+STATIC_ROOT = BASE_DIR / 'staticfiles_manifest'
 STORAGES = {
     'default': {
         'BACKEND': 'django.core.files.storage.FileSystemStorage',
@@ -214,5 +214,5 @@ if not DEBUG:
 # Use separate migrations directory for standalone mode
 # (avoids the grants app dependency in the default migration)
 MIGRATION_MODULES = {
-    'signatures': 'signstreamer.migrations.signatures',
+    'signatures': 'manifest.migrations.signatures',
 }

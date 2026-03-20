@@ -83,7 +83,7 @@ def build_absolute_url(path):
     if is_harbor():
         from core.notifications import _build_absolute_url
         return _build_absolute_url(path)
-    domain = getattr(settings, 'SIGNSTREAMER_SITE_URL', None)
+    domain = getattr(settings, 'MANIFEST_SITE_URL', None)
     if not domain:
         domain = os.environ.get('SITE_URL', 'http://localhost:8000')
     return f'{domain.rstrip("/")}{path}'

@@ -14,7 +14,7 @@ def health_check(request):
 urlpatterns = [
     path('health/', health_check),
     path('admin/', admin.site.urls),
-    path('accounts/login/', LoginView.as_view(template_name='signstreamer/login.html'), name='login'),
+    path('accounts/login/', LoginView.as_view(template_name='manifest/login.html'), name='login'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('', include('signatures.urls')),
 ]
