@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils import timezone
 
 
@@ -6,6 +7,7 @@ def site_context(request):
     context = {
         'SITE_NAME': 'Harbor',
         'CURRENT_YEAR': timezone.now().year,
+        'DEMO_MODE': getattr(settings, 'DEMO_MODE', False),
     }
 
     if hasattr(request, 'user') and request.user.is_authenticated:

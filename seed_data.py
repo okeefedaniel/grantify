@@ -139,7 +139,7 @@ for name, otype, zipcode in orgs_data:
     )
     orgs[name] = o
 
-# ── Users (one per role, password: demo2026) ─────────────────
+# ── Users (one per role, password: demo2026!) ─────────────────
 print("Creating users...")
 
 def make_user(username, first, last, role, email, agency=None, org=None, is_staff=False):
@@ -153,7 +153,7 @@ def make_user(username, first, last, role, email, agency=None, org=None, is_staf
         ),
     )
     if created:
-        u.set_password('demo2026')
+        u.set_password('demo2026!')
         u.save()
     # Ensure allauth EmailAddress record exists
     if email:
@@ -1565,16 +1565,16 @@ print(f"  Notifications:      {Notification.objects.count()}")
 print(f"  Audit Logs:         {AuditLog.objects.count()}")
 
 print("\n── Demo User Summary ──")
-print("  applicant       / demo2026  → 13 apps (2 draft, 6 submitted, 1 under review, 3 approved, 1 denied)")
-print("  reviewer        / demo2026  → 7 review assignments (3 completed, 1 in-progress, 3 assigned)")
-print("  program.officer / demo2026  → Applications pipeline, report reviews, closeout management")
-print("  fiscal.officer  / demo2026  → 3 pending drawdowns to review ($197,500), fund returns")
-print("  agency.admin    / demo2026  → Agency overview, pending amendment, closeout oversight")
-print("  auditor         / demo2026  → Audit trail, closeout audit, transaction monitoring")
-print("  fed.coordinator / demo2026  → Federal Fund Coordinator (OBM), 5 tracked opps, collaborators")
-print("  admin           / demo2026  → Full system admin, analytics, all data")
-print("  maria.santos    / demo2026  → Greenwich infrastructure applicant")
-print("  james.chen      / demo2026  → Riverside arts applicant (1 submitted, 1 draft)")
-print("  priya.patel     / demo2026  → State University healthcare workforce applicant")
-print("  derek.williams  / demo2026  → Bridgeport Trust (1 award active, drawdown pending)")
-print("  rachel.kim      / demo2026  → Innovation Labs (1 submitted, 1 draft)")
+print("  applicant       / demo2026!  → 13 apps (2 draft, 6 submitted, 1 under review, 3 approved, 1 denied)")
+print("  reviewer        / demo2026!  → 7 review assignments (3 completed, 1 in-progress, 3 assigned)")
+print("  program.officer / demo2026!  → Applications pipeline, report reviews, closeout management")
+print("  fiscal.officer  / demo2026!  → 3 pending drawdowns to review ($197,500), fund returns")
+print("  agency.admin    / demo2026!  → Agency overview, pending amendment, closeout oversight")
+print("  auditor         / demo2026!  → Audit trail, closeout audit, transaction monitoring")
+print("  fed.coordinator / demo2026!  → Federal Fund Coordinator (OBM), 5 tracked opps, collaborators")
+print("  admin           / demo2026!  → Full system admin, analytics, all data")
+print("  maria.santos    / demo2026!  → Greenwich infrastructure applicant")
+print("  james.chen      / demo2026!  → Riverside arts applicant (1 submitted, 1 draft)")
+print("  priya.patel     / demo2026!  → State University healthcare workforce applicant")
+print("  derek.williams  / demo2026!  → Bridgeport Trust (1 award active, drawdown pending)")
+print("  rachel.kim      / demo2026!  → Innovation Labs (1 submitted, 1 draft)")

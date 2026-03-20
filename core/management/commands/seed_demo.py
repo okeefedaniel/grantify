@@ -36,12 +36,12 @@ class Command(BaseCommand):
             User.objects.create_superuser(
                 username='admin',
                 email='admin@dok.gov',
-                password='admin123',
+                password='demo2026!',
                 first_name='System',
                 last_name='Admin',
                 role='system_admin',
             )
-            self.stdout.write(self.style.SUCCESS('  admin / admin123 created'))
+            self.stdout.write(self.style.SUCCESS('  admin / demo2026! created'))
         else:
             self.stdout.write('Admin user already exists, skipping.')
 
@@ -91,8 +91,8 @@ class Command(BaseCommand):
                         item.save()
 
             self.stdout.write(self.style.SUCCESS('\nDemo data seeded successfully!'))
-            self.stdout.write('  Login: admin / admin123')
-            self.stdout.write('  Demo users password: demo2026')
+            self.stdout.write('  Login: admin / demo2026!')
+            self.stdout.write('  Demo users password: demo2026!')
         else:
             self.stdout.write(
                 self.style.ERROR(f'Seed script not found at {seed_script}')

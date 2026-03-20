@@ -12,7 +12,7 @@ from django.db import transaction
 
 from core.models import Agency, Organization, User
 
-PASSWORD = "demo2026"
+PASSWORD = "demo2026!"
 
 # Map: old_username -> (new_username, first_name, last_name)
 RENAME_MAP = {
@@ -130,7 +130,7 @@ class Command(BaseCommand):
             admin.is_superuser = True
             admin.set_password(PASSWORD)
             admin.save()
-            self.stdout.write(self.style.SUCCESS("  admin -> password set to demo2026"))
+            self.stdout.write(self.style.SUCCESS("  admin -> password set to demo2026!"))
         except User.DoesNotExist:
             self.stdout.write(self.style.WARNING("  admin user not found."))
 

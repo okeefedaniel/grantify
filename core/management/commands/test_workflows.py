@@ -166,7 +166,7 @@ class Command(BaseCommand):
             if not admin_user:
                 admin_user = User.objects.create_superuser(
                     username='admin', email='admin@dok.gov',
-                    password='admin123', role='system_admin',
+                    password='demo2026!', role='system_admin',
                     first_name='System', last_name='Admin',
                 )
             program = GrantProgram.objects.create(
@@ -450,7 +450,7 @@ class Command(BaseCommand):
         # ==============================================================
         T.section('STAFF WORKFLOW - Login')
         staff_client = Client()
-        staff_login = staff_client.login(username='admin', password='admin123')
+        staff_login = staff_client.login(username='admin', password='demo2026!')
         T.check(staff_login, 'Staff (admin) can log in')
 
         # 1. Visit dashboard

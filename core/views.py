@@ -1172,10 +1172,6 @@ class DemoLoginView(View):
             messages.error(request, _('Could not log in as "%(username)s".') % {'username': username})
             return redirect('portal:demo')
 
-        if user.is_superuser or user.is_staff:
-            messages.error(request, _('Admin accounts cannot be used for demo login.'))
-            return redirect('portal:demo')
-
         login(request, user, backend='django.contrib.auth.backends.ModelBackend')
         messages.success(
             request,

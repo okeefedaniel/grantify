@@ -95,6 +95,71 @@
                 {% trans "State employees: use your DOK.gov account" %}
             </p>
 
+            {% if DEMO_MODE %}
+            <!-- Quick Demo Login -->
+            <div class="d-flex align-items-center my-4">
+                <hr class="flex-grow-1">
+                <span class="px-3 text-muted small">{% trans "QUICK DEMO LOGIN" %}</span>
+                <hr class="flex-grow-1">
+            </div>
+            <div class="row g-2">
+                <div class="col-6">
+                    <form method="post" action="{% url 'core:demo-login' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="username" value="applicant">
+                        <button type="submit" class="btn btn-outline-primary btn-sm w-100">
+                            <i class="bi bi-person me-1"></i>Applicant
+                        </button>
+                    </form>
+                </div>
+                <div class="col-6">
+                    <form method="post" action="{% url 'core:demo-login' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="username" value="program.officer">
+                        <button type="submit" class="btn btn-outline-success btn-sm w-100">
+                            <i class="bi bi-clipboard-check me-1"></i>Program Officer
+                        </button>
+                    </form>
+                </div>
+                <div class="col-6">
+                    <form method="post" action="{% url 'core:demo-login' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="username" value="fiscal.officer">
+                        <button type="submit" class="btn btn-outline-warning btn-sm w-100">
+                            <i class="bi bi-currency-dollar me-1"></i>Fiscal Officer
+                        </button>
+                    </form>
+                </div>
+                <div class="col-6">
+                    <form method="post" action="{% url 'core:demo-login' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="username" value="agency.admin">
+                        <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+                            <i class="bi bi-building me-1"></i>Agency Admin
+                        </button>
+                    </form>
+                </div>
+                <div class="col-6">
+                    <form method="post" action="{% url 'core:demo-login' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="username" value="reviewer">
+                        <button type="submit" class="btn btn-outline-info btn-sm w-100">
+                            <i class="bi bi-search me-1"></i>Reviewer
+                        </button>
+                    </form>
+                </div>
+                <div class="col-6">
+                    <form method="post" action="{% url 'core:demo-login' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="username" value="admin">
+                        <button type="submit" class="btn btn-outline-dark btn-sm w-100">
+                            <i class="bi bi-shield-lock me-1"></i>Admin
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
             <!-- Links -->
             <div class="text-center mt-3">
                 <p class="mb-2">
