@@ -166,7 +166,16 @@ class NotificationListView(LoginRequiredMixin, ListView):
     paginate_by = 25
 
     def get_queryset(self):
-        return Notification.objects.filter(recipient=self.request.user)
+        return Notification.objects.filter(
+            recipient=self.request.user,
+        ).order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['unread_notifications_count'] = Notification.objects.filter(
+            recipient=self.request.user, is_read=False,
+        ).count()
+        return ctx
 
 
 @login_required

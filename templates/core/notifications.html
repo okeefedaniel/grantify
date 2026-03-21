@@ -20,9 +20,9 @@
         </h2>
     </div>
     {% if notifications %}
-    <form method="post" action="" id="mark-all-read-form">
+    <form method="post" action="{% url 'keel_notifications:mark_all_read' %}" id="mark-all-read-form">
         {% csrf_token %}
-        <button type="button" class="btn btn-sm btn-outline-secondary" id="mark-all-read-btn" disabled>
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="mark-all-read-btn">
             <i class="bi bi-check-all me-1"></i>{% trans "Mark All as Read" %}
         </button>
     </form>
@@ -146,6 +146,8 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
     // Mark individual notification as read
     document.querySelectorAll('.mark-read-btn').forEach(function(btn) {
         btn.addEventListener('click', function(e) {
@@ -153,13 +155,13 @@ document.addEventListener('DOMContentLoaded', function() {
             e.stopPropagation();
             const url = this.dataset.url;
             const notificationId = this.dataset.notificationId;
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
             fetch(url, {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': csrfToken,
-                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'HX-Request': 'true',
                 },
             })
             .then(response => response.json())
@@ -173,10 +175,61 @@ document.addEventListener('DOMContentLoaded', function() {
                     const message = item.querySelector('p');
                     message.classList.add('text-muted');
                     btn.outerHTML = '<span class="badge bg-secondary">Read</span>';
+                    updateBadge();
                 }
             });
         });
     });
+
+    // Mark all as read
+    const markAllBtn = document.getElementById('mark-all-read-btn');
+    if (markAllBtn) {
+        markAllBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const form = document.getElementById('mark-all-read-form');
+            const url = form.action;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'HX-Request': 'true',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'ok') {
+                    // Update all unread items visually
+                    document.querySelectorAll('.list-group-item.bg-light').forEach(function(item) {
+                        item.classList.remove('bg-light');
+                        const title = item.querySelector('h6');
+                        if (title) { title.classList.remove('fw-bold'); title.classList.add('text-muted'); }
+                        const message = item.querySelector('p');
+                        if (message) { message.classList.add('text-muted'); }
+                    });
+                    document.querySelectorAll('.mark-read-btn').forEach(function(btn) {
+                        btn.outerHTML = '<span class="badge bg-secondary">Read</span>';
+                    });
+                    markAllBtn.disabled = true;
+                    updateBadge();
+                }
+            });
+        });
+    }
+
+    function updateBadge() {
+        // Update the unread count badge in the header
+        const unreadCount = document.querySelectorAll('.list-group-item.bg-light').length;
+        const badge = document.querySelector('h2 .badge');
+        if (badge) { badge.textContent = unreadCount; }
+        // Update nav bell badge
+        const navBadge = document.querySelector('.nav-link .badge.bg-danger');
+        if (navBadge) {
+            if (unreadCount > 0) { navBadge.textContent = unreadCount; }
+            else { navBadge.remove(); }
+        }
+    }
 });
 </script>
 {% endblock %}
