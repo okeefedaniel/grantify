@@ -41,16 +41,6 @@ urlpatterns = [
         name='user-api-key',
     ),
     path(
-        'notifications/',
-        views.NotificationListView.as_view(),
-        name='notifications',
-    ),
-    path(
-        'notifications/<uuid:pk>/read/',
-        views.mark_notification_read,
-        name='notification-read',
-    ),
-    path(
         'organizations/<uuid:pk>/claim/',
         views.OrganizationClaimView.as_view(),
         name='organization-claim',

@@ -37,6 +37,7 @@ urlpatterns = [
     path('reporting/', include('reporting.urls')),
     path('closeout/', include('closeout.urls')),
     path('signatures/', include('signatures.urls')),
+    path('notifications/', include('keel.notifications.urls')),
     path('api/', include('api.urls')),
     path('i18n/', include('django.conf.urls.i18n')),
 ]

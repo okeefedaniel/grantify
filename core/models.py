@@ -9,7 +9,8 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from keel.core.models import AbstractAuditLog
+from keel.core.models import AbstractAuditLog, AbstractNotification
+from keel.notifications.models import AbstractNotificationPreference, AbstractNotificationLog
 
 logger = logging.getLogger(__name__)
 
@@ -311,36 +312,10 @@ class AuditLog(AbstractAuditLog):
 # ---------------------------------------------------------------------------
 # Notification
 # ---------------------------------------------------------------------------
-class Notification(models.Model):
-    """In-app notification delivered to a user."""
+class Notification(AbstractNotification):
+    """Harbor notification — inherits from Keel's AbstractNotification."""
 
-    class Priority(models.TextChoices):
-        LOW = 'low', _('Low')
-        MEDIUM = 'medium', _('Medium')
-        HIGH = 'high', _('High')
-        URGENT = 'urgent', _('Urgent')
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    recipient = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='notifications',
-    )
-    title = models.CharField(max_length=255)
-    message = models.TextField()
-    priority = models.CharField(
-        max_length=10,
-        choices=Priority.choices,
-        default=Priority.MEDIUM,
-    )
-    link = models.CharField(max_length=500, blank=True)
-
-    is_read = models.BooleanField(default=False)
-    read_at = models.DateTimeField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ['-created_at']
+    class Meta(AbstractNotification.Meta):
         verbose_name = _('Notification')
         verbose_name_plural = _('Notifications')
         indexes = [
@@ -350,8 +325,27 @@ class Notification(models.Model):
             ),
         ]
 
-    def __str__(self):
-        return f"{self.title} -> {self.recipient}"
+
+# ---------------------------------------------------------------------------
+# NotificationPreference
+# ---------------------------------------------------------------------------
+class NotificationPreference(AbstractNotificationPreference):
+    """Per-user notification channel preferences."""
+
+    class Meta(AbstractNotificationPreference.Meta):
+        verbose_name = _('Notification Preference')
+        verbose_name_plural = _('Notification Preferences')
+
+
+# ---------------------------------------------------------------------------
+# NotificationLog
+# ---------------------------------------------------------------------------
+class NotificationLog(AbstractNotificationLog):
+    """Tracks notification delivery per channel."""
+
+    class Meta(AbstractNotificationLog.Meta):
+        verbose_name = _('Notification Log')
+        verbose_name_plural = _('Notification Logs')
 
 
 # ---------------------------------------------------------------------------
