@@ -72,7 +72,7 @@
                 <button type="button"
                         class="btn btn-sm btn-outline-primary mark-read-btn"
                         data-notification-id="{{ notification.id }}"
-                        data-url="{% url 'core:notification-read' notification.pk %}"
+                        data-url="{% url 'keel_notifications:mark_read' notification.pk %}"
                         title="{% trans "Mark as read" %}">
                     <i class="bi bi-check2"></i>
                 </button>

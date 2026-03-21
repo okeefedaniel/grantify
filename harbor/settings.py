@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     # Keel (DockLabs shared platform)
     'keel.core',
     'keel.security',
+    'keel.notifications',
     # Third party
     'rest_framework',
     'rest_framework.authtoken',
@@ -379,4 +380,7 @@ DOCUSIGN_USER_ID = os.environ.get('DOCUSIGN_USER_ID', '')  # DocuSign user GUID
 # ---------------------------------------------------------------------------
 KEEL_PRODUCT_NAME = 'Harbor'
 KEEL_AUDIT_LOG_MODEL = 'core.AuditLog'
+KEEL_NOTIFICATION_MODEL = 'core.Notification'
+KEEL_NOTIFICATION_PREFERENCE_MODEL = 'core.NotificationPreference'
+KEEL_NOTIFICATION_LOG_MODEL = 'core.NotificationLog'
 KEEL_CSP_POLICY = {}  # Start permissive, tighten later
