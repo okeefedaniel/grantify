@@ -203,6 +203,9 @@ SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
+# Upload limits
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
+
 if not DEBUG:
     # HTTPS / SSL settings (Railway handles SSL at the proxy)
     SECURE_SSL_REDIRECT = False
