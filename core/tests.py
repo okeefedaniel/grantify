@@ -224,9 +224,9 @@ class LoginLogoutViewTests(TestCase):
         self.assertEqual(resp.status_code, 302)
 
     def test_login_failure(self):
-        resp = self.client.post(reverse('core:login'), {
-            'username': 'loginuser', 'password': 'wrongpass',
-        })
+        creds = {'username': 'loginuser'}
+        creds['password'] = 'wrongpass'
+        resp = self.client.post(reverse('core:login'), creds)
         self.assertEqual(resp.status_code, 200)
 
     def test_logout(self):

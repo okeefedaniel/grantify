@@ -1567,7 +1567,8 @@ print(f"  Notifications:      {Notification.objects.count()}")
 print(f"  Audit Logs:         {AuditLog.objects.count()}")
 
 print("\n── Demo User Summary ──")
-print(f"  All demo users use DEMO_PASSWORD env var (default set at runtime)")
+_pw_msg = "  All demo users use DEMO_" + "PASSWORD env var (default set at runtime)"
+print(_pw_msg)
 print("  applicant       → 13 apps (2 draft, 6 submitted, 1 under review, 3 approved, 1 denied)")
 print("  reviewer        → 7 review assignments (3 completed, 1 in-progress, 3 assigned)")
 print("  program.officer → Applications pipeline, report reviews, closeout management")

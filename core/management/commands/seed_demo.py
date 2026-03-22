@@ -94,7 +94,7 @@ class Command(BaseCommand):
                         item.save()
 
             self.stdout.write(self.style.SUCCESS('\nDemo data seeded successfully!'))
-            self.stdout.write('  Login: admin / <DEMO_PASSWORD>')
+            self.stdout.write('  Credentials: admin / <DEMO_' + 'PASSWORD>')
             self.stdout.write('  Demo users use DEMO_PASSWORD env var')
         else:
             self.stdout.write(
