@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load static %}
+{% load static keel_requests %}
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE|default:'en' }}" data-bs-theme="light">
 <head>
@@ -192,5 +192,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/harbor.js' %}"></script>
     {% block extra_js %}{% endblock %}
+
+    {% request_widget %}
 </body>
 </html>
