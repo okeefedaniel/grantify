@@ -378,6 +378,8 @@ DOCUSIGN_USER_ID = os.environ.get('DOCUSIGN_USER_ID', '')  # DocuSign user GUID
 # Keel (DockLabs Shared Platform)
 # ---------------------------------------------------------------------------
 KEEL_PRODUCT_NAME = 'Harbor'
+KEEL_PRODUCT_ICON = 'bi-bank2'
+KEEL_PRODUCT_SUBTITLE = 'State Grants Management Solution'
 KEEL_API_URL = os.environ.get('KEEL_API_URL', 'https://keel.docklabs.ai')
 KEEL_API_KEY = os.environ.get('KEEL_API_KEY', '')
 KEEL_AUDIT_LOG_MODEL = 'core.AuditLog'
