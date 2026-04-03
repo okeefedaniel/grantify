@@ -28,7 +28,7 @@ urlpatterns = [
         views.OrganizationUpdateView.as_view(),
         name='organization-edit',
     ),
-    path('demo-login/', views.DemoLoginView.as_view(), name='demo-login'),
+    # Demo login handled by keel.core.demo.demo_login_view at /demo-login/
     path('users/', views.UserListView.as_view(), name='user-list'),
     path(
         'users/<uuid:pk>/role/',
