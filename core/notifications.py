@@ -8,8 +8,6 @@ failures are logged but never break the caller's workflow.
 
 import logging
 
-from django.conf import settings
-from django.core.mail import send_mail
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
@@ -192,12 +190,16 @@ def notify_drawdown_status_changed(drawdown, new_status):
             priority='high',
         )
         if recipient.email:
-            send_mail(
+            send_notification_email(
+                recipient_email=recipient.email,
                 subject=subject,
-                message=message + f'\n\nView details: {detail_url}',
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[recipient.email],
-                fail_silently=True,
+                template_name='notifications/emails/generic.html',
+                context={
+                    'title': _('Drawdown %(status)s') % {'status': status_display},
+                    'message': message,
+                    'link': detail_url,
+                    'product_name': 'Harbor',
+                },
             )
     except Exception:
         logger.exception(
@@ -237,12 +239,16 @@ def notify_report_review_complete(report, action):
             priority='high',
         )
         if recipient.email:
-            send_mail(
+            send_notification_email(
+                recipient_email=recipient.email,
                 subject=subject,
-                message=message + f'\n\nView details: {detail_url}',
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[recipient.email],
-                fail_silently=True,
+                template_name='notifications/emails/generic.html',
+                context={
+                    'title': _('Report %(action)s') % {'action': action_display},
+                    'message': message,
+                    'link': detail_url,
+                    'product_name': 'Harbor',
+                },
             )
     except Exception:
         logger.exception(
@@ -296,12 +302,16 @@ def notify_amendment_created(amendment):
                 priority='medium',
             )
             if staff_user.email:
-                send_mail(
+                send_notification_email(
+                    recipient_email=staff_user.email,
                     subject=subject,
-                    message=message + f'\n\nView details: {detail_url}',
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[staff_user.email],
-                    fail_silently=True,
+                    template_name='notifications/emails/generic.html',
+                    context={
+                        'title': _('New Amendment Request'),
+                        'message': message,
+                        'link': detail_url,
+                        'product_name': 'Harbor',
+                    },
                 )
     except Exception:
         logger.exception(
@@ -452,12 +462,16 @@ def notify_closeout_initiated(closeout):
             priority='high',
         )
         if recipient.email:
-            send_mail(
+            send_notification_email(
+                recipient_email=recipient.email,
                 subject=subject,
-                message=message + f'\n\nView details: {detail_url}',
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[recipient.email],
-                fail_silently=True,
+                template_name='notifications/emails/generic.html',
+                context={
+                    'title': _('Closeout Initiated'),
+                    'message': message,
+                    'link': detail_url,
+                    'product_name': 'Harbor',
+                },
             )
     except Exception:
         logger.exception(
