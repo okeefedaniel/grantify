@@ -144,11 +144,7 @@ def score_opportunity(preference, opportunity):
         logger.warning('No API key for user %s — skipping AI scoring', preference.user)
         return None
 
-    try:
-        import anthropic
-    except ImportError:
-        logger.error('anthropic package not installed — run pip install anthropic')
-        return None
+    from keel.core.ai import get_client, call_claude
 
     pref_context = build_preference_context(preference)
     opp_summary = build_opportunity_summary(opportunity)
@@ -167,14 +163,14 @@ def score_opportunity(preference, opportunity):
     )
 
     try:
-        client = anthropic.Anthropic(api_key=api_key)
-        response = client.messages.create(
-            model=MODEL,
-            max_tokens=MAX_TOKENS,
-            system=system,
-            messages=[{'role': 'user', 'content': user_message}],
+        client = get_client(api_key=api_key)
+        text = call_claude(
+            client, system=system, user_message=user_message,
+            model=MODEL, max_tokens=MAX_TOKENS,
         )
-        text = response.content[0].text.strip()
+        if text is None:
+            return None
+        text = text.strip()
 
         # Parse JSON — strip any markdown fences if the model adds them
         if text.startswith('```'):
