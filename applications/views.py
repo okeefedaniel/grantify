@@ -1,5 +1,6 @@
 import logging
 
+from django.db import models
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, HttpResponseForbidden, JsonResponse
@@ -84,9 +85,23 @@ class ApplicationListView(AgencyStaffRequiredMixin, SortableListMixin, CSVExport
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
+        user = self.request.user
         qs = Application.objects.select_related(
             'grant_program', 'applicant', 'organization',
         )
+
+        # Scope to the user's agency (superusers/system_admins see all).
+        if not (user.is_superuser or user.role == 'system_admin'):
+            if user.agency:
+                assigned_app_ids = ApplicationAssignment.objects.filter(
+                    assigned_to=user,
+                ).values_list('application_id', flat=True)
+                qs = qs.filter(
+                    models.Q(grant_program__agency=user.agency)
+                    | models.Q(pk__in=assigned_app_ids)
+                )
+            else:
+                qs = qs.none()
 
         grant_program = self.request.GET.get('grant_program')
         if grant_program:
@@ -251,7 +266,14 @@ class ApplicationDetailView(LoginRequiredMixin, DetailView):
         if user.is_superuser or user.role == 'system_admin':
             return qs
         if user.is_agency_staff and user.agency:
-            return qs.filter(grant_program__agency=user.agency)
+            # Staff can see applications in their agency OR assigned to them.
+            assigned_app_ids = ApplicationAssignment.objects.filter(
+                assigned_to=user,
+            ).values_list('application_id', flat=True)
+            return qs.filter(
+                models.Q(grant_program__agency=user.agency)
+                | models.Q(pk__in=assigned_app_ids)
+            )
         return qs.filter(applicant=user)
 
     def get_context_data(self, **kwargs):

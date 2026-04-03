@@ -8,6 +8,7 @@ from django.conf.urls.static import static
 from django.views.generic import RedirectView
 from core import views as core_views
 from keel.core.views import health_check, robots_txt
+from keel.core.demo import demo_login_view
 
 from django.utils.translation import gettext_lazy as _
 
@@ -16,6 +17,7 @@ admin.site.site_title = _('Harbor Admin')
 admin.site.index_title = _('Grants Management System')
 
 urlpatterns = [
+    path('demo-login/', demo_login_view, name='demo_login'),
     path('robots.txt', robots_txt, name='robots_txt'),
     path('health/', health_check, name='health_check'),
     path('admin/', admin.site.urls),
