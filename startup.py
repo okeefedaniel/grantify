@@ -162,7 +162,6 @@ def main():
         log("=== Running background startup tasks ===")
         if os.environ.get('SEED_ON_DEPLOY', '').lower() in ('true', '1', 'yes'):
             run(f"{manage_cmd} shell < seed_data.py")
-        run(f"{manage_cmd} sync_federal_grants --limit 10")
         run(f"{manage_cmd} match_opportunities")
         log("=== Background tasks complete ===")
 
