@@ -32,7 +32,7 @@ class ApplicationCommentInline(admin.StackedInline):
 class ApplicationStatusHistoryInline(admin.TabularInline):
     model = ApplicationStatusHistory
     extra = 0
-    readonly_fields = ('old_status', 'new_status', 'changed_by', 'comment', 'timestamp')
+    readonly_fields = ('old_status', 'new_status', 'changed_by', 'comment', 'changed_at')
 
     def has_add_permission(self, request, obj=None):
         return False
@@ -103,9 +103,9 @@ class ApplicationCommentAdmin(admin.ModelAdmin):
 
 @admin.register(ApplicationStatusHistory)
 class ApplicationStatusHistoryAdmin(admin.ModelAdmin):
-    list_display = ('application', 'old_status', 'new_status', 'changed_by', 'timestamp')
+    list_display = ('application', 'old_status', 'new_status', 'changed_by', 'changed_at')
     list_filter = ('old_status', 'new_status')
-    readonly_fields = ('application', 'old_status', 'new_status', 'changed_by', 'comment', 'timestamp')
+    readonly_fields = ('application', 'old_status', 'new_status', 'changed_by', 'comment', 'changed_at')
 
     def has_add_permission(self, request):
         return False

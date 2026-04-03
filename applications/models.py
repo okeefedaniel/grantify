@@ -5,6 +5,8 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
+from keel.core.models import AbstractInternalNote, AbstractStatusHistory
+
 from core.validators import validate_document_file
 
 
@@ -168,29 +170,27 @@ class ApplicationDocument(models.Model):
         return f"{self.title} ({self.get_document_type_display()})"
 
 
-class ApplicationComment(models.Model):
-    """Comments on an application, with support for internal staff-only notes."""
+class ApplicationComment(AbstractInternalNote):
+    """Comments on an application, with support for internal staff-only notes.
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    Inherits from Keel's AbstractInternalNote which provides:
+    id, author, content, is_internal, created_at, updated_at.
+
+    Harbor convention: is_internal defaults to False (external users can see
+    comments) — overridden from the abstract's default of True.
+    """
+
     application = models.ForeignKey(
         Application,
         on_delete=models.CASCADE,
         related_name='comments',
     )
-    author = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT,
-        related_name='application_comments',
-    )
-    content = models.TextField()
     is_internal = models.BooleanField(
         default=False,
         help_text=_('If True, this comment is visible only to staff reviewers'),
     )
-    created_at = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        ordering = ['-created_at']
+    class Meta(AbstractInternalNote.Meta):
         verbose_name = _('Application Comment')
         verbose_name_plural = _('Application Comments')
 
@@ -312,33 +312,20 @@ class StaffDocument(models.Model):
         return f"{self.title} ({self.get_document_type_display()})"
 
 
-class ApplicationStatusHistory(models.Model):
-    """Audit trail of status changes for an application."""
+class ApplicationStatusHistory(AbstractStatusHistory):
+    """Audit trail of status changes for an application.
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    Inherits from Keel's AbstractStatusHistory which provides:
+    id, old_status, new_status, changed_by, comment, changed_at.
+    """
+
     application = models.ForeignKey(
         Application,
         on_delete=models.CASCADE,
         related_name='status_history',
     )
-    old_status = models.CharField(
-        max_length=20,
-        choices=Application.Status.choices,
-    )
-    new_status = models.CharField(
-        max_length=20,
-        choices=Application.Status.choices,
-    )
-    changed_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT,
-        related_name='application_status_changes',
-    )
-    comment = models.TextField(blank=True, default='')
-    timestamp = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        ordering = ['-timestamp']
+    class Meta(AbstractStatusHistory.Meta):
         verbose_name = _('Application Status History')
         verbose_name_plural = _('Application Status Histories')
 
