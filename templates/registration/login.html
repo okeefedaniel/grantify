@@ -1,11 +1,5 @@
 {% extends "base.html" %}
 
-{% block title %}Log In{% endblock %}
-
 {% block content %}
-{% url 'microsoft_login' as ms_url %}
-{% url 'core:register' as reg_url %}
-{% with microsoft_login_url=ms_url register_url=reg_url %}
-  {% include "keel/login_card.html" %}
-{% endwith %}
+{% include "keel/login_card.html" %}
 {% endblock %}

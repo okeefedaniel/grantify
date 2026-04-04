@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Harbor{% endblock %} | {% trans "State Grants Management" %}</title>
+    <title>{% block title %}Harbor | {% trans "State Grants Management" %}{% endblock %}</title>
     {% block meta_description %}<meta name="description" content="{% trans 'Harbor — State Grants Management Solution for streamlined grant lifecycle management.' %}">{% endblock %}
     <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -310,8 +310,8 @@
                     &copy; {% now "Y" %} DockLabs. {% trans "All rights reserved." %}
                 </p>
                 <p class="small mb-0">
-                    <a href="{% url 'portal:privacy' %}" class="text-muted text-decoration-none me-3">{% trans "Privacy Policy" %}</a>
-                    <a href="{% url 'portal:terms' %}" class="text-muted text-decoration-none">{% trans "Terms of Service" %}</a>
+                    <a href="https://docklabs.ai/privacy.html" class="text-muted text-decoration-none me-3">{% trans "Privacy Policy" %}</a>
+                    <a href="https://docklabs.ai/terms.html" class="text-muted text-decoration-none">{% trans "Terms of Service" %}</a>
                 </p>
             </div>
         </div>
