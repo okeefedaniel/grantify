@@ -1,38 +1,16 @@
 /* ============================================
    Harbor — Grant-Specific Styles
    Extends docklabs.css with Harbor-only components.
+   Shared classes (.opportunity-card, .badge-grant-type,
+   .badge-watching/preparing/applied/awarded) now live
+   in Keel's docklabs.css.
    ============================================ */
 
-/* -- Grant Opportunity Cards -- */
-.opportunity-card {
-    border-left: 4px solid var(--ct-blue);
-    margin-bottom: 1rem;
-}
-.opportunity-card .deadline {
-    color: var(--ct-red);
-    font-weight: 600;
-}
-.opportunity-card .funding {
-    color: var(--ct-green);
-    font-weight: 700;
-    font-size: 1.1rem;
-}
-
-/* -- Grant-Specific Badges -- */
+/* -- Grant-Specific Badges (Harbor only) -- */
 .badge-accepting,
 .badge-accepting-applications,
 .badge-accepting_applications { background-color: var(--ct-green); }
 .badge-awards-pending,
 .badge-awards_pending { background-color: var(--ct-yellow); color: var(--ct-dark-gray); }
 .badge-executed { background-color: var(--ct-green); }
-.badge-grant-type {
-    background-color: var(--ct-pale-blue);
-    color: var(--ct-dark-blue) !important;
-}
 .badge-claimed { background-color: var(--ct-green); }
-
-/* -- Tracking Status Badges (Federal Opportunities) -- */
-.badge-watching   { background-color: #6C757D; }
-.badge-preparing  { background-color: var(--ct-yellow); color: var(--ct-dark-gray); }
-.badge-applied    { background-color: var(--ct-blue); }
-.badge-awarded    { background-color: var(--ct-green); }
