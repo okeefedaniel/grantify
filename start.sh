@@ -32,6 +32,20 @@ GUNICORN_PID=$!
 # Give gunicorn a moment to bind the port
 sleep 2
 
+# One-time database reset (set RESET_DB=true in Railway env, then remove after deploy)
+if [ "$RESET_DB" = "true" ]; then
+    echo "=== RESETTING DATABASE ==="
+    $MANAGE_CMD shell -c "
+from django.db import connection
+with connection.cursor() as c:
+    c.execute('DROP SCHEMA public CASCADE')
+    c.execute('CREATE SCHEMA public')
+    c.execute('GRANT ALL ON SCHEMA public TO public')
+print('Schema reset complete')
+" 2>&1
+    echo "=== Database reset complete ==="
+fi
+
 # Now run migrations (gunicorn is already serving /health/)
 echo "=== Running migrations ==="
 $MANAGE_CMD migrate --noinput 2>&1 || echo "ERROR: Migrations failed — see output above"

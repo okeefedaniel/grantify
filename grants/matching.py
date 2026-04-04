@@ -203,10 +203,10 @@ def run_matching_for_user(user, include_state=False):
     Returns a dict with ``scored``, ``stored``, ``notified`` counts.
     """
     from django.contrib.auth import get_user_model; User = get_user_model()
-    from core.notifications import (
-        _build_absolute_url,
-        _create_notification,
-        _send_notification_email,
+    from keel.core.notifications import (
+        build_absolute_url,
+        create_notification,
+        send_notification_email,
     )
     from grants.models import (
         FederalOpportunity,
@@ -303,7 +303,7 @@ def run_matching_for_user(user, include_state=False):
             title_text = match_obj.opportunity_title
             opp_url = match_obj.opportunity_url
 
-            _create_notification(
+            create_notification(
                 recipient=user,
                 title='New Grant Recommendation',
                 message=(
@@ -315,8 +315,8 @@ def run_matching_for_user(user, include_state=False):
             )
 
             if user.email:
-                detail_url = _build_absolute_url(opp_url)
-                _send_notification_email(
+                detail_url = build_absolute_url(opp_url)
+                send_notification_email(
                     recipient_email=user.email,
                     subject=f'Grant Recommendation: {title_text[:60]}',
                     template_name='emails/grant_match.html',

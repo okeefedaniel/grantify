@@ -90,8 +90,8 @@ def get_audit_log_model():
 def build_absolute_url(path):
     """Return a fully-qualified URL for *path*."""
     if is_harbor():
-        from core.notifications import _build_absolute_url
-        return _build_absolute_url(path)
+        from keel.core.notifications import build_absolute_url as _build_url
+        return _build_url(path)
     domain = getattr(settings, 'MANIFEST_SITE_URL', None)
     if not domain:
         domain = os.environ.get('SITE_URL', 'http://localhost:8000')
@@ -101,8 +101,8 @@ def build_absolute_url(path):
 def create_notification(recipient, title, message, link='', priority='medium'):
     """Create an in-app notification (Harbor) or standalone Notification record."""
     if is_harbor():
-        from core.notifications import _create_notification
-        return _create_notification(recipient, title, message, link, priority)
+        from keel.core.notifications import create_notification as _create_notif
+        return _create_notif(recipient, title, message, link, priority)
     # Standalone mode: create a Notification record in the signatures app
     try:
         from .models import Notification
@@ -120,8 +120,8 @@ def create_notification(recipient, title, message, link='', priority='medium'):
 def send_notification_email(recipient_email, subject, template_name, context):
     """Send an HTML email notification."""
     if is_harbor():
-        from core.notifications import _send_notification_email
-        return _send_notification_email(
+        from keel.core.notifications import send_notification_email as _send_email
+        return _send_email(
             recipient_email, subject, template_name, context,
         )
     # Standalone: use Django's send_mail directly

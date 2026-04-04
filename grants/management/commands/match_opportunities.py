@@ -19,7 +19,7 @@ from django.utils import timezone
 
 from django.contrib.auth import get_user_model; User = get_user_model()
 from core.models import get_harbor_profile
-from core.notifications import _build_absolute_url, _create_notification, _send_notification_email
+from keel.core.notifications import build_absolute_url, create_notification, send_notification_email
 from grants.matching import score_opportunity
 from grants.models import (
     FederalOpportunity,
@@ -218,7 +218,7 @@ class Command(BaseCommand):
         title_text = match.opportunity_title
         opp_url = match.opportunity_url
 
-        _create_notification(
+        create_notification(
             recipient=user,
             title='New Grant Recommendation',
             message=(
@@ -230,8 +230,8 @@ class Command(BaseCommand):
         )
 
         if user.email:
-            detail_url = _build_absolute_url(opp_url)
-            _send_notification_email(
+            detail_url = build_absolute_url(opp_url)
+            send_notification_email(
                 recipient_email=user.email,
                 subject=f'Grant Recommendation: {title_text[:60]}',
                 template_name='emails/grant_match.html',
