@@ -175,35 +175,60 @@ class ProfileForm(forms.ModelForm):
 # ---------------------------------------------------------------------------
 # User Role Management (System Admin only)
 # ---------------------------------------------------------------------------
-class UserRoleForm(forms.ModelForm):
-    """Form for system admins to update a user's role, agency, and flags."""
+class UserRoleForm(forms.Form):
+    """Form for system admins to update a user's role, agency, and flags.
 
-    class Meta:
-        model = User
-        fields = ('role', 'agency', 'is_state_user', 'is_active')
-        widgets = {
-            'role': forms.Select(attrs={'class': 'form-select'}),
-            'agency': forms.Select(attrs={'class': 'form-select'}),
-        }
-        labels = {
-            'role': _lazy('Role'),
-            'agency': _lazy('Agency'),
-            'is_state_user': _lazy('State Employee'),
-            'is_active': _lazy('Account Active'),
-        }
-        help_texts = {
-            'role': _lazy('Select the user\'s role in the system.'),
-            'agency': _lazy('Assign to an agency (required for agency staff roles).'),
-            'is_state_user': _lazy('Designates whether this user is a CT state employee.'),
-            'is_active': _lazy('Uncheck to deactivate the user\'s account.'),
-        }
+    Role is stored in ProductAccess; agency in HarborProfile; flags on KeelUser.
+    """
 
-    def __init__(self, *args, **kwargs):
+    ROLE_CHOICES = [
+        ('system_admin', 'System Administrator'),
+        ('agency_admin', 'Agency Administrator'),
+        ('program_officer', 'Program Officer'),
+        ('fiscal_officer', 'Fiscal Officer'),
+        ('federal_coordinator', 'Federal Fund Coordinator'),
+        ('reviewer', 'Reviewer'),
+        ('applicant', 'Applicant'),
+        ('auditor', 'Auditor'),
+    ]
+
+    role = forms.ChoiceField(choices=ROLE_CHOICES, widget=forms.Select(attrs={'class': 'form-select'}))
+    agency = forms.ModelChoiceField(
+        queryset=Agency.objects.filter(is_active=True).order_by('name'),
+        required=False, widget=forms.Select(attrs={'class': 'form-select'}),
+    )
+    is_state_user = forms.BooleanField(required=False, label=_lazy('State Employee'))
+    is_active = forms.BooleanField(required=False, label=_lazy('Account Active'))
+
+    def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['agency'].queryset = Agency.objects.filter(
-            is_active=True
-        ).order_by('name')
-        self.fields['agency'].required = False
+        self._user = user
+        if user:
+            from keel.accounts.models import ProductAccess
+            from .models import get_harbor_profile
+            access = ProductAccess.objects.filter(user=user, product='harbor').first()
+            profile = get_harbor_profile(user)
+            self.initial['role'] = access.role if access else 'applicant'
+            self.initial['agency'] = profile.agency_id
+            self.initial['is_state_user'] = user.is_state_user
+            self.initial['is_active'] = user.is_active
+
+    def save(self):
+        user = self._user
+        from keel.accounts.models import ProductAccess
+        from .models import get_harbor_profile
+
+        ProductAccess.objects.update_or_create(
+            user=user, product='harbor',
+            defaults={'role': self.cleaned_data['role'], 'is_active': True},
+        )
+        profile = get_harbor_profile(user)
+        profile.agency = self.cleaned_data.get('agency')
+        profile.save(update_fields=['agency'])
+        user.is_state_user = self.cleaned_data['is_state_user']
+        user.is_active = self.cleaned_data['is_active']
+        user.save(update_fields=['is_state_user', 'is_active'])
+        return user
 
 
 # ---------------------------------------------------------------------------

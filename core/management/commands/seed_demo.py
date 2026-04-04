@@ -12,7 +12,7 @@ from pathlib import Path
 
 from django.core.management.base import BaseCommand
 
-from core.models import User
+from django.contrib.auth import get_user_model; User = get_user_model()
 
 DEMO_PASSWORD = os.environ.get('DEMO_PASSWORD', 'demo' + '2026!')
 

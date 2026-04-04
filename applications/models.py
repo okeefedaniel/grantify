@@ -5,6 +5,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
+
 from keel.core.models import AbstractInternalNote, AbstractStatusHistory
 
 from core.validators import validate_document_file
@@ -12,6 +13,12 @@ from core.validators import validate_document_file
 
 class Application(models.Model):
     """A grant application submitted by an organization for a grant program."""
+
+    COMMS_PRODUCT = 'harbor'
+    COMMS_ENTITY_TYPE = 'application'
+
+    def comms_display_name(self):
+        return f'Harbor \u2013 {self.project_title[:60]}'
 
     class Status(models.TextChoices):
         DRAFT = 'draft', _('Draft')

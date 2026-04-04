@@ -504,6 +504,12 @@
         </div>
     </div>
 
+    {% if user.is_agency_staff and comms_mailbox %}
+    <!-- Communications Panel (Staff Only) -->
+    {% include "comms/_panel.html" with mailbox=comms_mailbox threads=comms_threads %}
+    {% endif %}
+
+
     <!-- Right Column (4 cols) -->
     <div class="col-lg-4">
 

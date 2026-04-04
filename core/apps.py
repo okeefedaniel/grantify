@@ -132,3 +132,13 @@ class CoreConfig(AppConfig):
             default_roles=['applicant', 'federal_coordinator'],
             priority='medium',
         ))
+        register(NotificationType(
+            key='application_correspondence_received',
+            label='Application Correspondence Received',
+            description='New inbound email on a grant application.',
+            category='Applications',
+            default_channels=['in_app', 'email'],
+            default_roles=['program_officer', 'agency_admin'],
+            priority='medium',
+            link_template='/applications/{application.pk}/',
+        ))

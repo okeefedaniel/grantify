@@ -17,7 +17,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from core.models import User
+from django.contrib.auth import get_user_model; User = get_user_model()
 from core.notifications import _build_absolute_url, _create_notification, _send_notification_email
 from grants.matching import score_opportunity
 from grants.models import (

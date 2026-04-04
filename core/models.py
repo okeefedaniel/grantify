@@ -4,7 +4,6 @@ import logging
 import uuid
 
 from django.conf import settings
-from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -13,6 +12,34 @@ from keel.core.models import AbstractAuditLog, AbstractNotification
 from keel.notifications.models import AbstractNotificationPreference, AbstractNotificationLog
 
 logger = logging.getLogger(__name__)
+
+# Role constants — used by mixins, views, and the WorkflowEngine.
+# The actual role value comes from ProductAccess via middleware (user.role).
+AGENCY_STAFF_ROLES = {
+    'system_admin', 'agency_admin', 'program_officer',
+    'fiscal_officer', 'federal_coordinator',
+}
+GRANT_MANAGER_ROLES = {
+    'system_admin', 'agency_admin', 'program_officer', 'federal_coordinator',
+}
+FEDERAL_MANAGER_ROLES = {'system_admin', 'federal_coordinator'}
+REVIEWER_ROLES = {'system_admin', 'agency_admin', 'program_officer', 'reviewer'}
+
+
+def is_agency_staff(user):
+    return getattr(user, 'role', '') in AGENCY_STAFF_ROLES
+
+
+def can_manage_grants(user):
+    return getattr(user, 'role', '') in GRANT_MANAGER_ROLES
+
+
+def can_manage_federal(user):
+    return getattr(user, 'role', '') in FEDERAL_MANAGER_ROLES
+
+
+def can_review(user):
+    return getattr(user, 'role', '') in REVIEWER_ROLES
 
 
 # ---------------------------------------------------------------------------
@@ -143,125 +170,46 @@ class Agency(models.Model):
 
 
 # ---------------------------------------------------------------------------
-# User (custom, extends AbstractUser)
+# HarborProfile — product-specific fields on KeelUser
 # ---------------------------------------------------------------------------
-class User(AbstractUser):
-    """Custom user model for the Harbor platform."""
+class HarborProfile(models.Model):
+    """Product-specific fields for Harbor users.
 
-    class Role(models.TextChoices):
-        SYSTEM_ADMIN = 'system_admin', _('System Administrator')
-        AGENCY_ADMIN = 'agency_admin', _('Agency Administrator')
-        PROGRAM_OFFICER = 'program_officer', _('Program Officer')
-        FISCAL_OFFICER = 'fiscal_officer', _('Fiscal Officer')
-        FEDERAL_COORDINATOR = 'federal_coordinator', _('Federal Fund Coordinator')
-        REVIEWER = 'reviewer', _('Reviewer')
-        APPLICANT = 'applicant', _('Applicant')
-        AUDITOR = 'auditor', _('Auditor')
+    KeelUser handles identity (email, name, title, phone, is_state_user,
+    accepted_terms). HarborProfile stores Harbor-specific data.
+    """
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    role = models.CharField(
-        max_length=25,
-        choices=Role.choices,
-        default=Role.APPLICANT,
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+        related_name='harbor_profile',
     )
-    title = models.CharField(max_length=100, blank=True)
-    phone = models.CharField(max_length=20, blank=True)
-
     agency = models.ForeignKey(
-        Agency,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='users',
+        Agency, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='harbor_users',
     )
     organization = models.ForeignKey(
-        Organization,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='users',
+        Organization, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='harbor_users',
     )
-
-    is_state_user = models.BooleanField(
-        default=False,
-        help_text=_('Designates whether this user is a state government employee.'),
-    )
-
-    accepted_terms = models.BooleanField(default=False)
-    accepted_terms_at = models.DateTimeField(null=True, blank=True)
-
     anthropic_api_key = models.CharField(
-        max_length=255,
-        blank=True,
-        default='',
+        max_length=255, blank=True, default='',
         verbose_name=_('Anthropic API Key'),
-        help_text=_('Personal Claude API key for AI-powered grant matching.'),
     )
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['last_name', 'first_name']
-        verbose_name = _('User')
-        verbose_name_plural = _('Users')
+        verbose_name = _('Harbor Profile')
+        verbose_name_plural = _('Harbor Profiles')
 
     def __str__(self):
-        full = self.get_full_name()
-        return full if full else self.username
-
-    # ----- convenience properties -----
-
-    @property
-    def is_agency_staff(self):
-        """True when the user holds an agency-level role (includes system admins)."""
-        return self.role in {
-            self.Role.SYSTEM_ADMIN,
-            self.Role.AGENCY_ADMIN,
-            self.Role.PROGRAM_OFFICER,
-            self.Role.FISCAL_OFFICER,
-            self.Role.FEDERAL_COORDINATOR,
-        }
-
-    @property
-    def can_manage_grants(self):
-        """True when the user may create or manage grant programs."""
-        return self.role in {
-            self.Role.SYSTEM_ADMIN,
-            self.Role.AGENCY_ADMIN,
-            self.Role.PROGRAM_OFFICER,
-            self.Role.FEDERAL_COORDINATOR,
-        }
-
-    @property
-    def can_manage_federal(self):
-        """True when the user may manage federal funding opportunities."""
-        return self.role in {
-            self.Role.SYSTEM_ADMIN,
-            self.Role.FEDERAL_COORDINATOR,
-        }
-
-    @property
-    def can_review(self):
-        """True when the user may review grant applications."""
-        return self.role in {
-            self.Role.SYSTEM_ADMIN,
-            self.Role.AGENCY_ADMIN,
-            self.Role.PROGRAM_OFFICER,
-            self.Role.REVIEWER,
-        }
-
-    # ----- API key encryption -----
+        return f"Profile: {self.user}"
 
     @staticmethod
     def _get_fernet():
-        """Return a Fernet instance keyed from SECRET_KEY."""
         from cryptography.fernet import Fernet
         key = hashlib.sha256(settings.SECRET_KEY.encode()).digest()
         return Fernet(base64.urlsafe_b64encode(key))
 
     def set_anthropic_api_key(self, raw_key):
-        """Encrypt and store the API key."""
         if not raw_key:
             self.anthropic_api_key = ''
             return
@@ -269,7 +217,6 @@ class User(AbstractUser):
         self.anthropic_api_key = encrypted
 
     def get_anthropic_api_key(self):
-        """Decrypt and return the API key, or '' on failure."""
         if not self.anthropic_api_key:
             return ''
         try:
@@ -277,15 +224,18 @@ class User(AbstractUser):
                 self.anthropic_api_key.encode()
             ).decode()
         except Exception:
-            logger.warning('Failed to decrypt API key for user %s — '
-                           'key may be legacy plaintext; treating as empty.',
-                           self.pk)
+            logger.warning('Failed to decrypt API key for user %s', self.user_id)
             return ''
 
     @property
     def has_ai_access(self):
-        """True when the user has a Claude API key configured."""
-        return bool(self.anthropic_api_key)
+        return bool(self.anthropic_api_key) or bool(getattr(settings, 'ANTHROPIC_API_KEY', ''))
+
+
+def get_harbor_profile(user):
+    """Get or create HarborProfile for a user."""
+    profile, _ = HarborProfile.objects.get_or_create(user=user)
+    return profile
 
 
 # ---------------------------------------------------------------------------

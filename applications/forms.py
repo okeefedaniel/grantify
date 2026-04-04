@@ -136,7 +136,7 @@ class ApplicationAssignmentForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        from core.models import User
+        from django.contrib.auth import get_user_model; User = get_user_model()
         self.fields['assigned_to'].queryset = User.objects.filter(
             role__in=[
                 User.Role.PROGRAM_OFFICER,

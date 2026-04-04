@@ -1,9 +1,8 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 from .models import (
-    Agency, AuditLog, Notification, Organization, OrganizationClaim,
-    OrganizationContact, User,
+    Agency, AuditLog, HarborProfile, Notification, Organization,
+    OrganizationClaim, OrganizationContact,
 )
 
 
@@ -33,35 +32,12 @@ class AgencyAdmin(admin.ModelAdmin):
 
 
 # ---------------------------------------------------------------------------
-# User (extends Django UserAdmin)
+# HarborProfile
 # ---------------------------------------------------------------------------
-@admin.register(User)
-class UserAdmin(BaseUserAdmin):
-    list_display = (
-        'username', 'email', 'first_name', 'last_name', 'role',
-        'agency', 'is_state_user', 'is_active',
-    )
-    list_filter = BaseUserAdmin.list_filter + ('role', 'is_state_user', 'agency')
-    search_fields = ('username', 'email', 'first_name', 'last_name')
-    readonly_fields = ('id', 'created_at', 'updated_at')
-
-    fieldsets = BaseUserAdmin.fieldsets + (
-        ('Harbor Profile', {
-            'fields': (
-                'role', 'title', 'phone', 'agency', 'organization',
-                'is_state_user', 'accepted_terms', 'accepted_terms_at',
-            ),
-        }),
-        ('Metadata', {
-            'fields': ('id', 'created_at', 'updated_at'),
-        }),
-    )
-
-    add_fieldsets = BaseUserAdmin.add_fieldsets + (
-        ('Harbor Profile', {
-            'fields': ('role', 'agency', 'organization', 'is_state_user'),
-        }),
-    )
+@admin.register(HarborProfile)
+class HarborProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'agency', 'organization')
+    search_fields = ('user__email', 'user__first_name', 'user__last_name')
 
 
 # ---------------------------------------------------------------------------

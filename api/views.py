@@ -21,7 +21,8 @@ from rest_framework.response import Response
 
 from applications.models import Application
 from awards.models import Award
-from core.models import Agency, AuditLog, Notification, Organization, User
+from core.models import Agency, AuditLog, Notification, Organization
+from django.contrib.auth import get_user_model; User = get_user_model()
 from financial.models import Budget, DrawdownRequest, Transaction
 from grants.models import GrantProgram
 from reporting.models import Report

@@ -20,7 +20,8 @@ django.setup()
 from django.utils import timezone
 
 from allauth.account.models import EmailAddress
-from core.models import Agency, AuditLog, Notification, Organization, User
+from core.models import Agency, AuditLog, Notification, Organization
+from django.contrib.auth import get_user_model; User = get_user_model()
 from grants.models import (
     FederalOpportunity,
     FundingSource,

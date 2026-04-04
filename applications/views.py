@@ -136,7 +136,7 @@ class ApplicationListView(AgencyStaffRequiredMixin, SortableListMixin, CSVExport
         }
 
         # Can the current user assign staff? (managers only)
-        from core.models import User
+        from django.contrib.auth import get_user_model; User = get_user_model()
         context['can_assign'] = self.request.user.role in (
             User.Role.AGENCY_ADMIN,
             User.Role.PROGRAM_OFFICER,
@@ -348,12 +348,16 @@ class ApplicationDetailView(LoginRequiredMixin, DetailView):
             ).select_related('assigned_to', 'assigned_by').first()
 
             # Can the current user assign staff? (managers only)
-            from core.models import User
+            from django.contrib.auth import get_user_model; User = get_user_model()
             context['can_assign'] = self.request.user.role in (
                 User.Role.AGENCY_ADMIN,
                 User.Role.PROGRAM_OFFICER,
                 User.Role.SYSTEM_ADMIN,
             )
+
+            # Communications panel (staff only) — lazy-creates mailbox on first view
+            context['comms_mailbox'] = application.comms_mailbox
+            context['comms_threads'] = application.comms_threads
 
         return context
 
@@ -814,7 +818,7 @@ class AssignApplicationView(AgencyStaffRequiredMixin, CreateView):
     template_name = 'applications/assign_form.html'
 
     def dispatch(self, request, *args, **kwargs):
-        from core.models import User
+        from django.contrib.auth import get_user_model; User = get_user_model()
         self.application = get_object_or_404(Application, pk=kwargs['pk'])
         if request.user.role not in (
             User.Role.AGENCY_ADMIN,

@@ -115,9 +115,7 @@ def build_opportunity_summary(opportunity):
 
 def _build_system_prompt(user):
     """Return the system prompt adapted to the user's role."""
-    from core.models import User
-
-    if user.role == User.Role.FEDERAL_COORDINATOR:
+    if getattr(user, 'role', '') == 'federal_coordinator':
         return (
             "You are an AI assistant helping a state Federal Fund "
             "Coordinator identify federal grant opportunities their agency should "
@@ -202,7 +200,7 @@ def run_matching_for_user(user, include_state=False):
 
     Returns a dict with ``scored``, ``stored``, ``notified`` counts.
     """
-    from core.models import User
+    from django.contrib.auth import get_user_model; User = get_user_model()
     from core.notifications import (
         _build_absolute_url,
         _create_notification,

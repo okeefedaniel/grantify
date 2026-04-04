@@ -244,40 +244,41 @@ def get_assignable_users():
     """Return a queryset of users who can be assigned as signers."""
     User = get_user_model()
     if is_harbor():
-        from core.models import User as CoreUser
+        from keel.accounts.models import ProductAccess
         staff_roles = [
-            CoreUser.Role.SYSTEM_ADMIN,
-            CoreUser.Role.AGENCY_ADMIN,
-            CoreUser.Role.PROGRAM_OFFICER,
-            CoreUser.Role.FISCAL_OFFICER,
-            CoreUser.Role.FEDERAL_COORDINATOR,
-            CoreUser.Role.REVIEWER,
+            'system_admin', 'agency_admin', 'program_officer',
+            'fiscal_officer', 'federal_coordinator', 'reviewer',
         ]
-        return User.objects.filter(
-            role__in=staff_roles,
-        ).order_by('last_name', 'first_name')
-    return User.objects.filter(
-        is_active=True,
-    ).order_by('last_name', 'first_name')
+        user_ids = ProductAccess.objects.filter(
+            product='harbor', role__in=staff_roles, is_active=True,
+        ).values_list('user_id', flat=True)
+        return User.objects.filter(pk__in=user_ids).order_by('last_name', 'first_name')
+    return User.objects.filter(is_active=True).order_by('last_name', 'first_name')
+
+
+# Harbor role display labels for signature step assignment
+_HARBOR_ROLE_LABELS = {
+    'system_admin': 'System Administrator',
+    'agency_admin': 'Agency Administrator',
+    'program_officer': 'Program Officer',
+    'fiscal_officer': 'Fiscal Officer',
+    'federal_coordinator': 'Federal Fund Coordinator',
+    'reviewer': 'Reviewer',
+    'applicant': 'Applicant',
+    'auditor': 'Auditor',
+}
 
 
 def get_role_choices():
     """Return role choices suitable for step-assignment forms."""
     if is_harbor():
-        from core.models import User
         staff_roles = [
-            User.Role.SYSTEM_ADMIN,
-            User.Role.AGENCY_ADMIN,
-            User.Role.PROGRAM_OFFICER,
-            User.Role.FISCAL_OFFICER,
-            User.Role.FEDERAL_COORDINATOR,
-            User.Role.REVIEWER,
+            'system_admin', 'agency_admin', 'program_officer',
+            'fiscal_officer', 'federal_coordinator', 'reviewer',
         ]
         return [('', '---------')] + [
-            (role.value, role.label) for role in User.Role
-            if role.value in [r.value for r in staff_roles]
+            (r, _HARBOR_ROLE_LABELS.get(r, r)) for r in staff_roles
         ]
-    # Standalone mode: pull from the SignatureRole model
     from .models import SignatureRole
     roles = SignatureRole.objects.filter(is_active=True).order_by('label')
     return [('', '---------')] + [(r.key, r.label) for r in roles]
@@ -288,11 +289,7 @@ def get_role_label(role_key):
     if not role_key:
         return ''
     if is_harbor():
-        from core.models import User
-        try:
-            return User.Role(role_key).label
-        except ValueError:
-            return role_key
+        return _HARBOR_ROLE_LABELS.get(role_key, role_key)
     from .models import SignatureRole
     try:
         return SignatureRole.objects.get(key=role_key).label

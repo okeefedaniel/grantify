@@ -17,7 +17,7 @@ from core.mixins import (
     FederalCoordinatorRequiredMixin,
     GrantManagerRequiredMixin,
 )
-from core.models import User
+from django.contrib.auth import get_user_model; User = get_user_model()
 from core.utils import safe_redirect_url
 
 from .forms import CollaboratorForm, GrantPreferenceForm, GrantProgramForm, TrackedOpportunityForm

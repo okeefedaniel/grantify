@@ -12,7 +12,8 @@ from django.apps import apps
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from core.models import Agency, Organization, User
+from core.models import Agency, Organization
+from django.contrib.auth import get_user_model; User = get_user_model()
 
 PASSWORD = os.environ.get('DEMO_PASSWORD', 'demo' + '2026!')
 

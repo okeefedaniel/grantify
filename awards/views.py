@@ -25,7 +25,8 @@ from core.docusign import DocuSignService
 from core.export import CSVExportMixin
 from core.filters import AwardFilter
 from core.mixins import AgencyObjectMixin, AgencyStaffRequiredMixin, GrantManagerRequiredMixin, SortableListMixin
-from core.models import Agency, AuditLog, User
+from core.models import Agency, AuditLog
+from django.contrib.auth import get_user_model; User = get_user_model()
 from core.notifications import (
     notify_amendment_created,
     notify_award_created,

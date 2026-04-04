@@ -11,7 +11,8 @@ import logging
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from core.models import Notification, User
+from core.models import Notification
+from django.contrib.auth import get_user_model; User = get_user_model()
 from keel.core.notifications import (
     build_absolute_url,
     create_notification,

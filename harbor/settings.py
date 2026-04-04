@@ -52,9 +52,11 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'django.contrib.sites',
     # Keel (DockLabs shared platform)
+    'keel.accounts',
     'keel.core',
     'keel.security',
     'keel.notifications',
+    'keel.requests',
     # Third party
     'rest_framework',
     'rest_framework.authtoken',
@@ -89,6 +91,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'keel.accounts.middleware.ProductAccessMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
@@ -127,7 +130,7 @@ DATABASES = {
     )
 }
 
-AUTH_USER_MODEL = 'core.User'
+AUTH_USER_MODEL = 'keel_accounts.KeelUser'
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -325,8 +328,7 @@ AUTHENTICATION_BACKENDS = [
 ACCOUNT_LOGIN_METHODS = {'username', 'email'}
 ACCOUNT_EMAIL_VERIFICATION = 'optional'
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
-ACCOUNT_ADAPTER = 'core.sso.HarborAccountAdapter'
-SOCIALACCOUNT_ADAPTER = 'core.sso.HarborSocialAccountAdapter'
+ACCOUNT_ADAPTER = 'keel.core.sso.KeelAccountAdapter'
 
 # Where to redirect after social login
 SOCIALACCOUNT_LOGIN_ON_GET = True  # Skip the intermediate "Continue?" page
@@ -378,7 +380,8 @@ DOCUSIGN_USER_ID = os.environ.get('DOCUSIGN_USER_ID', '')  # DocuSign user GUID
 # ---------------------------------------------------------------------------
 # Keel (DockLabs Shared Platform)
 # ---------------------------------------------------------------------------
-KEEL_PRODUCT_NAME = 'Harbor'
+KEEL_PRODUCT_NAME = 'harbor'
+KEEL_GATE_ACCESS = True
 KEEL_PRODUCT_ICON = 'bi-bank2'
 KEEL_PRODUCT_SUBTITLE = 'State Grants Management Solution'
 KEEL_API_URL = os.environ.get('KEEL_API_URL', 'https://keel.docklabs.ai')
@@ -387,6 +390,7 @@ KEEL_AUDIT_LOG_MODEL = 'core.AuditLog'
 KEEL_NOTIFICATION_MODEL = 'core.Notification'
 KEEL_NOTIFICATION_PREFERENCE_MODEL = 'core.NotificationPreference'
 KEEL_NOTIFICATION_LOG_MODEL = 'core.NotificationLog'
+
 KEEL_CSP_POLICY = {}  # Start permissive, tighten later
 KEEL_FILE_SCANNING_ENABLED = not DEBUG
 KEEL_MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10MB
