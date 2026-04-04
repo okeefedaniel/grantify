@@ -92,6 +92,24 @@ def main():
     log("=== Running migrations ===")
     run(f"{manage_cmd} migrate --noinput")
 
+    # Ensure django.contrib.sites has the correct Site record (required by allauth)
+    log("=== Configuring Site object ===")
+    try:
+        from django.contrib.sites.models import Site
+        if settings_module == 'manifest.settings':
+            domain = os.environ.get('SITE_DOMAIN', 'manifest.docklabs.ai')
+            name = 'Manifest'
+        else:
+            domain = os.environ.get('SITE_DOMAIN', 'harbor.docklabs.ai')
+            name = 'Harbor'
+        site, created = Site.objects.update_or_create(
+            id=1,
+            defaults={'domain': domain, 'name': name},
+        )
+        log(f"  Site {'created' if created else 'updated'}: {site.domain}")
+    except Exception as e:
+        log(f"  WARNING: Could not configure Site: {e}")
+
     # Collect static files (no DB needed, but required for WhiteNoise)
     log("=== Collecting static files ===")
     run(f"{manage_cmd} collectstatic --noinput")

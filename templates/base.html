@@ -284,7 +284,7 @@
                     <h6 class="fw-bold"><i class="bi bi-bank2 me-2"></i>Harbor</h6>
                     <p class="small text-muted mb-0">
                         {% trans "State Grants Management Solution" %}<br>
-                        {% trans "Department of Commerce and Development" %}
+                        {% trans "Part of the DockLabs suite" %}
                     </p>
                 </div>
                 <div class="col-md-3">
@@ -307,7 +307,7 @@
             <hr class="my-3 border-secondary">
             <div class="d-flex justify-content-between align-items-center">
                 <p class="text-muted small mb-0">
-                    {% blocktrans with year=current_year %}&copy; {{ year }} State of DOK. All rights reserved.{% endblocktrans %}
+                    &copy; {% now "Y" %} DockLabs. {% trans "All rights reserved." %}
                 </p>
                 <p class="small mb-0">
                     <a href="{% url 'portal:privacy' %}" class="text-muted text-decoration-none me-3">{% trans "Privacy Policy" %}</a>
