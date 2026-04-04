@@ -21,8 +21,8 @@ User = get_user_model()
 # Extend this as your Azure AD configuration grows.
 ROLE_DOMAIN_MAP = {
     # State agency email domains → default role for new SSO users
-    'dok.gov': User.Role.PROGRAM_OFFICER,
-    'state.dok.us': User.Role.PROGRAM_OFFICER,
+    'dok.gov': 'program_officer',
+    'state.dok.us': 'program_officer',
 }
 
 
@@ -88,12 +88,8 @@ class HarborSocialAccountAdapter(DefaultSocialAccountAdapter):
 
         # Determine role based on email domain
         domain = email.split('@')[-1].lower() if '@' in email else ''
-        if domain in ROLE_DOMAIN_MAP:
-            user.role = ROLE_DOMAIN_MAP[domain]
-            user.is_state_user = True
-        else:
-            user.role = User.Role.APPLICANT
-            user.is_state_user = False
+        sso_role = ROLE_DOMAIN_MAP.get(domain, 'applicant')
+        user.is_state_user = domain in ROLE_DOMAIN_MAP
 
         # Mark terms as accepted for SSO users (implied by org SSO policy)
         user.accepted_terms = True
@@ -114,20 +110,31 @@ class HarborSocialAccountAdapter(DefaultSocialAccountAdapter):
                     email, agency.abbreviation,
                 )
 
+        # Store the intended role temporarily for save_user to pick up
+        user._sso_role = sso_role
+
         logger.info(
             'SSO: Populated new user from Microsoft — email=%s, role=%s, state=%s',
-            email, user.role, user.is_state_user,
+            email, sso_role, user.is_state_user,
         )
 
         return user
 
     def save_user(self, request, sociallogin, form=None):
-        """Save the user and set the accepted_terms timestamp."""
+        """Save the user and set the accepted_terms timestamp + ProductAccess."""
         user = super().save_user(request, sociallogin, form)
 
         if user.accepted_terms and not user.accepted_terms_at:
             from django.utils import timezone
             user.accepted_terms_at = timezone.now()
             user.save(update_fields=['accepted_terms_at'])
+
+        # Create ProductAccess for Harbor with the role determined during populate
+        from keel.accounts.models import ProductAccess
+        sso_role = getattr(user, '_sso_role', 'applicant')
+        ProductAccess.objects.get_or_create(
+            user=user, product='harbor',
+            defaults={'role': sso_role, 'is_active': True},
+        )
 
         return user

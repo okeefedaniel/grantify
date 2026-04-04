@@ -61,7 +61,7 @@ class GrantProgramListView(AgencyStaffRequiredMixin, SortableListMixin, AgencyOb
             'agency', 'funding_source', 'created_by'
         )
         user = self.request.user
-        if user.role != User.Role.SYSTEM_ADMIN and user.agency:
+        if getattr(user, 'role', '') != 'system_admin' and user.agency:
             qs = qs.filter(agency=user.agency)
         return self.apply_sorting(qs)
 
@@ -155,7 +155,7 @@ class GrantProgramUpdateView(GrantManagerRequiredMixin, AgencyObjectMixin, Updat
     def get_queryset(self):
         qs = GrantProgram.objects.select_related('agency', 'funding_source')
         user = self.request.user
-        if user.role != User.Role.SYSTEM_ADMIN and user.agency:
+        if getattr(user, 'role', '') != 'system_admin' and user.agency:
             qs = qs.filter(agency=user.agency)
         return qs
 

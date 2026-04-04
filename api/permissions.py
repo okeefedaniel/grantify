@@ -53,8 +53,8 @@ class IsFiscalOfficer(BasePermission):
         return (
             request.user
             and request.user.is_authenticated
-            and request.user.role
-            in {User.Role.FISCAL_OFFICER, User.Role.SYSTEM_ADMIN}
+            and getattr(request.user, 'role', '')
+            in {'fiscal_officer', 'system_admin'}
         )
 
 
@@ -67,5 +67,5 @@ class IsAdminUser(BasePermission):
         return (
             request.user
             and request.user.is_authenticated
-            and request.user.role == User.Role.SYSTEM_ADMIN
+            and getattr(request.user, 'role', '') == 'system_admin'
         )

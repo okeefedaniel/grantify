@@ -23,7 +23,10 @@ from core.forms import (
     ProfileForm, RegistrationForm, UserRoleForm,
 )
 from core.mixins import SortableListMixin
-from core.models import Agency, Notification, Organization, OrganizationClaim, OrganizationContact
+from core.models import (
+    Agency, AGENCY_STAFF_ROLES, GRANT_MANAGER_ROLES, Notification,
+    Organization, OrganizationClaim, OrganizationContact, users_with_roles,
+)
 from core.utils import rate_limit, safe_redirect_url
 
 User = get_user_model()
@@ -100,19 +103,22 @@ class OrganizationCreateView(LoginRequiredMixin, CreateView):
     template_name = 'core/organization_form.html'
 
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated and request.user.organization:
-            messages.info(
-                request,
-                _('You already have an organization. You can edit it below.'),
-            )
-            return redirect('core:organization-edit')
+        if request.user.is_authenticated:
+            from core.models import get_harbor_profile
+            if get_harbor_profile(request.user).organization_id:
+                messages.info(
+                    request,
+                    _('You already have an organization. You can edit it below.'),
+                )
+                return redirect('core:organization-edit')
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        # Link the new organization to the current user
-        self.request.user.organization = self.object
-        self.request.user.save(update_fields=['organization'])
+        from core.models import get_harbor_profile
+        profile = get_harbor_profile(self.request.user)
+        profile.organization = self.object
+        profile.save(update_fields=['organization'])
         messages.success(self.request, _('Organization created successfully.'))
         return response
 
@@ -135,13 +141,16 @@ class OrganizationUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('core:profile')
 
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated and not request.user.organization:
-            messages.warning(request, _('Please create your organization first.'))
-            return redirect('core:organization-create')
+        if request.user.is_authenticated:
+            from core.models import get_harbor_profile
+            if not get_harbor_profile(request.user).organization_id:
+                messages.warning(request, _('Please create your organization first.'))
+                return redirect('core:organization-create')
         return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
-        return self.request.user.organization
+        from core.models import get_harbor_profile
+        return get_harbor_profile(self.request.user).organization
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -220,13 +229,13 @@ class UserListView(LoginRequiredMixin, SortableListMixin, ListView):
     default_dir = 'asc'
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated or request.user.role != User.Role.SYSTEM_ADMIN:
+        if not request.user.is_authenticated or getattr(request.user, 'role', '') != 'system_admin':
             messages.error(request, _('Access denied. System administrators only.'))
             return redirect('dashboard')
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        qs = User.objects.select_related('agency', 'organization')
+        qs = User.objects.all()
         # Search/filter
         search = self.request.GET.get('q', '').strip()
         if search:
@@ -238,12 +247,17 @@ class UserListView(LoginRequiredMixin, SortableListMixin, ListView):
             )
         role_filter = self.request.GET.get('role', '')
         if role_filter:
-            qs = qs.filter(role=role_filter)
+            from keel.accounts.models import ProductAccess
+            user_ids = ProductAccess.objects.filter(
+                product='harbor', role=role_filter, is_active=True,
+            ).values_list('user_id', flat=True)
+            qs = qs.filter(pk__in=user_ids)
         return self.apply_sorting(qs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['roles'] = User.Role.choices
+        from core.forms import UserRoleForm
+        context['roles'] = UserRoleForm.ROLE_CHOICES
         context['current_role'] = self.request.GET.get('role', '')
         context['search_query'] = self.request.GET.get('q', '')
         return context
@@ -258,7 +272,7 @@ class UserRoleUpdateView(LoginRequiredMixin, UpdateView):
     context_object_name = 'edit_user'
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated or request.user.role != User.Role.SYSTEM_ADMIN:
+        if not request.user.is_authenticated or getattr(request.user, 'role', '') != 'system_admin':
             messages.error(request, _('Access denied. System administrators only.'))
             return redirect('dashboard')
         return super().dispatch(request, *args, **kwargs)
@@ -273,7 +287,7 @@ class UserRoleUpdateView(LoginRequiredMixin, UpdateView):
             self.request,
             _('User "%(username)s" updated to %(role)s.') % {
                 'username': user.username,
-                'role': user.get_role_display(),
+                'role': getattr(user, 'role', 'applicant'),
             },
         )
         return response
@@ -282,15 +296,17 @@ class UserRoleUpdateView(LoginRequiredMixin, UpdateView):
 @login_required
 def user_api_key_update(request, pk):
     """Allow system admins to set or clear a user's Anthropic API key."""
-    if request.method != 'POST' or request.user.role != User.Role.SYSTEM_ADMIN:
+    if request.method != 'POST' or getattr(request.user, 'role', '') != 'system_admin':
         messages.error(request, _('Access denied.'))
         return redirect('dashboard')
 
     target_user = get_object_or_404(User, pk=pk)
+    from core.models import get_harbor_profile
+    profile = get_harbor_profile(target_user)
 
     if request.POST.get('clear_key'):
-        target_user.set_anthropic_api_key('')
-        target_user.save(update_fields=['anthropic_api_key'])
+        profile.set_anthropic_api_key('')
+        profile.save(update_fields=['anthropic_api_key'])
         messages.success(
             request,
             _('API key removed for %(user)s.') % {'user': target_user.get_full_name() or target_user.username},
@@ -298,8 +314,8 @@ def user_api_key_update(request, pk):
     else:
         api_key = request.POST.get('anthropic_api_key', '').strip()
         if api_key:
-            target_user.set_anthropic_api_key(api_key)
-            target_user.save(update_fields=['anthropic_api_key'])
+            profile.set_anthropic_api_key(api_key)
+            profile.save(update_fields=['anthropic_api_key'])
             messages.success(
                 request,
                 _('API key set for %(user)s.') % {'user': target_user.get_full_name() or target_user.username},
@@ -360,9 +376,7 @@ class OrganizationClaimListView(LoginRequiredMixin, ListView):
     paginate_by = 25
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated or request.user.role not in (
-            User.Role.PROGRAM_OFFICER, User.Role.AGENCY_ADMIN, User.Role.SYSTEM_ADMIN,
-        ):
+        if not request.user.is_authenticated or getattr(request.user, 'role', '') not in GRANT_MANAGER_ROLES:
             messages.error(request, _('Access denied.'))
             return redirect('dashboard')
         return super().dispatch(request, *args, **kwargs)
@@ -388,9 +402,7 @@ class OrganizationClaimReviewView(LoginRequiredMixin, View):
     """Allow Program Officers to approve or deny an organization claim."""
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated or request.user.role not in (
-            User.Role.PROGRAM_OFFICER, User.Role.AGENCY_ADMIN, User.Role.SYSTEM_ADMIN,
-        ):
+        if not request.user.is_authenticated or getattr(request.user, 'role', '') not in GRANT_MANAGER_ROLES:
             messages.error(request, _('Access denied.'))
             return redirect('dashboard')
         return super().dispatch(request, *args, **kwargs)
@@ -423,10 +435,12 @@ class OrganizationClaimReviewView(LoginRequiredMixin, View):
 
         if action == 'approve':
             claim.status = OrganizationClaim.Status.APPROVED
-            # Link the user to the organization if not already linked
-            if not claim.user.organization_id:
-                claim.user.organization = claim.organization
-                claim.user.save(update_fields=['organization'])
+            # Link the user to the organization via HarborProfile
+            from core.models import get_harbor_profile
+            profile = get_harbor_profile(claim.user)
+            if not profile.organization_id:
+                profile.organization = claim.organization
+                profile.save(update_fields=['organization'])
             messages.success(
                 request,
                 _('Claim approved. %(user)s is now linked to %(org)s.') % {
@@ -458,9 +472,7 @@ class OrganizationContactAssignView(LoginRequiredMixin, View):
     """Assign a staff contact to an organization."""
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated or request.user.role not in (
-            User.Role.PROGRAM_OFFICER, User.Role.AGENCY_ADMIN, User.Role.SYSTEM_ADMIN,
-        ):
+        if not request.user.is_authenticated or getattr(request.user, 'role', '') not in GRANT_MANAGER_ROLES:
             messages.error(request, _('Access denied.'))
             return redirect('dashboard')
         return super().dispatch(request, *args, **kwargs)
@@ -524,13 +536,14 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         user = self.request.user
 
-        if user.role == User.Role.FEDERAL_COORDINATOR:
+        role = getattr(user, 'role', '') or ''
+        if role == 'federal_coordinator':
             context.update(self._federal_coordinator_context(user))
-        elif user.is_agency_staff or user.role == User.Role.SYSTEM_ADMIN:
+        elif role in AGENCY_STAFF_ROLES:
             context.update(self._agency_context(user))
-        elif user.role == User.Role.APPLICANT:
+        elif role == 'applicant' or not role:
             context.update(self._applicant_context(user))
-        elif user.role in (User.Role.REVIEWER, User.Role.AUDITOR):
+        elif role in ('reviewer', 'auditor'):
             context.update(self._reviewer_context(user))
 
         return context
@@ -613,11 +626,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             'assignments_by_app': {
                 str(a.application_id): a for a in dash_assignments
             },
-            'can_assign': user.role in (
-                User.Role.AGENCY_ADMIN,
-                User.Role.PROGRAM_OFFICER,
-                User.Role.SYSTEM_ADMIN,
-            ),
+            'can_assign': getattr(user, 'role', '') in GRANT_MANAGER_ROLES,
             'pending_applications_count': (
                 Application.objects
                 .filter(agency_filter)
@@ -1186,6 +1195,6 @@ class DemoLoginView(View):
             request,
             _('Logged in as %(name)s (%(role)s).')
             % {'name': user.get_full_name() or user.username,
-               'role': user.get_role_display()},
+               'role': getattr(user, 'role', 'applicant')},
         )
         return redirect('dashboard')

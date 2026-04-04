@@ -136,14 +136,8 @@ class ApplicationAssignmentForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        from django.contrib.auth import get_user_model; User = get_user_model()
-        self.fields['assigned_to'].queryset = User.objects.filter(
-            role__in=[
-                User.Role.PROGRAM_OFFICER,
-                User.Role.AGENCY_ADMIN,
-                User.Role.FISCAL_OFFICER,
-                User.Role.SYSTEM_ADMIN,
-            ],
-            is_active=True,
+        from core.models import users_with_roles
+        self.fields['assigned_to'].queryset = users_with_roles(
+            'program_officer', 'agency_admin', 'fiscal_officer', 'system_admin',
         ).order_by('last_name', 'first_name')
         self.fields['assigned_to'].label = _lazy('Assign To')

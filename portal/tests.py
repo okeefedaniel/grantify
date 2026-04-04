@@ -32,9 +32,10 @@ def _funding_source():
 
 
 def _user(username, role, agency=None, **kw):
-    return User.objects.create_user(
-        username=username, password=TEST_PASSWORD, email=f'{username}@example.com',
-        role=role, agency=agency, **kw,
+    from core.test_helpers import create_test_user
+    return create_test_user(
+        username=username, role=role, agency=agency,
+        password=TEST_PASSWORD, **kw,
     )
 
 
@@ -67,7 +68,7 @@ class HomeViewTests(TestCase):
     def test_home_shows_recent_opportunities(self):
         agency = _agency()
         fs = _funding_source()
-        officer = _user('officer', User.Role.PROGRAM_OFFICER, agency=agency)
+        officer = _user('officer', 'program_officer', agency=agency)
         _published_program(agency, fs, officer, title='Visible Grant')
         resp = self.client.get(reverse('portal:home'))
         self.assertEqual(resp.status_code, 200)
@@ -77,7 +78,7 @@ class HomeViewTests(TestCase):
     def test_home_excludes_unpublished(self):
         agency = _agency()
         fs = _funding_source()
-        officer = _user('officer', User.Role.PROGRAM_OFFICER, agency=agency)
+        officer = _user('officer', 'program_officer', agency=agency)
         _published_program(agency, fs, officer, is_published=False,
                            status=GrantProgram.Status.DRAFT, title='Hidden Grant')
         resp = self.client.get(reverse('portal:home'))
@@ -90,7 +91,7 @@ class OpportunityListViewTests(TestCase):
     def setUp(self):
         self.agency = _agency()
         self.fs = _funding_source()
-        self.officer = _user('officer', User.Role.PROGRAM_OFFICER, agency=self.agency)
+        self.officer = _user('officer', 'program_officer', agency=self.agency)
         self.program = _published_program(self.agency, self.fs, self.officer)
 
     def test_list_loads(self):
@@ -125,7 +126,7 @@ class OpportunityDetailViewTests(TestCase):
     def setUp(self):
         self.agency = _agency()
         self.fs = _funding_source()
-        self.officer = _user('officer', User.Role.PROGRAM_OFFICER, agency=self.agency)
+        self.officer = _user('officer', 'program_officer', agency=self.agency)
         self.program = _published_program(self.agency, self.fs, self.officer)
 
     def test_detail_loads(self):

@@ -114,7 +114,7 @@ class Command(BaseCommand):
                 )
                 continue
 
-            is_fed_coordinator = user.role == User.Role.FEDERAL_COORDINATOR
+            is_fed_coordinator = getattr(user, 'role', '') == 'federal_coordinator'
 
             # Federal coordinators only get federal matches
             opportunities = []

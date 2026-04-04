@@ -60,7 +60,7 @@ class RegistrationForm(UserCreationForm):
         model = User
         fields = (
             'username', 'email', 'first_name', 'last_name',
-            'phone', 'organization',
+            'phone',
             'password1', 'password2', 'accepted_terms',
         )
         widgets = {
@@ -85,8 +85,6 @@ class RegistrationForm(UserCreationForm):
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
         user.phone = self.cleaned_data.get('phone', '')
-        user.organization = self.cleaned_data.get('organization')
-        user.role = User.Role.APPLICANT
         user.is_state_user = False
         if self.cleaned_data.get('accepted_terms'):
             user.accepted_terms = True
@@ -94,6 +92,19 @@ class RegistrationForm(UserCreationForm):
             user.accepted_terms_at = timezone.now()
         if commit:
             user.save()
+            # Link organization via HarborProfile
+            org = self.cleaned_data.get('organization')
+            if org:
+                from .models import get_harbor_profile
+                profile = get_harbor_profile(user)
+                profile.organization = org
+                profile.save(update_fields=['organization'])
+            # Set default applicant role via ProductAccess
+            from keel.accounts.models import ProductAccess
+            ProductAccess.objects.get_or_create(
+                user=user, product='harbor',
+                defaults={'role': 'applicant', 'is_active': True},
+            )
         return user
 
 
@@ -271,11 +282,13 @@ class OrganizationContactForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['assigned_to'].queryset = User.objects.filter(
+        from keel.accounts.models import ProductAccess
+        staff_ids = ProductAccess.objects.filter(
+            product='harbor',
+            role__in=['program_officer', 'agency_admin', 'system_admin'],
             is_active=True,
-            role__in=[
-                User.Role.PROGRAM_OFFICER,
-                User.Role.AGENCY_ADMIN,
-                User.Role.SYSTEM_ADMIN,
-            ],
+        ).values_list('user_id', flat=True)
+        self.fields['assigned_to'].queryset = User.objects.filter(
+            pk__in=staff_ids,
+            is_active=True,
         ).order_by('last_name', 'first_name')

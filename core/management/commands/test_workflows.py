@@ -166,7 +166,8 @@ class Command(BaseCommand):
                     source_type='state',
                 )
             from django.utils import timezone
-            admin_user = User.objects.filter(role='system_admin').first()
+            from core.models import users_with_roles
+            admin_user = users_with_roles('system_admin').first()
             if not admin_user:
                 admin_user = User.objects.create_superuser(
                     username='admin', email='admin@dok.gov',

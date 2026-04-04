@@ -34,9 +34,10 @@ def _funding_source(**kw):
 
 
 def _user(username, role, agency=None, **kw):
-    return User.objects.create_user(
-        username=username, password=TEST_PASSWORD, email=f'{username}@example.com',
-        role=role, agency=agency, **kw,
+    from core.test_helpers import create_test_user
+    return create_test_user(
+        username=username, role=role, agency=agency,
+        password=TEST_PASSWORD, **kw,
     )
 
 
@@ -67,7 +68,7 @@ class GrantProgramModelTests(TestCase):
     def setUp(self):
         self.agency = _agency()
         self.fs = _funding_source()
-        self.officer = _user('officer', User.Role.PROGRAM_OFFICER, agency=self.agency)
+        self.officer = _user('officer', 'program_officer', agency=self.agency)
 
     def test_is_accepting_applications_true(self):
         gp = _grant_program(
@@ -121,8 +122,8 @@ class GrantProgramListViewTests(TestCase):
     def setUp(self):
         self.agency = _agency()
         self.fs = _funding_source()
-        self.officer = _user('officer', User.Role.PROGRAM_OFFICER, agency=self.agency)
-        self.applicant = _user('applicant', User.Role.APPLICANT)
+        self.officer = _user('officer', 'program_officer', agency=self.agency)
+        self.applicant = _user('applicant', 'applicant')
         _grant_program(self.agency, self.fs, self.officer)
 
     def test_list_requires_agency_staff(self):
@@ -142,9 +143,9 @@ class GrantProgramCreateViewTests(TestCase):
     def setUp(self):
         self.agency = _agency()
         self.fs = _funding_source()
-        self.officer = _user('officer', User.Role.PROGRAM_OFFICER, agency=self.agency)
-        self.applicant = _user('applicant', User.Role.APPLICANT)
-        self.fiscal = _user('fiscal', User.Role.FISCAL_OFFICER, agency=self.agency)
+        self.officer = _user('officer', 'program_officer', agency=self.agency)
+        self.applicant = _user('applicant', 'applicant')
+        self.fiscal = _user('fiscal', 'fiscal_officer', agency=self.agency)
 
     def test_create_denied_for_applicant(self):
         self.client.force_login(self.applicant)
@@ -188,7 +189,7 @@ class GrantProgramDetailViewTests(TestCase):
     def setUp(self):
         self.agency = _agency()
         self.fs = _funding_source()
-        self.officer = _user('officer', User.Role.PROGRAM_OFFICER, agency=self.agency)
+        self.officer = _user('officer', 'program_officer', agency=self.agency)
         self.program = _grant_program(self.agency, self.fs, self.officer)
 
     def test_detail_accessible_by_staff(self):
@@ -205,7 +206,7 @@ class PublishGrantProgramViewTests(TestCase):
     def setUp(self):
         self.agency = _agency()
         self.fs = _funding_source()
-        self.officer = _user('officer', User.Role.PROGRAM_OFFICER, agency=self.agency)
+        self.officer = _user('officer', 'program_officer', agency=self.agency)
         self.program = _grant_program(self.agency, self.fs, self.officer)
 
     def test_publish_toggle(self):
@@ -225,7 +226,7 @@ class PublishGrantProgramViewTests(TestCase):
         self.assertEqual(self.program.status, GrantProgram.Status.DRAFT)
 
     def test_publish_denied_for_applicant(self):
-        applicant = _user('applicant', User.Role.APPLICANT)
+        applicant = _user('applicant', 'applicant')
         self.client.force_login(applicant)
         url = reverse('grants:program-publish', kwargs={'pk': self.program.pk})
         resp = self.client.post(url)

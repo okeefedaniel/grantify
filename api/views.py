@@ -55,7 +55,7 @@ from .serializers import (
 
 def _is_system_admin(user):
     """Return True if the user holds the system_admin role."""
-    return user.role == User.Role.SYSTEM_ADMIN
+    return getattr(user, 'role', '') == 'system_admin'
 
 
 # ---------------------------------------------------------------------------
@@ -160,9 +160,10 @@ class ApplicationViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """Automatically assign the requesting user as the applicant."""
+        from core.models import get_harbor_profile
         serializer.save(
             applicant=self.request.user,
-            organization=self.request.user.organization,
+            organization=get_harbor_profile(self.request.user).organization,
         )
 
 
@@ -384,8 +385,10 @@ class OrganizationViewSet(viewsets.ModelViewSet):
             return qs
 
         # Applicants see only their own organization.
-        if user.organization:
-            return qs.filter(pk=user.organization_id)
+        from core.models import get_harbor_profile
+        profile = get_harbor_profile(user)
+        if profile.organization_id:
+            return qs.filter(pk=profile.organization_id)
         return qs.none()
 
 

@@ -42,6 +42,20 @@ def can_review(user):
     return getattr(user, 'role', '') in REVIEWER_ROLES
 
 
+def users_with_roles(*roles):
+    """Return a User queryset filtered to users with the given Harbor roles.
+
+    Roles are stored in ProductAccess, not on KeelUser, so this joins through
+    that table.  Example: ``users_with_roles('system_admin', 'program_officer')``
+    """
+    from django.contrib.auth import get_user_model
+    from keel.accounts.models import ProductAccess
+    ids = ProductAccess.objects.filter(
+        product='harbor', role__in=roles, is_active=True,
+    ).values_list('user_id', flat=True)
+    return get_user_model().objects.filter(pk__in=ids, is_active=True)
+
+
 # ---------------------------------------------------------------------------
 # Organization
 # ---------------------------------------------------------------------------

@@ -36,14 +36,16 @@ def build_preference_context(preference):
     parts = []
 
     # Role context
-    parts.append(f"Role: {user.get_role_display()}")
+    parts.append(f"Role: {getattr(user, 'role', 'applicant')}")
     if user.agency:
         parts.append(f"Agency: {user.agency.name} ({user.agency.abbreviation})")
-    if user.organization:
-        parts.append(f"Organization: {user.organization.name}")
-        parts.append(f"Organization Type: {user.organization.get_org_type_display()}")
-        if user.organization.city:
-            parts.append(f"Location: {user.organization.city}, {user.organization.state}")
+    from core.models import get_harbor_profile
+    org = get_harbor_profile(user).organization
+    if org:
+        parts.append(f"Organization: {org.name}")
+        parts.append(f"Organization Type: {org.get_org_type_display()}")
+        if org.city:
+            parts.append(f"Location: {org.city}, {org.state}")
 
     # Focus areas
     if preference.focus_areas:
@@ -228,7 +230,7 @@ def run_matching_for_user(user, include_state=False):
         logger.info('No active preferences for %s — skipping matching.', user)
         return {'scored': 0, 'stored': 0, 'notified': 0}
 
-    is_fed = user.role == User.Role.FEDERAL_COORDINATOR
+    is_fed = getattr(user, 'role', '') == 'federal_coordinator'
 
     # Gather opportunities
     federal_opps = list(

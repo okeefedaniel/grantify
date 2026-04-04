@@ -39,9 +39,10 @@ def _org():
 
 
 def _user(username, role, agency=None, organization=None, **kw):
-    return User.objects.create_user(
-        username=username, password=TEST_PASSWORD, email=f'{username}@example.com',
-        role=role, agency=agency, organization=organization, **kw,
+    from core.test_helpers import create_test_user
+    return create_test_user(
+        username=username, role=role, agency=agency, organization=organization,
+        password=TEST_PASSWORD, **kw,
     )
 
 
@@ -50,9 +51,9 @@ def _full_setup():
     agency = _agency()
     fs = _fs()
     org = _org()
-    officer = _user('officer', User.Role.PROGRAM_OFFICER, agency=agency)
-    fiscal = _user('fiscal', User.Role.FISCAL_OFFICER, agency=agency)
-    applicant = _user('applicant', User.Role.APPLICANT, organization=org)
+    officer = _user('officer', 'program_officer', agency=agency)
+    fiscal = _user('fiscal', 'fiscal_officer', agency=agency)
+    applicant = _user('applicant', 'applicant', organization=org)
     gp = GrantProgram.objects.create(
         agency=agency, title='Test Grant', description='Desc',
         funding_source=fs, total_funding=Decimal('500000'),

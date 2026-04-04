@@ -136,12 +136,8 @@ class ApplicationListView(AgencyStaffRequiredMixin, SortableListMixin, CSVExport
         }
 
         # Can the current user assign staff? (managers only)
-        from django.contrib.auth import get_user_model; User = get_user_model()
-        context['can_assign'] = self.request.user.role in (
-            User.Role.AGENCY_ADMIN,
-            User.Role.PROGRAM_OFFICER,
-            User.Role.SYSTEM_ADMIN,
-        )
+        from core.models import GRANT_MANAGER_ROLES
+        context['can_assign'] = getattr(self.request.user, 'role', '') in GRANT_MANAGER_ROLES
 
         return context
 
@@ -182,7 +178,8 @@ class ApplicationCreateView(LoginRequiredMixin, CreateView):
             GrantProgram, pk=kwargs['grant_program_id'],
         )
         # Guard: applicant must have an organization before applying
-        if request.user.is_authenticated and not request.user.organization:
+        from core.models import get_harbor_profile
+        if request.user.is_authenticated and not get_harbor_profile(request.user).organization_id:
             messages.warning(
                 request,
                 _('You must set up your organization profile before applying '
@@ -204,7 +201,8 @@ class ApplicationCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.grant_program = self.grant_program
         form.instance.applicant = self.request.user
-        form.instance.organization = self.request.user.organization
+        from core.models import get_harbor_profile
+        form.instance.organization = get_harbor_profile(self.request.user).organization
         form.instance.status = Application.Status.DRAFT
         return super().form_valid(form)
 
@@ -348,12 +346,8 @@ class ApplicationDetailView(LoginRequiredMixin, DetailView):
             ).select_related('assigned_to', 'assigned_by').first()
 
             # Can the current user assign staff? (managers only)
-            from django.contrib.auth import get_user_model; User = get_user_model()
-            context['can_assign'] = self.request.user.role in (
-                User.Role.AGENCY_ADMIN,
-                User.Role.PROGRAM_OFFICER,
-                User.Role.SYSTEM_ADMIN,
-            )
+            from core.models import GRANT_MANAGER_ROLES
+            context['can_assign'] = getattr(self.request.user, 'role', '') in GRANT_MANAGER_ROLES
 
             # Communications panel (staff only) — lazy-creates mailbox on first view
             context['comms_mailbox'] = application.comms_mailbox
@@ -818,13 +812,9 @@ class AssignApplicationView(AgencyStaffRequiredMixin, CreateView):
     template_name = 'applications/assign_form.html'
 
     def dispatch(self, request, *args, **kwargs):
-        from django.contrib.auth import get_user_model; User = get_user_model()
+        from core.models import GRANT_MANAGER_ROLES
         self.application = get_object_or_404(Application, pk=kwargs['pk'])
-        if request.user.role not in (
-            User.Role.AGENCY_ADMIN,
-            User.Role.PROGRAM_OFFICER,
-            User.Role.SYSTEM_ADMIN,
-        ):
+        if getattr(request.user, 'role', '') not in GRANT_MANAGER_ROLES:
             messages.error(request, _('Only managers can assign applications to staff.'))
             return redirect('applications:detail', pk=self.application.pk)
         return super().dispatch(request, *args, **kwargs)

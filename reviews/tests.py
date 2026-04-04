@@ -44,9 +44,10 @@ def _org():
 
 
 def _user(username, role, agency=None, organization=None, **kw):
-    return User.objects.create_user(
-        username=username, password=TEST_PASSWORD, email=f'{username}@example.com',
-        role=role, agency=agency, organization=organization, **kw,
+    from core.test_helpers import create_test_user
+    return create_test_user(
+        username=username, role=role, agency=agency, organization=organization,
+        password=TEST_PASSWORD, **kw,
     )
 
 
@@ -85,9 +86,9 @@ class ReviewAssignmentModelTests(TestCase):
         self.agency = _agency()
         self.fs = _fs()
         self.org = _org()
-        self.officer = _user('officer', User.Role.PROGRAM_OFFICER, agency=self.agency)
-        self.reviewer = _user('reviewer', User.Role.REVIEWER)
-        self.applicant = _user('applicant', User.Role.APPLICANT, organization=self.org)
+        self.officer = _user('officer', 'program_officer', agency=self.agency)
+        self.reviewer = _user('reviewer', 'reviewer')
+        self.applicant = _user('applicant', 'applicant', organization=self.org)
         self.gp = _grant_program(self.agency, self.fs, self.officer)
         self.app = _application(self.gp, self.applicant, self.org)
         self.rubric = ReviewRubric.objects.create(
@@ -114,9 +115,9 @@ class ReviewScoreModelTests(TestCase):
         self.agency = _agency()
         self.fs = _fs()
         self.org = _org()
-        self.officer = _user('officer', User.Role.PROGRAM_OFFICER, agency=self.agency)
-        self.reviewer = _user('reviewer', User.Role.REVIEWER)
-        self.applicant = _user('applicant', User.Role.APPLICANT, organization=self.org)
+        self.officer = _user('officer', 'program_officer', agency=self.agency)
+        self.reviewer = _user('reviewer', 'reviewer')
+        self.applicant = _user('applicant', 'applicant', organization=self.org)
         self.gp = _grant_program(self.agency, self.fs, self.officer)
         self.app = _application(self.gp, self.applicant, self.org)
         self.rubric = ReviewRubric.objects.create(
@@ -144,8 +145,8 @@ class ReviewSummaryModelTests(TestCase):
         self.agency = _agency()
         self.fs = _fs()
         self.org = _org()
-        self.officer = _user('officer', User.Role.PROGRAM_OFFICER, agency=self.agency)
-        self.applicant = _user('applicant', User.Role.APPLICANT, organization=self.org)
+        self.officer = _user('officer', 'program_officer', agency=self.agency)
+        self.applicant = _user('applicant', 'applicant', organization=self.org)
         self.gp = _grant_program(self.agency, self.fs, self.officer)
         self.app = _application(self.gp, self.applicant, self.org)
 
@@ -165,8 +166,8 @@ class ReviewDashboardViewTests(TestCase):
 
     def setUp(self):
         self.agency = _agency()
-        self.reviewer = _user('reviewer', User.Role.REVIEWER)
-        self.applicant = _user('applicant', User.Role.APPLICANT)
+        self.reviewer = _user('reviewer', 'reviewer')
+        self.applicant = _user('applicant', 'applicant')
 
     def test_dashboard_accessible_by_reviewer(self):
         self.client.force_login(self.reviewer)
@@ -185,9 +186,9 @@ class SubmitReviewViewTests(TestCase):
         self.agency = _agency()
         self.fs = _fs()
         self.org = _org()
-        self.officer = _user('officer', User.Role.PROGRAM_OFFICER, agency=self.agency)
-        self.reviewer = _user('reviewer', User.Role.REVIEWER)
-        self.applicant = _user('applicant', User.Role.APPLICANT, organization=self.org)
+        self.officer = _user('officer', 'program_officer', agency=self.agency)
+        self.reviewer = _user('reviewer', 'reviewer')
+        self.applicant = _user('applicant', 'applicant', organization=self.org)
         self.gp = _grant_program(self.agency, self.fs, self.officer)
         self.app = _application(self.gp, self.applicant, self.org)
         self.rubric = ReviewRubric.objects.create(
@@ -244,8 +245,8 @@ class ReviewSummaryViewTests(TestCase):
         self.agency = _agency()
         self.fs = _fs()
         self.org = _org()
-        self.officer = _user('officer', User.Role.PROGRAM_OFFICER, agency=self.agency)
-        self.applicant = _user('applicant', User.Role.APPLICANT, organization=self.org)
+        self.officer = _user('officer', 'program_officer', agency=self.agency)
+        self.applicant = _user('applicant', 'applicant', organization=self.org)
         self.gp = _grant_program(self.agency, self.fs, self.officer)
         self.app = _application(self.gp, self.applicant, self.org)
 

@@ -11,8 +11,7 @@ import logging
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from core.models import Notification
-from django.contrib.auth import get_user_model; User = get_user_model()
+from core.models import Notification, users_with_roles
 from keel.core.notifications import (
     build_absolute_url,
     create_notification,
@@ -37,22 +36,11 @@ def notify_application_submitted(application):
     detail_url = build_absolute_url(detail_path)
 
     # Find staff to notify: users linked to this program's agency
-    staff_qs = User.objects.filter(
-        role__in=[
-            User.Role.AGENCY_ADMIN,
-            User.Role.PROGRAM_OFFICER,
-            User.Role.SYSTEM_ADMIN,
-        ],
-        is_active=True,
-    )
+    staff_qs = users_with_roles('agency_admin', 'program_officer', 'system_admin')
     if program.agency_id:
-        # Include agency-specific staff + system admins (who may not have an agency)
         staff_qs = staff_qs.filter(
-            agency=program.agency,
-        ) | User.objects.filter(
-            role=User.Role.SYSTEM_ADMIN,
-            is_active=True,
-        )
+            harbor_profile__agency=program.agency,
+        ) | users_with_roles('system_admin')
 
     subject = _('New Application Submitted: %(title)s') % {'title': application.project_title}
     message = _(
@@ -277,21 +265,11 @@ def notify_amendment_created(amendment):
     ) % {'name': requester.get_full_name(), 'type': amendment.get_amendment_type_display(), 'award': award.award_number}
 
     # Notify staff in the award's agency
-    staff_qs = User.objects.filter(
-        role__in=[
-            User.Role.AGENCY_ADMIN,
-            User.Role.PROGRAM_OFFICER,
-            User.Role.SYSTEM_ADMIN,
-        ],
-        is_active=True,
-    )
+    staff_qs = users_with_roles('agency_admin', 'program_officer', 'system_admin')
     if award.agency_id:
         staff_qs = staff_qs.filter(
-            agency=award.agency,
-        ) | User.objects.filter(
-            role=User.Role.SYSTEM_ADMIN,
-            is_active=True,
-        )
+            harbor_profile__agency=award.agency,
+        ) | users_with_roles('system_admin')
 
     try:
         for staff_user in staff_qs.distinct():
@@ -406,21 +384,11 @@ def notify_signature_completed(award, signature_request):
             )
 
     # Also notify agency staff
-    staff_qs = User.objects.filter(
-        role__in=[
-            User.Role.AGENCY_ADMIN,
-            User.Role.PROGRAM_OFFICER,
-            User.Role.SYSTEM_ADMIN,
-        ],
-        is_active=True,
-    )
+    staff_qs = users_with_roles('agency_admin', 'program_officer', 'system_admin')
     if award.agency_id:
         staff_qs = staff_qs.filter(
-            agency=award.agency,
-        ) | User.objects.filter(
-            role=User.Role.SYSTEM_ADMIN,
-            is_active=True,
-        )
+            harbor_profile__agency=award.agency,
+        ) | users_with_roles('system_admin')
 
     try:
         for staff_user in staff_qs.distinct():
@@ -486,14 +454,7 @@ def notify_organization_claim_submitted(organization, claimant):
     full_name = claimant.get_full_name() or claimant.username
     claims_path = reverse('core:organization-claims')
 
-    staff_qs = User.objects.filter(
-        role__in=[
-            User.Role.PROGRAM_OFFICER,
-            User.Role.AGENCY_ADMIN,
-            User.Role.SYSTEM_ADMIN,
-        ],
-        is_active=True,
-    )
+    staff_qs = users_with_roles('program_officer', 'agency_admin', 'system_admin')
 
     message = _(
         '%(name)s has claimed "%(org)s" as their organization. '
@@ -531,13 +492,10 @@ def notify_organization_claim_reviewed(claim):
 def notify_new_user_registered(user):
     """Notify system admins that a new user has registered."""
     full_name = user.get_full_name() or user.username
-    role_label = user.get_role_display() if user.role else 'applicant'
+    role_label = getattr(user, 'role', '') or 'applicant'
     role_path = reverse('core:user-role-edit', kwargs={'pk': user.pk})
 
-    admins = User.objects.filter(
-        role=User.Role.SYSTEM_ADMIN,
-        is_active=True,
-    )
+    admins = users_with_roles('system_admin')
 
     message = _(
         '%(name)s (%(email)s) has registered as %(role)s. '

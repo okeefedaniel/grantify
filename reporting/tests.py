@@ -34,13 +34,14 @@ def _full_setup():
     agency = _agency()
     fs = FundingSource.objects.create(name='State Fund', source_type='state')
     org = Organization.objects.create(name='Test Org', org_type='nonprofit')
-    officer = User.objects.create_user(
-        username='officer', password=TEST_PASSWORD, email='officer@example.com',
-        role=User.Role.PROGRAM_OFFICER, agency=agency,
+    from core.test_helpers import create_test_user
+    officer = create_test_user(
+        username='officer', password=TEST_PASSWORD,
+        role='program_officer', agency=agency,
     )
-    applicant = User.objects.create_user(
-        username='applicant', password=TEST_PASSWORD, email='applicant@example.com',
-        role=User.Role.APPLICANT, organization=org,
+    applicant = create_test_user(
+        username='applicant', password=TEST_PASSWORD,
+        role='applicant', organization=org,
     )
     gp = GrantProgram.objects.create(
         agency=agency, title='Test Grant', description='Desc',

@@ -46,9 +46,10 @@ def _agency(**kw):
 
 
 def _user(username, role, agency=None, **kw):
-    return User.objects.create_user(
-        username=username, password=TEST_PASSWORD, email=f'{username}@example.com',
-        role=role, agency=agency, **kw,
+    from core.test_helpers import create_test_user
+    return create_test_user(
+        username=username, role=role, agency=agency,
+        password=TEST_PASSWORD, **kw,
     )
 
 
