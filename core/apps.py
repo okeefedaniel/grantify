@@ -1,12 +1,60 @@
 from django.apps import AppConfig
 
 
+def _get_harbor_profile_cached(user):
+    """Get HarborProfile with simple instance cache."""
+    if not hasattr(user, '_harbor_profile_cache'):
+        from core.models import get_harbor_profile
+        user._harbor_profile_cache = get_harbor_profile(user)
+    return user._harbor_profile_cache
+
+
+def _harbor_agency(user):
+    return _get_harbor_profile_cached(user).agency
+
+
+def _harbor_agency_id(user):
+    return _get_harbor_profile_cached(user).agency_id
+
+
+def _harbor_organization(user):
+    return _get_harbor_profile_cached(user).organization
+
+
+def _harbor_organization_id(user):
+    return _get_harbor_profile_cached(user).organization_id
+
+
+def _harbor_has_ai_access(user):
+    """Check AI access via HarborProfile."""
+    from django.conf import settings
+    profile = _get_harbor_profile_cached(user)
+    return bool(profile.anthropic_api_key) or bool(getattr(settings, 'ANTHROPIC_API_KEY', ''))
+
+
 class CoreConfig(AppConfig):
     name = 'core'
 
     def ready(self):
         from allauth.account.signals import user_signed_up
         from keel.notifications import NotificationType, register
+
+        # Patch KeelUser with Harbor role-check properties so that
+        # views/templates can use user.is_agency_staff, user.can_manage_grants, etc.
+        from django.contrib.auth import get_user_model
+        from core.models import (
+            AGENCY_STAFF_ROLES, GRANT_MANAGER_ROLES,
+            FEDERAL_MANAGER_ROLES, REVIEWER_ROLES,
+        )
+        User = get_user_model()
+        User.is_agency_staff = property(lambda self: getattr(self, 'role', '') in AGENCY_STAFF_ROLES)
+        User.can_manage_grants = property(lambda self: getattr(self, 'role', '') in GRANT_MANAGER_ROLES)
+        User.can_manage_federal = property(lambda self: getattr(self, 'role', '') in FEDERAL_MANAGER_ROLES)
+        User.can_review = property(lambda self: getattr(self, 'role', '') in REVIEWER_ROLES)
+        User.has_ai_access = property(lambda self: _harbor_has_ai_access(self))
+
+        # agency/organization are proxied from HarborProfile via
+        # HarborProfileMiddleware (see core/middleware.py).
 
         def on_user_signed_up(sender, request, user, **kwargs):
             from core.notifications import notify_new_user_registered
@@ -140,5 +188,4 @@ class CoreConfig(AppConfig):
             default_channels=['in_app', 'email'],
             default_roles=['program_officer', 'agency_admin'],
             priority='medium',
-            link_template='/applications/{application.pk}/',
         ))

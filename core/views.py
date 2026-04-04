@@ -277,6 +277,11 @@ class UserRoleUpdateView(LoginRequiredMixin, UpdateView):
             return redirect('dashboard')
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['edit_user_has_ai_access'] = get_harbor_profile(self.object).has_ai_access
+        return context
+
     def get_success_url(self):
         return reverse_lazy('core:user-list')
 
@@ -710,7 +715,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             ).count(),
             'recommended_matches': recommended_matches,
             'new_match_count': new_match_count,
-            'has_ai_access': user.has_ai_access,
+            'has_ai_access': get_harbor_profile(user).has_ai_access,
             'has_preferences': GrantPreference.objects.filter(user=user, is_active=True).exists(),
         }
 
@@ -822,7 +827,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             'approaching_deadlines': approaching_deadlines,
             'recommended_matches': recommended_matches,
             'new_match_count': new_match_count,
-            'has_ai_access': user.has_ai_access,
+            'has_ai_access': get_harbor_profile(user).has_ai_access,
             'has_preferences': GrantPreference.objects.filter(user=user, is_active=True).exists(),
         }
 

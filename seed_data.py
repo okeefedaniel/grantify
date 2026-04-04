@@ -20,8 +20,9 @@ django.setup()
 from django.utils import timezone
 
 from allauth.account.models import EmailAddress
-from core.models import Agency, AuditLog, Notification, Organization
+from core.models import Agency, AuditLog, HarborProfile, Notification, Organization
 from django.contrib.auth import get_user_model; User = get_user_model()
+from keel.accounts.models import ProductAccess
 from grants.models import (
     FederalOpportunity,
     FundingSource,
@@ -149,8 +150,8 @@ def make_user(username, first, last, role, email, agency=None, org=None, is_staf
     u, created = User.objects.get_or_create(
         username=username,
         defaults=dict(
-            first_name=first, last_name=last, role=role,
-            email=email, agency=agency, organization=org,
+            first_name=first, last_name=last,
+            email=email,
             is_staff=is_staff, is_state_user=agency is not None,
             accepted_terms=True, accepted_terms_at=now,
         ),
@@ -158,6 +159,22 @@ def make_user(username, first, last, role, email, agency=None, org=None, is_staf
     if created:
         u.set_password(DEMO_PASSWORD)
         u.save()
+    # Ensure ProductAccess for Harbor role
+    ProductAccess.objects.get_or_create(
+        user=u, product='harbor',
+        defaults={'role': role, 'is_active': True},
+    )
+    # Ensure HarborProfile with agency and organization
+    profile, _ = HarborProfile.objects.get_or_create(user=u)
+    updated_fields = []
+    if agency and not profile.agency_id:
+        profile.agency = agency
+        updated_fields.append('agency')
+    if org and not profile.organization_id:
+        profile.organization = org
+        updated_fields.append('organization')
+    if updated_fields:
+        profile.save(update_fields=updated_fields)
     # Ensure allauth EmailAddress record exists
     if email:
         EmailAddress.objects.get_or_create(
@@ -169,11 +186,17 @@ def make_user(username, first, last, role, email, agency=None, org=None, is_staf
 # System Admin (also the Django superuser)
 admin_user = User.objects.filter(username='admin').first()
 if admin_user:
-    admin_user.agency = agencies['DCD']
-    admin_user.role = 'system_admin'
     admin_user.first_name = 'System'
     admin_user.last_name = 'Administrator'
     admin_user.save()
+    ProductAccess.objects.get_or_create(
+        user=admin_user, product='harbor',
+        defaults={'role': 'system_admin', 'is_active': True},
+    )
+    admin_profile, _ = HarborProfile.objects.get_or_create(user=admin_user)
+    if not admin_profile.agency_id:
+        admin_profile.agency = agencies['DCD']
+        admin_profile.save(update_fields=['agency'])
     if admin_user.email:
         EmailAddress.objects.get_or_create(
             user=admin_user, email=admin_user.email,

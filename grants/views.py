@@ -523,13 +523,15 @@ class GrantPreferenceView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('grants:recommendations')
 
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated and not request.user.has_ai_access:
-            messages.info(
-                request,
-                _('To use AI-powered grant matching, please add your '
-                  'Anthropic API key in your profile settings.'),
-            )
-            return redirect('core:profile')
+        if request.user.is_authenticated:
+            from core.models import get_harbor_profile
+            if not get_harbor_profile(request.user).has_ai_access:
+                messages.info(
+                    request,
+                    _('To use AI-powered grant matching, please add your '
+                      'Anthropic API key in your profile settings.'),
+                )
+                return redirect('core:profile')
         return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
@@ -605,7 +607,8 @@ class RecommendedMatchesView(LoginRequiredMixin, ListView):
         context['has_preferences'] = GrantPreference.objects.filter(
             user=self.request.user,
         ).exists()
-        context['has_ai_access'] = self.request.user.has_ai_access
+        from core.models import get_harbor_profile
+        context['has_ai_access'] = get_harbor_profile(self.request.user).has_ai_access
         return context
 
 

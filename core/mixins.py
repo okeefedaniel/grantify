@@ -6,47 +6,51 @@ from urllib.parse import quote
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models.expressions import BaseExpression
 
+from core.models import (
+    can_manage_federal, can_manage_grants, can_review, is_agency_staff,
+)
+
 
 class AgencyStaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     """Restrict view to agency staff (system_admin, agency_admin, program_officer, fiscal_officer)."""
 
     def test_func(self):
-        return self.request.user.is_agency_staff
+        return is_agency_staff(self.request.user)
 
 
 class GrantManagerRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     """Restrict view to users who can manage grants (system_admin, agency_admin, program_officer)."""
 
     def test_func(self):
-        return self.request.user.can_manage_grants
+        return can_manage_grants(self.request.user)
 
 
 class ReviewerRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     """Restrict view to users who can review applications."""
 
     def test_func(self):
-        return self.request.user.can_review
+        return can_review(self.request.user)
 
 
 class ApplicantRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     """Restrict view to applicant users."""
 
     def test_func(self):
-        return self.request.user.role == 'applicant'
+        return getattr(self.request.user, 'role', None) == 'applicant'
 
 
 class FiscalOfficerRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     """Restrict view to fiscal officers or above."""
 
     def test_func(self):
-        return self.request.user.role in ('fiscal_officer', 'agency_admin', 'system_admin')
+        return getattr(self.request.user, 'role', None) in ('fiscal_officer', 'agency_admin', 'system_admin')
 
 
 class FederalCoordinatorRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     """Restrict view to users who can manage federal funding opportunities."""
 
     def test_func(self):
-        return self.request.user.can_manage_federal
+        return can_manage_federal(self.request.user)
 
 
 class AgencyObjectMixin:
@@ -61,7 +65,7 @@ class AgencyObjectMixin:
     def get_queryset(self):
         qs = super().get_queryset()
         user = self.request.user
-        if user.role != 'system_admin' and user.agency_id:
+        if getattr(user, 'role', None) != 'system_admin' and user.agency_id:
             qs = qs.filter(**{self.get_agency_field(): user.agency})
         return qs
 

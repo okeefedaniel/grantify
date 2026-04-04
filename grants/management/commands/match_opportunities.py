@@ -18,6 +18,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 
 from django.contrib.auth import get_user_model; User = get_user_model()
+from core.models import get_harbor_profile
 from core.notifications import _build_absolute_url, _create_notification, _send_notification_email
 from grants.matching import score_opportunity
 from grants.models import (
@@ -66,7 +67,7 @@ class Command(BaseCommand):
 
         # ---- Gather preferences ----
         prefs_qs = GrantPreference.objects.filter(is_active=True).select_related(
-            'user', 'user__agency', 'user__organization',
+            'user',
         )
         if target_user:
             prefs_qs = prefs_qs.filter(user__username=target_user)
@@ -106,7 +107,9 @@ class Command(BaseCommand):
         for pref in prefs:
             user = pref.user
 
-            if not user.get_anthropic_api_key():
+            profile = get_harbor_profile(user)
+            api_key = profile.get_anthropic_api_key()
+            if not api_key and not getattr(settings, 'ANTHROPIC_API_KEY', ''):
                 self.stdout.write(
                     self.style.WARNING(
                         f'Skipping {user.username} — no API key configured.'
@@ -114,7 +117,12 @@ class Command(BaseCommand):
                 )
                 continue
 
-            is_fed_coordinator = getattr(user, 'role', '') == 'federal_coordinator'
+            from keel.accounts.models import ProductAccess
+            pa = ProductAccess.objects.filter(
+                user=user, product='harbor', is_active=True,
+            ).first()
+            user_role = pa.role if pa else ''
+            is_fed_coordinator = user_role == 'federal_coordinator'
 
             # Federal coordinators only get federal matches
             opportunities = []
@@ -127,7 +135,7 @@ class Command(BaseCommand):
 
             self.stdout.write(
                 f'\nScoring {len(opportunities)} opportunities for {user.username} '
-                f'({user.get_role_display()})...'
+                f'({user_role or "no role"})...'
             )
 
             for source, opp in opportunities:

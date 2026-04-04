@@ -148,7 +148,7 @@
             </div>
             <div class="card-body">
                 <div class="d-flex align-items-center mb-3">
-                    {% if edit_user.has_ai_access %}
+                    {% if edit_user_has_ai_access %}
                         <i class="bi bi-check-circle-fill text-success me-2"></i>
                         <span class="text-success small fw-semibold">{% trans "Configured" %}</span>
                     {% else %}
@@ -157,7 +157,7 @@
                     {% endif %}
                 </div>
 
-                {% if edit_user.has_ai_access %}
+                {% if edit_user_has_ai_access %}
                 <p class="small text-muted mb-3">
                     {% trans "Key:" %} <code>...{{ edit_user.anthropic_api_key|truncatechars:8 }}</code>
                 </p>

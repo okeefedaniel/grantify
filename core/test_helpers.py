@@ -18,7 +18,14 @@ def create_test_user(username='testuser', email=None, role='applicant',
         profile.agency = agency
     if organization:
         profile.organization = organization
-    profile.save()
+    if agency or organization:
+        profile.save()
     # Set role on user instance so middleware-less test code works
     user._product_role = role
+    # Shadow KeelUser.agency/organization with Harbor profile values
+    # (mirrors what HarborProfileMiddleware does per-request)
+    user.__dict__['agency'] = agency
+    user.__dict__['agency_id'] = agency.pk if agency else None
+    user.__dict__['organization'] = organization
+    user.__dict__['organization_id'] = organization.pk if organization else None
     return user
