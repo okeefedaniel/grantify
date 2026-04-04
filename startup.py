@@ -34,9 +34,11 @@ def run(cmd, fatal=False):
             sys.exit(1)
         return False
 
+DEPLOY_VERSION = 'ae38328+'  # bumped each deploy to verify build cache
+
 def main():
     log("=" * 50)
-    log("Container starting")
+    log(f"Container starting  (version {DEPLOY_VERSION})")
     log("=" * 50)
 
     # Diagnostics
@@ -73,11 +75,13 @@ def main():
 
     # Test that Django settings can be imported
     log("Testing Django settings import...")
+    setup_error = None
     try:
         import django
         django.setup()
         log("Django settings loaded successfully")
     except Exception as e:
+        setup_error = str(e)
         log(f"ERROR: Django settings failed to load: {e}")
         import traceback
         traceback.print_exc(file=sys.stdout)
@@ -131,6 +135,9 @@ def main():
                 self.wfile.write(json.dumps({
                     'status': 'error',
                     'message': 'Gunicorn failed to start. Check logs.',
+                    'version': DEPLOY_VERSION,
+                    'settings': settings_module,
+                    'setup_error': setup_error,
                 }).encode())
 
         server = HTTPServer(('0.0.0.0', int(port)), HealthHandler)
