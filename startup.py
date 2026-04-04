@@ -83,11 +83,16 @@ def main():
         traceback.print_exc(file=sys.stdout)
         sys.stdout.flush()
 
+    # Run migrations BEFORE gunicorn — workers access the DB during
+    # AppConfig.ready(), so tables (especially keel_accounts) must exist.
+    log("=== Running migrations ===")
+    run(f"{manage_cmd} migrate --noinput")
+
     # Collect static files (no DB needed, but required for WhiteNoise)
     log("=== Collecting static files ===")
     run(f"{manage_cmd} collectstatic --noinput")
 
-    # Start gunicorn EARLY so healthcheck passes
+    # Start gunicorn
     if port == 'NOT SET':
         port = '8080'
         log(f"WARNING: PORT not set, defaulting to {port}")
@@ -133,11 +138,7 @@ def main():
         server.serve_forever()
         return
 
-    # Run migrations (gunicorn is already serving /health/)
-    log("=== Running migrations ===")
-    run(f"{manage_cmd} migrate --noinput")
-
-    # Mode-specific post-migration tasks
+    # Mode-specific post-startup tasks
     if settings_module == 'manifest.settings':
         # Auto-create superuser if DJANGO_SUPERUSER_* env vars are set
         su_user = os.environ.get('DJANGO_SUPERUSER_USERNAME', '').strip()
