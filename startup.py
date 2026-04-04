@@ -42,7 +42,8 @@ def main():
     log("=" * 50)
 
     # Diagnostics
-    settings_module = os.environ.get('DJANGO_SETTINGS_MODULE', 'NOT SET')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'harbor.settings')
+    settings_module = os.environ['DJANGO_SETTINGS_MODULE']
     port = os.environ.get('PORT', 'NOT SET')
     raw_db_url = os.environ.get('DATABASE_URL', '')
     if raw_db_url:
@@ -63,15 +64,9 @@ def main():
     log(f"CWD: {os.getcwd()}")
     log(f"PATH: {os.environ.get('PATH', 'NOT SET')}")
 
-    # Detect mode
-    if settings_module == 'manifest.settings':
-        log("=== Manifest Mode ===")
-        manage_cmd = f"{sys.executable} manage_manifest.py"
-        wsgi_module = "manifest.wsgi"
-    else:
-        log("=== Harbor Mode ===")
-        manage_cmd = f"{sys.executable} manage.py"
-        wsgi_module = "harbor.wsgi"
+    log("=== Harbor Mode ===")
+    manage_cmd = f"{sys.executable} manage.py"
+    wsgi_module = "harbor.wsgi"
 
     # Test that Django settings can be imported
     log("Testing Django settings import...")
@@ -96,12 +91,8 @@ def main():
     log("=== Configuring Site object ===")
     try:
         from django.contrib.sites.models import Site
-        if settings_module == 'manifest.settings':
-            domain = os.environ.get('SITE_DOMAIN', 'manifest.docklabs.ai')
-            name = 'Manifest'
-        else:
-            domain = os.environ.get('SITE_DOMAIN', 'harbor.docklabs.ai')
-            name = 'Harbor'
+        domain = os.environ.get('SITE_DOMAIN', 'harbor.docklabs.ai')
+        name = 'Harbor'
         site, created = Site.objects.update_or_create(
             id=1,
             defaults={'domain': domain, 'name': name},
@@ -163,33 +154,11 @@ def main():
         server.serve_forever()
         return
 
-    # Mode-specific post-startup tasks
-    if settings_module == 'manifest.settings':
-        # Auto-create superuser if DJANGO_SUPERUSER_* env vars are set
-        su_user = os.environ.get('DJANGO_SUPERUSER_USERNAME', '').strip()
-        su_email = os.environ.get('DJANGO_SUPERUSER_EMAIL', '').strip()
-        su_pass = os.environ.get('DJANGO_SUPERUSER_PASSWORD', '').strip()
-        if su_user and su_pass:
-            log(f"=== Ensuring superuser '{su_user}' exists ===")
-            env = os.environ.copy()
-            env['DJANGO_SUPERUSER_USERNAME'] = su_user
-            env['DJANGO_SUPERUSER_EMAIL'] = su_email
-            env['DJANGO_SUPERUSER_PASSWORD'] = su_pass
-            result = subprocess.run(
-                f"{manage_cmd} createsuperuser --noinput",
-                shell=True, env=env,
-                stdout=sys.stdout, stderr=sys.stderr,
-            )
-            if result.returncode != 0:
-                log("Superuser may already exist (this is OK)")
-        else:
-            log("Skipping superuser creation (DJANGO_SUPERUSER_* env vars not set)")
-    else:
-        log("=== Running background startup tasks ===")
-        if os.environ.get('SEED_ON_DEPLOY', '').lower() in ('true', '1', 'yes'):
-            run(f"{manage_cmd} shell < seed_data.py")
-        run(f"{manage_cmd} match_opportunities")
-        log("=== Background tasks complete ===")
+    log("=== Running background startup tasks ===")
+    if os.environ.get('SEED_ON_DEPLOY', '').lower() in ('true', '1', 'yes'):
+        run(f"{manage_cmd} shell < seed_data.py")
+    run(f"{manage_cmd} match_opportunities")
+    log("=== Background tasks complete ===")
 
     log("=== Startup complete, waiting for gunicorn ===")
     gunicorn_proc.wait()
