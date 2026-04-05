@@ -1,16 +1,56 @@
 /* ============================================
    Harbor — Grant-Specific Styles
-   Extends docklabs.css with Harbor-only components.
-   Shared classes (.opportunity-card, .badge-grant-type,
-   .badge-watching/preparing/applied/awarded) now live
-   in Keel's docklabs.css.
+   Extends docklabs-v2.css with Harbor-only components.
+   Shared classes (.badge-active, .badge-draft, etc.)
+   now live in Keel's docklabs-v2.css.
    ============================================ */
 
 /* -- Grant-Specific Badges (Harbor only) -- */
 .badge-accepting,
 .badge-accepting-applications,
-.badge-accepting_applications { background-color: var(--ct-green); }
+.badge-accepting_applications { background-color: var(--success-bg); color: var(--success); }
 .badge-awards-pending,
-.badge-awards_pending { background-color: var(--ct-yellow); color: var(--ct-dark-gray); }
-.badge-executed { background-color: var(--ct-green); }
-.badge-claimed { background-color: var(--ct-green); }
+.badge-awards_pending { background-color: var(--warning-bg); color: var(--warning); }
+.badge-executed { background-color: var(--success-bg); color: var(--success); }
+.badge-claimed { background-color: var(--success-bg); color: var(--success); }
+
+/* -- Hero section (portal landing page) -- */
+.hero-section {
+    background: linear-gradient(135deg, var(--ct-blue) 0%, var(--ct-blue-hover) 100%);
+    color: #fff;
+    padding: 5rem 0;
+    position: relative;
+    overflow: hidden;
+}
+.hero-section h1 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2.75rem;
+    font-weight: 700;
+    color: #fff;
+}
+.hero-section .lead {
+    font-size: 1.15rem;
+    opacity: 0.9;
+}
+.hero-section .btn-light {
+    font-weight: 600;
+    color: var(--ct-blue);
+    border-radius: var(--radius-sm);
+    padding: 0.625rem 1.5rem;
+}
+.hero-section .btn-outline-light {
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    padding: 0.625rem 1.5rem;
+    border-width: 2px;
+}
+
+/* -- Opportunity card (portal listings) -- */
+.opportunity-card {
+    border-left: 4px solid var(--ct-blue);
+    margin-bottom: 1rem;
+    transition: box-shadow 0.15s ease;
+}
+.opportunity-card:hover { box-shadow: var(--shadow-md); }
+.opportunity-card .deadline { color: var(--error); font-weight: 600; }
+.opportunity-card .funding { color: var(--success); font-weight: 700; font-size: 1.1rem; }

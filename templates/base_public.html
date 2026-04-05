@@ -1,0 +1,21 @@
+{% extends "keel/layouts/public.html" %}
+{% load static i18n %}
+
+{% block title %}Harbor | {% block page_title %}{% trans "State Grants Management" %}{% endblock %}{% endblock %}
+{% block html_lang %}{{ LANGUAGE_CODE }}{% endblock %}
+
+{% block sidebar_brand_icon %}bi-bank2{% endblock %}
+{% block sidebar_brand_name %}Harbor{% endblock %}
+{% block public_home_url %}{% url 'portal:home' %}{% endblock %}
+{% block login_url %}{% url 'core:login' %}{% endblock %}
+{% block dashboard_url %}{% url 'dashboard' %}{% endblock %}
+
+{% block public_nav %}
+<a class="tb-btn" href="{% url 'portal:opportunities' %}">{% trans "Opportunities" %}</a>
+<a class="tb-btn" href="{% url 'portal:about' %}">{% trans "About" %}</a>
+<a class="tb-btn" href="{% url 'portal:support' %}">{% trans "Support" %}</a>
+{% endblock %}
+
+{% block product_css %}
+<link href="{% static 'css/harbor.css' %}" rel="stylesheet">
+{% endblock %}

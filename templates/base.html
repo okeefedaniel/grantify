@@ -1,325 +1,261 @@
-{% load static keel_requests %}
-{% load humanize %}
-{% load i18n %}
-<!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE }}" data-bs-theme="light">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Harbor | {% trans "State Grants Management" %}{% endblock %}</title>
-    {% block meta_description %}<meta name="description" content="{% trans 'Harbor — State Grants Management Solution for streamlined grant lifecycle management.' %}">{% endblock %}
-    <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="{% static 'css/docklabs.css' %}" rel="stylesheet">
-    <link href="{% static 'css/harbor.css' %}" rel="stylesheet">
-    {% block extra_css %}{% endblock %}
-    <!-- WCAG 2.1 AA: Focus-visible styles for keyboard navigation -->
-    <style>
-      *:focus-visible { outline: 3px solid #F27124 !important; outline-offset: 2px; }
-      .btn:focus-visible { box-shadow: 0 0 0 0.25rem rgba(242, 113, 36, 0.5) !important; }
-    </style>
-</head>
-<body>
-    <!-- WCAG 2.1 AA: Skip navigation link -->
-    <a href="#main-content" class="visually-hidden-focusable bg-primary text-white p-2 position-absolute" style="z-index:9999">{% trans "Skip to main content" %}</a>
+{% extends "keel/layouts/app.html" %}
+{% load static i18n keel_requests %}
 
-    <!-- CT Brand Accent Bar -->
-    <header role="banner">
-    <div class="ct-accent-bar"></div>
+{% block title %}Harbor | {% block page_title %}{% trans "State Grants Management" %}{% endblock %}{% endblock %}
+{% block meta_description %}<meta name="description" content="{% trans 'Harbor — State Grants Management Solution for streamlined grant lifecycle management.' %}">{% endblock %}
 
-    <!-- Top Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top" role="navigation" aria-label="{% trans "Main navigation" %}">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="{% if user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'portal:home' %}{% endif %}">
-                <i class="bi bi-bank2 me-2"></i>Harbor
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-label="{% trans "Toggle navigation menu" %}" aria-controls="mainNav" aria-expanded="false">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="mainNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-megaphone me-1"></i>{% trans "Funding" %}
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{% url 'portal:opportunities' %}"><i class="bi bi-building me-2"></i>{% trans "State Opportunities" %}</a></li>
-                            <li><a class="dropdown-item" href="{% url 'portal:federal-opportunities' %}"><i class="bi bi-globe me-2"></i>{% trans "Federal Opportunities" %}</a></li>
-                        </ul>
-                    </li>
-                    {% if user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'dashboard' %}">
-                                <i class="bi bi-speedometer2 me-1"></i>{% trans "Dashboard" %}
-                            </a>
-                        </li>
-                        {% if user.can_manage_federal %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-globe me-1"></i>{% trans "Federal Funding" %}
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{% url 'portal:federal-opportunities' %}">{% trans "Browse Opportunities" %}</a></li>
-                                <li><a class="dropdown-item" href="{% url 'grants:tracked-list' %}">{% trans "Tracked Opportunities" %}</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                {% if has_ai_access %}
-                                <li><a class="dropdown-item" href="{% url 'grants:recommendations' %}"><i class="bi bi-stars me-2"></i>{% trans "AI Recommendations" %}</a></li>
-                                <li><a class="dropdown-item" href="{% url 'grants:preferences' %}"><i class="bi bi-gear me-2"></i>{% trans "Matching Preferences" %}</a></li>
-                                {% else %}
-                                <li><a class="dropdown-item text-muted" href="{% url 'core:profile' %}"><i class="bi bi-key me-2"></i>{% trans "Setup AI (API Key Required)" %}</a></li>
-                                {% endif %}
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'grants:program-list' %}">{% trans "Grant Programs" %}</a></li>
-                            </ul>
-                        </li>
-                        {% endif %}
-                        {% if user.can_manage_grants %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-folder me-1"></i>{% trans "Grants" %}
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{% url 'grants:program-list' %}">{% trans "Grant Programs" %}</a></li>
-                                <li><a class="dropdown-item" href="{% url 'grants:program-create' %}">{% trans "Create Program" %}</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'applications:list' %}">{% trans "All Applications" %}</a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-trophy me-1"></i>{% trans "Awards" %}
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{% url 'awards:list' %}">{% trans "All Awards" %}</a></li>
-                                <li><a class="dropdown-item" href="{% url 'signatures:packet-list' %}"><i class="bi bi-pen me-2"></i>{% trans "Signing Packets" %}</a></li>
-                                <li><a class="dropdown-item" href="{% url 'signatures:flow-list' %}"><i class="bi bi-diagram-3 me-2"></i>{% trans "Signature Flows" %}</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'financial:drawdown-list' %}">{% trans "Cash Requests" %}</a></li>
-                                <li><a class="dropdown-item" href="{% url 'reporting:list' %}">{% trans "Reports" %}</a></li>
-                                <li><a class="dropdown-item" href="{% url 'closeout:list' %}">{% trans "Closeouts" %}</a></li>
-                            </ul>
-                        </li>
-                        {% endif %}
-                        {% if user.role == 'program_officer' or user.role == 'agency_admin' or user.role == 'system_admin' %}
-                        <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.url_name == 'organization-claims' or request.resolver_match.url_name == 'organization-claim-review' %}active{% endif %}" href="{% url 'core:organization-claims' %}">
-                                <i class="bi bi-building-check me-1"></i>{% trans "Claims" %}
-                            </a>
-                        </li>
-                        {% endif %}
-                        {% if user.role == 'system_admin' %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'core:analytics' %}">
-                                <i class="bi bi-bar-chart-line me-1"></i>{% trans "Analytics" %}
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.url_name == 'map_view' %}active{% endif %}" href="{% url 'core:map_view' %}">
-                                <i class="bi bi-geo-alt me-1"></i>{% trans "Map View" %}
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.url_name == 'user-list' or request.resolver_match.url_name == 'user-role-edit' %}active{% endif %}" href="{% url 'core:user-list' %}">
-                                <i class="bi bi-people me-1"></i>{% trans "Users" %}
-                            </a>
-                        </li>
-                        {% endif %}
-                        {% if user.is_agency_staff or user.role == 'system_admin' %}
-                        <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.url_name == 'calendar' %}active{% endif %}" href="{% url 'core:calendar' %}">
-                                <i class="bi bi-calendar-event me-1"></i>{% trans "Calendar" %}
-                            </a>
-                        </li>
-                        {% endif %}
-                        {% if user.role == 'applicant' %}
-                        <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.url_name == 'calendar' %}active{% endif %}" href="{% url 'core:calendar' %}">
-                                <i class="bi bi-calendar-event me-1"></i>{% trans "Calendar" %}
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'applications:my-applications' %}">
-                                <i class="bi bi-file-earmark-text me-1"></i>{% trans "My Applications" %}
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'awards:my-awards' %}">
-                                <i class="bi bi-trophy me-1"></i>{% trans "My Awards" %}
-                            </a>
-                        </li>
-                        {% if has_ai_access %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'grants:recommendations' %}">
-                                <i class="bi bi-stars me-1"></i>{% trans "AI Matches" %}
-                            </a>
-                        </li>
-                        {% endif %}
-                        {% endif %}
-                    {% endif %}
-                </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'portal:support' %}" aria-label="{% trans "Support" %}">
-                            <i class="bi bi-question-circle"></i>
-                        </a>
-                    </li>
-                    {% if user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link position-relative" href="{% url 'keel_notifications:list' %}" aria-label="{% trans "Notifications" %}{% if unread_notification_count %} ({{ unread_notification_count }} {% trans "unread" %}){% endif %}">
-                                <i class="bi bi-bell"></i>
-                                {% if unread_notification_count %}
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:.6rem;">
-                                    {{ unread_notification_count }}
-                                </span>
-                                {% endif %}
-                            </a>
-                        </li>
-                        <!-- Language Switcher -->
-                        <li class="nav-item d-flex align-items-center">
-                            {% get_current_language as CURRENT_LANGUAGE %}
-                            {% get_available_languages as AVAILABLE_LANGUAGES %}
-                            <form action="{% url 'set_language' %}" method="post" class="d-inline-block ms-2">
-                                {% csrf_token %}
-                                <input type="hidden" name="next" value="{{ request.path }}">
-                                <select name="language" class="form-select form-select-sm" style="width: auto; display: inline-block;" onchange="this.form.submit()">
-                                    {% for lang_code, lang_name in AVAILABLE_LANGUAGES %}
-                                    <option value="{{ lang_code }}" {% if lang_code == CURRENT_LANGUAGE %}selected{% endif %}>{{ lang_name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </form>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-person-circle me-1"></i>{{ user.get_full_name|default:user.username }}
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><span class="dropdown-item-text text-muted small">{{ user.get_role_display }}</span></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'core:profile' %}"><i class="bi bi-person me-2"></i>{% trans "Profile" %}</a></li>
-                                <li><a class="dropdown-item" href="{% url 'signatures:my-signatures' %}"><i class="bi bi-pen me-2"></i>{% trans "My Signatures" %}</a></li>
-                                {% if user.is_staff %}
-                                <li><a class="dropdown-item" href="{% url 'admin:index' %}"><i class="bi bi-gear me-2"></i>{% trans "Admin" %}</a></li>
-                                {% endif %}
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <form method="post" action="{% url 'core:logout' %}" aria-label="{% trans "Log out" %}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="dropdown-item" aria-label="{% trans "Log out of your account" %}"><i class="bi bi-box-arrow-right me-2"></i>{% trans "Log Out" %}</button>
-                                    </form>
-                                </li>
-                            </ul>
-                        </li>
-                    {% else %}
-                        <!-- Language Switcher -->
-                        <li class="nav-item d-flex align-items-center">
-                            {% get_current_language as CURRENT_LANGUAGE %}
-                            {% get_available_languages as AVAILABLE_LANGUAGES %}
-                            <form action="{% url 'set_language' %}" method="post" class="d-inline-block ms-2">
-                                {% csrf_token %}
-                                <input type="hidden" name="next" value="{{ request.path }}">
-                                <select name="language" class="form-select form-select-sm" style="width: auto; display: inline-block;" onchange="this.form.submit()">
-                                    {% for lang_code, lang_name in AVAILABLE_LANGUAGES %}
-                                    <option value="{{ lang_code }}" {% if lang_code == CURRENT_LANGUAGE %}selected{% endif %}>{{ lang_name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </form>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'core:login' %}">
-                                <i class="bi bi-box-arrow-in-right me-1"></i>{% trans "Log In" %}
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="btn btn-outline-light btn-sm ms-2 mt-1" href="{% url 'core:register' %}">
-                                {% trans "Register" %}
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-    </nav>
-    </header>
+{% block product_code %}harbor{% endblock %}
+{% block html_lang %}{{ LANGUAGE_CODE }}{% endblock %}
 
-    <!-- Messages -->
-    {% if messages %}
-    <div class="container-fluid px-0">
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show rounded-0 mb-0" role="alert">
-            <div class="container">
-                {% if message.tags == 'error' %}
-                    <i class="bi bi-exclamation-triangle me-2"></i>
-                {% elif message.tags == 'success' %}
-                    <i class="bi bi-check-circle me-2"></i>
-                {% elif message.tags == 'warning' %}
-                    <i class="bi bi-exclamation-circle me-2"></i>
-                {% else %}
-                    <i class="bi bi-info-circle me-2"></i>
-                {% endif %}
-                {{ message }}
-            </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{% trans "Close alert" %}"></button>
-        </div>
-        {% endfor %}
-    </div>
+{% block product_css %}
+<link href="{% static 'css/harbor.css' %}" rel="stylesheet">
+{% endblock %}
+
+{# === Sidebar Customization === #}
+
+{% block sidebar_brand_icon %}bi-bank2{% endblock %}
+{% block sidebar_brand_name %}Harbor{% endblock %}
+{% block sidebar_brand_href %}{% if user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'portal:home' %}{% endif %}{% endblock %}
+
+{% block sidebar_quick_new %}
+{% if user.can_manage_grants %}
+<button class="sidebar-quick-btn" title="{% trans 'New' %}" onclick="window.location='{% url 'grants:program-create' %}'">+ {% trans "New" %}</button>
+{% endif %}
+{% endblock %}
+
+{% block sidebar_favorites %}
+<div class="sb-section">
+  <div class="sb-section-label">{% trans "Favorites" %}</div>
+  <a class="sb-item{% if request.resolver_match.url_name == 'dashboard' %} active{% endif %}" href="{% url 'dashboard' %}">
+    <span class="sb-icon"><i class="bi bi-speedometer2"></i></span>
+    <span class="sb-item-label">{% trans "Dashboard" %}</span>
+  </a>
+</div>
+{% endblock %}
+
+{% block sidebar_tree %}
+<div class="sb-section">
+  <div class="sb-section-label">{% trans "Workspace" %}</div>
+
+  {# --- Funding --- #}
+  <a class="sb-item" onclick="dlToggleTree('funding-tree')">
+    <span class="sb-toggle open" id="funding-toggle">&rsaquo;</span>
+    <span class="sb-icon"><i class="bi bi-megaphone"></i></span>
+    <span class="sb-item-label">{% trans "Funding" %}</span>
+  </a>
+  <div class="sb-children" id="funding-tree" style="max-height:200px">
+    <a class="sb-item" href="{% url 'portal:opportunities' %}">
+      <span class="sb-icon" style="font-size:10px">&bull;</span>
+      <span class="sb-item-label">{% trans "State Opportunities" %}</span>
+    </a>
+    <a class="sb-item" href="{% url 'portal:federal-opportunities' %}">
+      <span class="sb-icon" style="font-size:10px">&bull;</span>
+      <span class="sb-item-label">{% trans "Federal Opportunities" %}</span>
+    </a>
+  </div>
+
+  {% if user.is_authenticated %}
+
+  {# --- Applications --- #}
+  {% if user.can_manage_grants %}
+  <a class="sb-item" href="{% url 'applications:list' %}">
+    <span class="sb-toggle" style="visibility:hidden">&rsaquo;</span>
+    <span class="sb-icon"><i class="bi bi-file-earmark-text"></i></span>
+    <span class="sb-item-label">{% trans "Applications" %}</span>
+  </a>
+  {% elif user.role == 'applicant' %}
+  <a class="sb-item" href="{% url 'applications:my-applications' %}">
+    <span class="sb-toggle" style="visibility:hidden">&rsaquo;</span>
+    <span class="sb-icon"><i class="bi bi-file-earmark-text"></i></span>
+    <span class="sb-item-label">{% trans "My Applications" %}</span>
+  </a>
+  {% endif %}
+
+  {# --- Awards --- #}
+  {% if user.can_manage_grants %}
+  <a class="sb-item" onclick="dlToggleTree('awards-tree')">
+    <span class="sb-toggle open" id="awards-toggle">&rsaquo;</span>
+    <span class="sb-icon"><i class="bi bi-trophy"></i></span>
+    <span class="sb-item-label">{% trans "Awards" %}</span>
+  </a>
+  <div class="sb-children" id="awards-tree" style="max-height:200px">
+    <a class="sb-item" href="{% url 'awards:list' %}">
+      <span class="sb-icon" style="font-size:10px">&bull;</span>
+      <span class="sb-item-label">{% trans "All Awards" %}</span>
+    </a>
+    <a class="sb-item" href="{% url 'signatures:packet-list' %}">
+      <span class="sb-icon" style="font-size:10px">&bull;</span>
+      <span class="sb-item-label">{% trans "Signing Packets" %}</span>
+    </a>
+    <a class="sb-item" href="{% url 'financial:drawdown-list' %}">
+      <span class="sb-icon" style="font-size:10px">&bull;</span>
+      <span class="sb-item-label">{% trans "Cash Requests" %}</span>
+    </a>
+    <a class="sb-item" href="{% url 'closeout:list' %}">
+      <span class="sb-icon" style="font-size:10px">&bull;</span>
+      <span class="sb-item-label">{% trans "Closeouts" %}</span>
+    </a>
+  </div>
+  {% elif user.role == 'applicant' %}
+  <a class="sb-item" href="{% url 'awards:my-awards' %}">
+    <span class="sb-toggle" style="visibility:hidden">&rsaquo;</span>
+    <span class="sb-icon"><i class="bi bi-trophy"></i></span>
+    <span class="sb-item-label">{% trans "My Awards" %}</span>
+  </a>
+  {% endif %}
+
+  {# --- Grant Programs --- #}
+  {% if user.can_manage_grants %}
+  <a class="sb-item" href="{% url 'grants:program-list' %}">
+    <span class="sb-toggle" style="visibility:hidden">&rsaquo;</span>
+    <span class="sb-icon"><i class="bi bi-folder"></i></span>
+    <span class="sb-item-label">{% trans "Grant Programs" %}</span>
+  </a>
+  {% endif %}
+
+  {# --- Reports --- #}
+  {% if user.can_manage_grants %}
+  <a class="sb-item" href="{% url 'reporting:list' %}">
+    <span class="sb-toggle" style="visibility:hidden">&rsaquo;</span>
+    <span class="sb-icon"><i class="bi bi-bar-chart-line"></i></span>
+    <span class="sb-item-label">{% trans "Reports" %}</span>
+  </a>
+  {% endif %}
+
+  {# --- Claims --- #}
+  {% if user.role == 'program_officer' or user.role == 'agency_admin' or user.role == 'system_admin' %}
+  <a class="sb-item" href="{% url 'core:organization-claims' %}">
+    <span class="sb-toggle" style="visibility:hidden">&rsaquo;</span>
+    <span class="sb-icon"><i class="bi bi-building-check"></i></span>
+    <span class="sb-item-label">{% trans "Claims" %}</span>
+  </a>
+  {% endif %}
+
+  {# --- Federal / AI --- #}
+  {% if user.can_manage_federal %}
+  <a class="sb-item" onclick="dlToggleTree('federal-tree')">
+    <span class="sb-toggle" id="federal-toggle">&rsaquo;</span>
+    <span class="sb-icon"><i class="bi bi-globe"></i></span>
+    <span class="sb-item-label">{% trans "Federal Funding" %}</span>
+  </a>
+  <div class="sb-children collapsed" id="federal-tree">
+    <a class="sb-item" href="{% url 'grants:tracked-list' %}">
+      <span class="sb-icon" style="font-size:10px">&bull;</span>
+      <span class="sb-item-label">{% trans "Tracked Opportunities" %}</span>
+    </a>
+    {% if has_ai_access %}
+    <a class="sb-item" href="{% url 'grants:recommendations' %}">
+      <span class="sb-icon" style="font-size:10px">&bull;</span>
+      <span class="sb-item-label">{% trans "AI Recommendations" %}</span>
+    </a>
+    <a class="sb-item" href="{% url 'grants:preferences' %}">
+      <span class="sb-icon" style="font-size:10px">&bull;</span>
+      <span class="sb-item-label">{% trans "Matching Preferences" %}</span>
+    </a>
     {% endif %}
+  </div>
+  {% endif %}
 
-    <!-- Breadcrumbs -->
-    {% block breadcrumbs %}{% endblock %}
+  {# --- AI Match for applicants --- #}
+  {% if user.role == 'applicant' and has_ai_access %}
+  <a class="sb-item" href="{% url 'grants:recommendations' %}">
+    <span class="sb-toggle" style="visibility:hidden">&rsaquo;</span>
+    <span class="sb-icon"><i class="bi bi-stars"></i></span>
+    <span class="sb-item-label">{% trans "AI Matches" %}</span>
+  </a>
+  {% endif %}
 
-    <!-- Main Content -->
-    <main id="main-content" class="{% block main_class %}container py-4{% endblock %}">
-        {% block content %}{% endblock %}
-    </main>
+  {# --- Calendar --- #}
+  {% if user.is_agency_staff or user.role == 'system_admin' or user.role == 'applicant' %}
+  <a class="sb-item" href="{% url 'core:calendar' %}">
+    <span class="sb-toggle" style="visibility:hidden">&rsaquo;</span>
+    <span class="sb-icon"><i class="bi bi-calendar-event"></i></span>
+    <span class="sb-item-label">{% trans "Calendar" %}</span>
+  </a>
+  {% endif %}
 
-    <!-- Footer -->
-    <footer class="bg-dark text-light py-4 mt-auto" role="contentinfo">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h6 class="fw-bold"><i class="bi bi-bank2 me-2"></i>Harbor</h6>
-                    <p class="small text-muted mb-0">
-                        {% trans "State Grants Management Solution" %}<br>
-                        {% trans "Part of the DockLabs suite" %}
-                    </p>
-                </div>
-                <div class="col-md-3">
-                    <h6 class="fw-bold">{% trans "Quick Links" %}</h6>
-                    <ul class="list-unstyled small">
-                        <li><a href="{% url 'portal:opportunities' %}" class="text-muted text-decoration-none">{% trans "Funding Opportunities" %}</a></li>
-                        <li><a href="{% url 'portal:about' %}" class="text-muted text-decoration-none">{% trans "About" %}</a></li>
-                        <li><a href="{% url 'portal:help' %}" class="text-muted text-decoration-none">{% trans "Help & FAQ" %}</a></li>
-                        <li><a href="{% url 'portal:manual' %}" class="text-muted text-decoration-none">{% trans "User Manual" %}</a></li>
-                        <li><a href="{% url 'portal:support' %}" class="text-muted text-decoration-none">{% trans "Support" %}</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-3">
-                    <h6 class="fw-bold">{% trans "Contact" %}</h6>
-                    <ul class="list-unstyled small text-muted">
-                        <li><a href="mailto:info@docklabs.ai" class="text-muted text-decoration-none"><i class="bi bi-envelope me-1"></i> info@docklabs.ai</a></li>
-                    </ul>
-                </div>
-            </div>
-            <hr class="my-3 border-secondary">
-            <div class="d-flex justify-content-between align-items-center">
-                <p class="text-muted small mb-0">
-                    &copy; {% now "Y" %} DockLabs. {% trans "All rights reserved." %}
-                </p>
-                <p class="small mb-0">
-                    <a href="https://docklabs.ai/privacy.html" class="text-muted text-decoration-none me-3">{% trans "Privacy Policy" %}</a>
-                    <a href="https://docklabs.ai/terms.html" class="text-muted text-decoration-none">{% trans "Terms of Service" %}</a>
-                </p>
-            </div>
-        </div>
-    </footer>
+  {% endif %}{# end is_authenticated #}
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{% static 'js/harbor.js' %}"></script>
-    {% block extra_js %}{% endblock %}
-    {% request_widget %}
-</body>
-</html>
+{# --- Map & Analytics (system_admin only) --- #}
+{% if user.role == 'system_admin' %}
+<div class="sb-section">
+  <div class="sb-section-label">{% trans "Insights" %}</div>
+  <a class="sb-item" href="{% url 'core:analytics' %}">
+    <span class="sb-toggle" style="visibility:hidden">&rsaquo;</span>
+    <span class="sb-icon"><i class="bi bi-graph-up"></i></span>
+    <span class="sb-item-label">{% trans "Analytics" %}</span>
+  </a>
+  <a class="sb-item" href="{% url 'core:map_view' %}">
+    <span class="sb-toggle" style="visibility:hidden">&rsaquo;</span>
+    <span class="sb-icon"><i class="bi bi-geo-alt"></i></span>
+    <span class="sb-item-label">{% trans "Map View" %}</span>
+  </a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block sidebar_admin %}
+{% if user.role == 'system_admin' %}
+<div class="sb-section">
+  <div class="sb-section-label">{% trans "Admin" %}</div>
+  <a class="sb-item" href="{% url 'core:user-list' %}">
+    <span class="sb-toggle" style="visibility:hidden">&rsaquo;</span>
+    <span class="sb-icon"><i class="bi bi-people"></i></span>
+    <span class="sb-item-label">{% trans "Users & Roles" %}</span>
+  </a>
+  {% if user.is_staff %}
+  <a class="sb-item" href="{% url 'admin:index' %}">
+    <span class="sb-toggle" style="visibility:hidden">&rsaquo;</span>
+    <span class="sb-icon"><i class="bi bi-gear"></i></span>
+    <span class="sb-item-label">{% trans "Django Admin" %}</span>
+  </a>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block sidebar_user_role %}{{ user.get_role_display|default:"User" }}{% endblock %}
+{% block profile_url %}{% url 'core:profile' %}{% endblock %}
+
+{# === Sidebar user menu === #}
+{% block sidebar_user_menu %}
+<li><a class="dropdown-item" href="{% url 'core:profile' %}"><i class="bi bi-person me-2"></i>{% trans "Profile" %}</a></li>
+<li><a class="dropdown-item" href="{% url 'signatures:my-signatures' %}"><i class="bi bi-pen me-2"></i>{% trans "My Signatures" %}</a></li>
+{% if user.is_staff %}
+<li><a class="dropdown-item" href="{% url 'admin:index' %}"><i class="bi bi-gear me-2"></i>{% trans "Admin" %}</a></li>
+{% endif %}
+<li><hr class="dropdown-divider"></li>
+<li>
+  <form method="post" action="{% url 'core:logout' %}">
+    {% csrf_token %}
+    <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right me-2"></i>{% trans "Log Out" %}</button>
+  </form>
+</li>
+{% endblock %}
+
+{# === Topbar Customization === #}
+
+{% block notifications_url %}{% url 'keel_notifications:list' %}{% endblock %}
+{% block help_url %}{% url 'portal:support' %}{% endblock %}
+
+{% block topbar_extra_actions %}
+<div class="tb-divider"></div>
+{% endblock %}
+
+{% block topbar_primary_action %}
+{% if user.can_manage_grants %}
+<a class="tb-btn primary" href="{% url 'grants:program-create' %}">+ {% trans "New Program" %}</a>
+{% endif %}
+{% endblock %}
+
+{# === Product JS === #}
+
+{% block product_js %}
+<script src="{% static 'js/harbor.js' %}"></script>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+{% request_widget %}
+{% endblock %}
