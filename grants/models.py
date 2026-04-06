@@ -69,7 +69,7 @@ class GrantProgram(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     agency = models.ForeignKey(
-        'core.Agency',
+        'harbor_core.Agency',
         on_delete=models.PROTECT,
         related_name='grant_programs',
     )

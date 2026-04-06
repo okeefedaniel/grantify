@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('core', '0001_initial'),
+        ('harbor_core', '0001_initial'),
         ('grants', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
                 ('updated_at', models.DateTimeField(auto_now=True)),
                 ('applicant', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='applications', to=settings.AUTH_USER_MODEL)),
                 ('grant_program', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='applications', to='grants.grantprogram')),
-                ('organization', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='applications', to='core.organization')),
+                ('organization', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='applications', to='harbor_core.organization')),
             ],
             options={
                 'verbose_name': 'Application',

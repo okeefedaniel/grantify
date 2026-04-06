@@ -36,7 +36,7 @@ class Award(models.Model):
         related_name='awards',
     )
     agency = models.ForeignKey(
-        'core.Agency',
+        'harbor_core.Agency',
         on_delete=models.CASCADE,
         related_name='awards',
     )
@@ -46,7 +46,7 @@ class Award(models.Model):
         related_name='awards_received',
     )
     organization = models.ForeignKey(
-        'core.Organization',
+        'harbor_core.Organization',
         on_delete=models.CASCADE,
         related_name='awards',
     )
@@ -218,7 +218,7 @@ class SubRecipient(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     award = models.ForeignKey(Award, on_delete=models.CASCADE, related_name='sub_recipients')
-    organization = models.ForeignKey('core.Organization', on_delete=models.PROTECT, related_name='sub_recipient_awards')
+    organization = models.ForeignKey('harbor_core.Organization', on_delete=models.PROTECT, related_name='sub_recipient_awards')
     contact_name = models.CharField(max_length=255)
     contact_email = models.EmailField()
     contact_phone = models.CharField(max_length=20, blank=True)

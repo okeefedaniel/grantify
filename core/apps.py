@@ -34,6 +34,8 @@ def _harbor_has_ai_access(user):
 
 class CoreConfig(AppConfig):
     name = 'core'
+    label = 'harbor_core'
+    verbose_name = 'Harbor Core'
 
     def ready(self):
         from allauth.account.signals import user_signed_up

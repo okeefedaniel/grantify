@@ -38,7 +38,7 @@ class ReportTemplate(models.Model):
         choices=ReportType.choices,
     )
     agency = models.ForeignKey(
-        'core.Agency',
+        'harbor_core.Agency',
         on_delete=models.CASCADE,
         null=True,
         blank=True,

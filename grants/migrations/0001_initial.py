@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('core', '0001_initial'),
+        ('harbor_core', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -114,7 +114,7 @@ class Migration(migrations.Migration):
                 ('application_form_config', models.JSONField(blank=True, default=dict, help_text='JSON configuration defining custom application form sections and fields per program')),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('agency', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='grant_programs', to='core.agency')),
+                ('agency', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='grant_programs', to='harbor_core.agency')),
                 ('created_by', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='created_grant_programs', to=settings.AUTH_USER_MODEL)),
                 ('funding_source', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='grant_programs', to='grants.fundingsource')),
             ],

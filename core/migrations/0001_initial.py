@@ -78,9 +78,9 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('anthropic_api_key', models.CharField(blank=True, default='', max_length=255, verbose_name='Anthropic API Key')),
-                ('agency', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='harbor_users', to='core.agency')),
+                ('agency', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='harbor_users', to='harbor_core.agency')),
                 ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='harbor_profile', to=settings.AUTH_USER_MODEL)),
-                ('organization', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='harbor_users', to='core.organization')),
+                ('organization', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='harbor_users', to='harbor_core.organization')),
             ],
             options={
                 'verbose_name': 'Harbor Profile',
@@ -95,7 +95,7 @@ class Migration(migrations.Migration):
                 ('assigned_at', models.DateTimeField(auto_now_add=True)),
                 ('assigned_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='contact_assignments_made', to=settings.AUTH_USER_MODEL)),
                 ('assigned_to', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='contact_assignments', to=settings.AUTH_USER_MODEL)),
-                ('organization', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='assigned_contact', to='core.organization')),
+                ('organization', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='assigned_contact', to='harbor_core.organization')),
             ],
             options={
                 'verbose_name': 'Organization Contact',
@@ -214,7 +214,7 @@ class Migration(migrations.Migration):
                 ('reviewed_at', models.DateTimeField(blank=True, null=True)),
                 ('reviewer_notes', models.TextField(blank=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('organization', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='claims', to='core.organization')),
+                ('organization', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='claims', to='harbor_core.organization')),
                 ('reviewed_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='reviewed_claims', to=settings.AUTH_USER_MODEL)),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='organization_claims', to=settings.AUTH_USER_MODEL)),
             ],

@@ -41,7 +41,7 @@ class Application(models.Model):
         related_name='applications',
     )
     organization = models.ForeignKey(
-        'core.Organization',
+        'harbor_core.Organization',
         on_delete=models.PROTECT,
         related_name='applications',
     )

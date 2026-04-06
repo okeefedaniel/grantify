@@ -397,10 +397,10 @@ KEEL_FLEET_PRODUCTS = [
 ]
 KEEL_API_URL = os.environ.get('KEEL_API_URL', 'https://keel.docklabs.ai')
 KEEL_API_KEY = os.environ.get('KEEL_API_KEY', '')
-KEEL_AUDIT_LOG_MODEL = 'core.AuditLog'
-KEEL_NOTIFICATION_MODEL = 'core.Notification'
-KEEL_NOTIFICATION_PREFERENCE_MODEL = 'core.NotificationPreference'
-KEEL_NOTIFICATION_LOG_MODEL = 'core.NotificationLog'
+KEEL_AUDIT_LOG_MODEL = 'harbor_core.AuditLog'
+KEEL_NOTIFICATION_MODEL = 'harbor_core.Notification'
+KEEL_NOTIFICATION_PREFERENCE_MODEL = 'harbor_core.NotificationPreference'
+KEEL_NOTIFICATION_LOG_MODEL = 'harbor_core.NotificationLog'
 
 KEEL_CSP_POLICY = {}  # Start permissive, tighten later
 KEEL_FILE_SCANNING_ENABLED = not DEBUG

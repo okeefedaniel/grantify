@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('awards', '0001_initial'),
-        ('core', '0001_initial'),
+        ('harbor_core', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -70,7 +70,7 @@ class Migration(migrations.Migration):
                 ('is_active', models.BooleanField(default=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('agency', models.ForeignKey(blank=True, help_text='Leave blank for statewide templates.', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='report_templates', to='core.agency')),
+                ('agency', models.ForeignKey(blank=True, help_text='Leave blank for statewide templates.', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='report_templates', to='harbor_core.agency')),
                 ('created_by', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='created_report_templates', to=settings.AUTH_USER_MODEL)),
             ],
             options={

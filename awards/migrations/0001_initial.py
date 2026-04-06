@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('applications', '0001_initial'),
-        ('core', '0001_initial'),
+        ('harbor_core', '0001_initial'),
         ('grants', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
@@ -38,11 +38,11 @@ class Migration(migrations.Migration):
                 ('executed_at', models.DateTimeField(blank=True, null=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('agency', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='awards', to='core.agency')),
+                ('agency', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='awards', to='harbor_core.agency')),
                 ('application', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='award', to='applications.application')),
                 ('approved_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='approved_awards', to=settings.AUTH_USER_MODEL)),
                 ('grant_program', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='awards', to='grants.grantprogram')),
-                ('organization', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='awards', to='core.organization')),
+                ('organization', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='awards', to='harbor_core.organization')),
                 ('recipient', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='awards_received', to=settings.AUTH_USER_MODEL)),
             ],
             options={
@@ -153,7 +153,7 @@ class Migration(migrations.Migration):
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
                 ('award', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sub_recipients', to='awards.award')),
-                ('organization', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='sub_recipient_awards', to='core.organization')),
+                ('organization', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='sub_recipient_awards', to='harbor_core.organization')),
             ],
             options={
                 'verbose_name': 'Sub-Recipient',

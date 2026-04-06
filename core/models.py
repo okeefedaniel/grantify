@@ -122,6 +122,7 @@ class Organization(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        db_table = 'harbor_core_organization'
         ordering = ['name']
         verbose_name = _('Organization')
         verbose_name_plural = _('Organizations')
@@ -175,6 +176,7 @@ class Agency(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        db_table = 'harbor_core_agency'
         ordering = ['abbreviation']
         verbose_name = _('Agency')
         verbose_name_plural = _('Agencies')
@@ -211,6 +213,7 @@ class HarborProfile(models.Model):
     )
 
     class Meta:
+        db_table = 'harbor_core_harborprofile'
         verbose_name = _('Harbor Profile')
         verbose_name_plural = _('Harbor Profiles')
 
@@ -259,6 +262,7 @@ class AuditLog(AbstractAuditLog):
     """Harbor audit log — inherits from Keel's immutable AbstractAuditLog."""
 
     class Meta(AbstractAuditLog.Meta):
+        db_table = 'harbor_core_auditlog'
         verbose_name = _('Audit Log')
         verbose_name_plural = _('Audit Logs')
         indexes = [
@@ -280,6 +284,7 @@ class Notification(AbstractNotification):
     """Harbor notification — inherits from Keel's AbstractNotification."""
 
     class Meta(AbstractNotification.Meta):
+        db_table = 'harbor_core_notification'
         verbose_name = _('Notification')
         verbose_name_plural = _('Notifications')
         indexes = [
@@ -297,6 +302,7 @@ class NotificationPreference(AbstractNotificationPreference):
     """Per-user notification channel preferences."""
 
     class Meta(AbstractNotificationPreference.Meta):
+        db_table = 'harbor_core_notificationpreference'
         verbose_name = _('Notification Preference')
         verbose_name_plural = _('Notification Preferences')
 
@@ -308,6 +314,7 @@ class NotificationLog(AbstractNotificationLog):
     """Tracks notification delivery per channel."""
 
     class Meta(AbstractNotificationLog.Meta):
+        db_table = 'harbor_core_notificationlog'
         verbose_name = _('Notification Log')
         verbose_name_plural = _('Notification Logs')
 
@@ -378,6 +385,7 @@ class ArchivedRecord(models.Model):
     purged_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
+        db_table = 'harbor_core_archivedrecord'
         ordering = ['-archived_at']
         verbose_name = _('Archived Record')
         verbose_name_plural = _('Archived Records')
@@ -435,6 +443,7 @@ class OrganizationClaim(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        db_table = 'harbor_core_organizationclaim'
         ordering = ['-created_at']
         verbose_name = _('Organization Claim')
         verbose_name_plural = _('Organization Claims')
@@ -484,6 +493,7 @@ class OrganizationContact(models.Model):
     assigned_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        db_table = 'harbor_core_organizationcontact'
         verbose_name = _('Organization Contact')
         verbose_name_plural = _('Organization Contacts')
 
