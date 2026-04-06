@@ -39,7 +39,7 @@
 
   {# --- Funding --- #}
   <a class="sb-item" onclick="dlToggleTree('funding-tree')">
-    <span class="sb-toggle open" id="funding-toggle">&rsaquo;</span>
+    <span class="sb-toggle open" id="funding-toggle"><i class="bi bi-caret-right-fill"></i></span>
     <span class="sb-icon"><i class="bi bi-megaphone"></i></span>
     <span class="sb-item-label">{% trans "Funding" %}</span>
   </a>
@@ -59,13 +59,13 @@
   {# --- Applications --- #}
   {% if user.can_manage_grants %}
   <a class="sb-item" href="{% url 'applications:list' %}">
-    <span class="sb-toggle" style="visibility:hidden">&rsaquo;</span>
+    <span class="sb-toggle" style="visibility:hidden"><i class="bi bi-caret-right-fill"></i></span>
     <span class="sb-icon"><i class="bi bi-file-earmark-text"></i></span>
     <span class="sb-item-label">{% trans "Applications" %}</span>
   </a>
   {% elif user.role == 'applicant' %}
   <a class="sb-item" href="{% url 'applications:my-applications' %}">
-    <span class="sb-toggle" style="visibility:hidden">&rsaquo;</span>
+    <span class="sb-toggle" style="visibility:hidden"><i class="bi bi-caret-right-fill"></i></span>
     <span class="sb-icon"><i class="bi bi-file-earmark-text"></i></span>
     <span class="sb-item-label">{% trans "My Applications" %}</span>
   </a>
@@ -74,7 +74,7 @@
   {# --- Awards --- #}
   {% if user.can_manage_grants %}
   <a class="sb-item" onclick="dlToggleTree('awards-tree')">
-    <span class="sb-toggle open" id="awards-toggle">&rsaquo;</span>
+    <span class="sb-toggle open" id="awards-toggle"><i class="bi bi-caret-right-fill"></i></span>
     <span class="sb-icon"><i class="bi bi-trophy"></i></span>
     <span class="sb-item-label">{% trans "Awards" %}</span>
   </a>
@@ -98,7 +98,7 @@
   </div>
   {% elif user.role == 'applicant' %}
   <a class="sb-item" href="{% url 'awards:my-awards' %}">
-    <span class="sb-toggle" style="visibility:hidden">&rsaquo;</span>
+    <span class="sb-toggle" style="visibility:hidden"><i class="bi bi-caret-right-fill"></i></span>
     <span class="sb-icon"><i class="bi bi-trophy"></i></span>
     <span class="sb-item-label">{% trans "My Awards" %}</span>
   </a>
@@ -107,7 +107,7 @@
   {# --- Grant Programs --- #}
   {% if user.can_manage_grants %}
   <a class="sb-item" href="{% url 'grants:program-list' %}">
-    <span class="sb-toggle" style="visibility:hidden">&rsaquo;</span>
+    <span class="sb-toggle" style="visibility:hidden"><i class="bi bi-caret-right-fill"></i></span>
     <span class="sb-icon"><i class="bi bi-folder"></i></span>
     <span class="sb-item-label">{% trans "Grant Programs" %}</span>
   </a>
@@ -116,7 +116,7 @@
   {# --- Reports --- #}
   {% if user.can_manage_grants %}
   <a class="sb-item" href="{% url 'reporting:list' %}">
-    <span class="sb-toggle" style="visibility:hidden">&rsaquo;</span>
+    <span class="sb-toggle" style="visibility:hidden"><i class="bi bi-caret-right-fill"></i></span>
     <span class="sb-icon"><i class="bi bi-bar-chart-line"></i></span>
     <span class="sb-item-label">{% trans "Reports" %}</span>
   </a>
@@ -125,7 +125,7 @@
   {# --- Claims --- #}
   {% if user.role == 'program_officer' or user.role == 'agency_admin' or user.role == 'system_admin' %}
   <a class="sb-item" href="{% url 'core:organization-claims' %}">
-    <span class="sb-toggle" style="visibility:hidden">&rsaquo;</span>
+    <span class="sb-toggle" style="visibility:hidden"><i class="bi bi-caret-right-fill"></i></span>
     <span class="sb-icon"><i class="bi bi-building-check"></i></span>
     <span class="sb-item-label">{% trans "Claims" %}</span>
   </a>
@@ -134,7 +134,7 @@
   {# --- Federal / AI --- #}
   {% if user.can_manage_federal %}
   <a class="sb-item" onclick="dlToggleTree('federal-tree')">
-    <span class="sb-toggle" id="federal-toggle">&rsaquo;</span>
+    <span class="sb-toggle" id="federal-toggle"><i class="bi bi-caret-right-fill"></i></span>
     <span class="sb-icon"><i class="bi bi-globe"></i></span>
     <span class="sb-item-label">{% trans "Federal Funding" %}</span>
   </a>
@@ -159,7 +159,7 @@
   {# --- AI Match for applicants --- #}
   {% if user.role == 'applicant' and has_ai_access %}
   <a class="sb-item" href="{% url 'grants:recommendations' %}">
-    <span class="sb-toggle" style="visibility:hidden">&rsaquo;</span>
+    <span class="sb-toggle" style="visibility:hidden"><i class="bi bi-caret-right-fill"></i></span>
     <span class="sb-icon"><i class="bi bi-stars"></i></span>
     <span class="sb-item-label">{% trans "AI Matches" %}</span>
   </a>
@@ -168,7 +168,7 @@
   {# --- Calendar --- #}
   {% if user.is_agency_staff or user.role == 'system_admin' or user.role == 'applicant' %}
   <a class="sb-item" href="{% url 'core:calendar' %}">
-    <span class="sb-toggle" style="visibility:hidden">&rsaquo;</span>
+    <span class="sb-toggle" style="visibility:hidden"><i class="bi bi-caret-right-fill"></i></span>
     <span class="sb-icon"><i class="bi bi-calendar-event"></i></span>
     <span class="sb-item-label">{% trans "Calendar" %}</span>
   </a>
@@ -182,12 +182,12 @@
 <div class="sb-section">
   <div class="sb-section-label">{% trans "Insights" %}</div>
   <a class="sb-item" href="{% url 'core:analytics' %}">
-    <span class="sb-toggle" style="visibility:hidden">&rsaquo;</span>
+    <span class="sb-toggle" style="visibility:hidden"><i class="bi bi-caret-right-fill"></i></span>
     <span class="sb-icon"><i class="bi bi-graph-up"></i></span>
     <span class="sb-item-label">{% trans "Analytics" %}</span>
   </a>
   <a class="sb-item" href="{% url 'core:map_view' %}">
-    <span class="sb-toggle" style="visibility:hidden">&rsaquo;</span>
+    <span class="sb-toggle" style="visibility:hidden"><i class="bi bi-caret-right-fill"></i></span>
     <span class="sb-icon"><i class="bi bi-geo-alt"></i></span>
     <span class="sb-item-label">{% trans "Map View" %}</span>
   </a>
@@ -200,13 +200,13 @@
 <div class="sb-section">
   <div class="sb-section-label">{% trans "Admin" %}</div>
   <a class="sb-item" href="{% url 'core:user-list' %}">
-    <span class="sb-toggle" style="visibility:hidden">&rsaquo;</span>
+    <span class="sb-toggle" style="visibility:hidden"><i class="bi bi-caret-right-fill"></i></span>
     <span class="sb-icon"><i class="bi bi-people"></i></span>
     <span class="sb-item-label">{% trans "Users & Roles" %}</span>
   </a>
   {% if user.is_staff %}
   <a class="sb-item" href="{% url 'admin:index' %}">
-    <span class="sb-toggle" style="visibility:hidden">&rsaquo;</span>
+    <span class="sb-toggle" style="visibility:hidden"><i class="bi bi-caret-right-fill"></i></span>
     <span class="sb-icon"><i class="bi bi-gear"></i></span>
     <span class="sb-item-label">{% trans "Django Admin" %}</span>
   </a>

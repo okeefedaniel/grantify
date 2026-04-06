@@ -115,6 +115,7 @@ TEMPLATES = [
                 'core.context_processors.site_context',
                 'signatures.context_processors.manifest_context',
                 'keel.core.context_processors.fleet_context',
+                'keel.core.context_processors.breadcrumb_context',
             ],
         },
     },
@@ -388,11 +389,11 @@ KEEL_GATE_ACCESS = True
 KEEL_PRODUCT_ICON = 'bi-bank2'
 KEEL_PRODUCT_SUBTITLE = 'State Grants Management Solution'
 KEEL_FLEET_PRODUCTS = [
-    {'name': 'Helm', 'label': 'Helm', 'code': 'helm', 'url': '/'},
-    {'name': 'Beacon', 'label': 'Beacon', 'code': 'beacon', 'url': '/'},
-    {'name': 'Harbor', 'label': 'Harbor', 'code': 'harbor', 'url': '/'},
-    {'name': 'Bounty', 'label': 'Bounty', 'code': 'bounty', 'url': '/'},
-    {'name': 'Lookout', 'label': 'Lookout', 'code': 'lookout', 'url': '/'},
+    {'name': 'Helm', 'label': 'Helm', 'code': 'helm', 'url': 'https://helm.docklabs.ai', 'icon': 'bi-hexagon'},
+    {'name': 'Beacon', 'label': 'Beacon', 'code': 'beacon', 'url': 'https://beacon.docklabs.ai', 'icon': 'bi-broadcast'},
+    {'name': 'Harbor', 'label': 'Harbor', 'code': 'harbor', 'url': '/', 'icon': 'bi-bank2'},
+    {'name': 'Bounty', 'label': 'Bounty', 'code': 'bounty', 'url': 'https://bounty.docklabs.ai', 'icon': 'bi-bullseye'},
+    {'name': 'Lookout', 'label': 'Lookout', 'code': 'lookout', 'url': 'https://lookout.docklabs.ai', 'icon': 'bi-binoculars'},
 ]
 KEEL_API_URL = os.environ.get('KEEL_API_URL', 'https://keel.docklabs.ai')
 KEEL_API_KEY = os.environ.get('KEEL_API_KEY', '')

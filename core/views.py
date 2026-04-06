@@ -668,6 +668,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
     @staticmethod
     def _applicant_context(user):
         """Build dashboard context for applicant users."""
+        from core.models import get_harbor_profile
         from grants.models import GrantPreference, OpportunityMatch, SavedProgram
 
         recent_applications = (
