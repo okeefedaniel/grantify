@@ -35,23 +35,36 @@ class HomeView(LandingView):
     ]
 
     def get_landing_stats(self):
-        published = GrantProgram.objects.filter(is_published=True)
-        total_funding = published.aggregate(total=Sum('total_funding'))['total'] or 0
-        federal_count = FederalOpportunity.objects.filter(
-            opportunity_status=FederalOpportunity.OpportunityStatus.POSTED,
-        ).count()
-        return [
-            {'value': str(published.count()), 'label': 'State Programs'},
-            {'value': '$' + intcomma(int(total_funding)), 'label': 'State Funding'},
-            {'value': str(federal_count), 'label': 'Federal Opportunities', 'url': '/federal-opportunities/'},
-            {'value': '10+', 'label': 'Participating Agencies'},
-        ]
+        # Resilient: fall back to static stats if DB tables aren't present
+        try:
+            published = GrantProgram.objects.filter(is_published=True)
+            count = published.count()
+            total_funding = published.aggregate(total=Sum('total_funding'))['total'] or 0
+            federal_count = FederalOpportunity.objects.filter(
+                opportunity_status=FederalOpportunity.OpportunityStatus.POSTED,
+            ).count()
+            return [
+                {'value': str(count), 'label': 'State Programs'},
+                {'value': '$' + intcomma(int(total_funding)), 'label': 'State Funding'},
+                {'value': str(federal_count), 'label': 'Federal Opportunities', 'url': '/federal-opportunities/'},
+                {'value': '10+', 'label': 'Participating Agencies'},
+            ]
+        except Exception:
+            return [
+                {'value': 'State', 'label': 'Grants'},
+                {'value': 'Federal', 'label': 'Opportunities'},
+                {'value': 'Online', 'label': 'Applications'},
+                {'value': '10+', 'label': 'Participating Agencies'},
+            ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['recent_opportunities'] = GrantProgram.objects.filter(
-            is_published=True,
-        ).order_by('-posting_date')[:3]
+        try:
+            context['recent_opportunities'] = list(GrantProgram.objects.filter(
+                is_published=True,
+            ).order_by('-posting_date')[:3])
+        except Exception:
+            context['recent_opportunities'] = []
         return context
 
 
