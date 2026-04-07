@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.microsoft',
+    'allauth.socialaccount.providers.openid_connect',  # Phase 2b: Keel as IdP
     'allauth.mfa',
     # Project apps
     'core.apps.CoreConfig',
@@ -340,6 +341,7 @@ ACCOUNT_LOGIN_METHODS = {'username', 'email'}
 ACCOUNT_EMAIL_VERIFICATION = 'optional'
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
 ACCOUNT_ADAPTER = 'keel.core.sso.KeelAccountAdapter'
+SOCIALACCOUNT_ADAPTER = 'keel.core.sso.KeelSocialAccountAdapter'
 
 # Where to redirect after social login
 SOCIALACCOUNT_LOGIN_ON_GET = True  # Skip the intermediate "Continue?" page
@@ -369,6 +371,33 @@ SOCIALACCOUNT_PROVIDERS = {
         'TENANT': _MSFT_TENANT,
     },
 }
+
+# ---------------------------------------------------------------------------
+# Keel OIDC (Phase 2b) — Keel is the identity provider for the DockLabs suite
+# ---------------------------------------------------------------------------
+# When KEEL_OIDC_CLIENT_ID is set, this product federates authentication to
+# Keel via standard OAuth2/OIDC. When unset, the product falls back to local
+# Django auth (+ optional direct Microsoft SSO), so standalone deployments
+# continue to work without any Keel dependency.
+KEEL_OIDC_CLIENT_ID = os.environ.get('KEEL_OIDC_CLIENT_ID', '')
+KEEL_OIDC_CLIENT_SECRET = os.environ.get('KEEL_OIDC_CLIENT_SECRET', '')
+KEEL_OIDC_ISSUER = os.environ.get('KEEL_OIDC_ISSUER', 'https://keel.docklabs.ai')
+
+if KEEL_OIDC_CLIENT_ID:
+    SOCIALACCOUNT_PROVIDERS['openid_connect'] = {
+        'APPS': [
+            {
+                'provider_id': 'keel',
+                'name': 'Sign in with DockLabs',
+                'client_id': KEEL_OIDC_CLIENT_ID,
+                'secret': KEEL_OIDC_CLIENT_SECRET,
+                'settings': {
+                    'server_url': f'{KEEL_OIDC_ISSUER}/oauth/.well-known/openid-configuration',
+                    'token_auth_method': 'client_secret_post',
+                },
+            },
+        ],
+    }
 
 # MFA configuration
 MFA_ADAPTER = 'allauth.mfa.adapter.DefaultMFAAdapter'
