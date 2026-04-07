@@ -1,38 +1,57 @@
 from django.db.models import Q, Sum
 from django.shortcuts import redirect
 from django.views.generic import DetailView, ListView, TemplateView
+from django.contrib.humanize.templatetags.humanize import intcomma
+
+from keel.core.views import LandingView
 
 from applications.models import Application
 from grants.models import FederalOpportunity, GrantProgram, TrackedOpportunity
 
 
-class HomeView(TemplateView):
-    """Public landing page for the Harbor portal."""
+class HomeView(LandingView):
+    """Public landing page for the Harbor portal — uses Keel's shared landing layout."""
 
     template_name = 'portal/home.html'
+    authenticated_redirect = 'dashboard'
 
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return redirect('dashboard')
-        return super().dispatch(request, *args, **kwargs)
+    features = [
+        {'icon': 'bi-search', 'title': 'Discover Opportunities',
+         'description': 'Browse and search state and federal funding opportunities filtered by agency, type, and status.',
+         'color': 'blue'},
+        {'icon': 'bi-file-earmark-text', 'title': 'Apply Online',
+         'description': 'Complete grant applications online with built-in document uploads, validation, and progress saving.',
+         'color': 'teal'},
+        {'icon': 'bi-graph-up', 'title': 'Track Awards',
+         'description': 'Monitor application status, manage active awards, submit reports, and request drawdowns.',
+         'color': 'yellow'},
+    ]
+
+    steps = [
+        {'title': 'Register', 'description': 'Create your account and set up your organization profile to get started.'},
+        {'title': 'Find Opportunities', 'description': 'Browse available funding opportunities and filter by agency, type, or status.'},
+        {'title': 'Apply', 'description': 'Complete and submit your application online with all required documents.'},
+        {'title': 'Track Progress', 'description': 'Monitor your application status, manage awards, and submit required reports.'},
+    ]
+
+    def get_landing_stats(self):
+        published = GrantProgram.objects.filter(is_published=True)
+        total_funding = published.aggregate(total=Sum('total_funding'))['total'] or 0
+        federal_count = FederalOpportunity.objects.filter(
+            opportunity_status=FederalOpportunity.OpportunityStatus.POSTED,
+        ).count()
+        return [
+            {'value': str(published.count()), 'label': 'State Programs'},
+            {'value': '$' + intcomma(int(total_funding)), 'label': 'State Funding'},
+            {'value': str(federal_count), 'label': 'Federal Opportunities', 'url': '/federal-opportunities/'},
+            {'value': '10+', 'label': 'Participating Agencies'},
+        ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        published_programs = GrantProgram.objects.filter(is_published=True)
-
-        context['recent_opportunities'] = published_programs.order_by(
-            '-posting_date'
-        )[:5]
-        context['total_funding_available'] = (
-            published_programs.aggregate(total=Sum('total_funding'))['total'] or 0
-        )
-        context['active_programs_count'] = published_programs.count()
-
-        # Federal opportunity stats for the landing page
-        context['open_federal_count'] = FederalOpportunity.objects.filter(
-            opportunity_status=FederalOpportunity.OpportunityStatus.POSTED,
-        ).count()
-
+        context['recent_opportunities'] = GrantProgram.objects.filter(
+            is_published=True,
+        ).order_by('-posting_date')[:3]
         return context
 
 
