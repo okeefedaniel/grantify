@@ -1,5 +1,7 @@
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LoginView
 from django.urls import path
+
+from keel.core.views import SuiteLogoutView
 
 from core.forms import LoginForm
 from core import views
@@ -15,7 +17,7 @@ urlpatterns = [
         ),
         name='login',
     ),
-    path('logout/', LogoutView.as_view(), name='logout'),
+    path('logout/', SuiteLogoutView.as_view(), name='logout'),
     path('register/', views.RegisterView.as_view(), name='register'),
     path('profile/', views.ProfileView.as_view(), name='profile'),
     path(
