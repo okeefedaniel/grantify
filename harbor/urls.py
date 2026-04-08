@@ -2,12 +2,14 @@
 Harbor URL Configuration
 """
 from django.contrib import admin
+from django.contrib.auth.views import LoginView
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import RedirectView
 from core import views as core_views
-from keel.core.views import health_check, robots_txt
+from keel.accounts.forms import LoginForm
+from keel.core.views import health_check, robots_txt, SuiteLogoutView
 from keel.core.demo import demo_login_view
 
 from django.utils.translation import gettext_lazy as _
@@ -23,6 +25,14 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('portal.urls')),
     path('auth/', include('core.urls')),
+    # Override allauth's bare LoginView at /accounts/login/ with the shared
+    # keel LoginForm so the input fields render with Bootstrap styling.
+    # Mounted before the allauth include so it shadows allauth's default.
+    path('accounts/login/', LoginView.as_view(
+        template_name='account/login.html',
+        authentication_form=LoginForm,
+    ), name='account_login'),
+    path('accounts/logout/', SuiteLogoutView.as_view(), name='account_logout'),
     path('accounts/', include('allauth.urls')),
     # Convenience named URL for the "Sign in with Microsoft" button
     path(
