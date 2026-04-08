@@ -92,6 +92,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'keel.accounts.middleware.AutoOIDCLoginMiddleware',
     'keel.accounts.middleware.ProductAccessMiddleware',
     'core.middleware.HarborProfileMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
