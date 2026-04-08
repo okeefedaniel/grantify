@@ -388,6 +388,7 @@ if KEEL_OIDC_CLIENT_ID:
                     'server_url': f'{KEEL_OIDC_ISSUER}/oauth/.well-known/openid-configuration',
                     'token_auth_method': 'client_secret_post',
                     'oauth_pkce_enabled': True,  # Keel requires PKCE
+                    'scope': ['openid', 'email', 'profile', 'product_access'],
                 },
             },
         ],
