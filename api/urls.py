@@ -9,6 +9,7 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from . import views
+from .helm_feed import harbor_helm_feed
 
 router = DefaultRouter()
 
@@ -26,4 +27,6 @@ router.register(r'audit-logs', views.AuditLogViewSet, basename='auditlog')
 urlpatterns = [
     # Bounty → Harbor federal opportunity intake
     path('federal-intake/', views.FederalIntakeView.as_view(), name='federal-intake'),
+    # Helm executive dashboard feed
+    path('v1/helm-feed/', harbor_helm_feed, name='helm-feed'),
 ] + router.urls

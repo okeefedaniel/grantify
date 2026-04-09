@@ -433,6 +433,7 @@ KEEL_FLEET_PRODUCTS = [
 ]
 KEEL_API_URL = os.environ.get('KEEL_API_URL', 'https://keel.docklabs.ai')
 KEEL_API_KEY = os.environ.get('KEEL_API_KEY', '')
+HELM_FEED_API_KEY = os.environ.get('HELM_FEED_API_KEY', '')
 KEEL_AUDIT_LOG_MODEL = 'harbor_core.AuditLog'
 KEEL_NOTIFICATION_MODEL = 'harbor_core.Notification'
 KEEL_NOTIFICATION_PREFERENCE_MODEL = 'harbor_core.NotificationPreference'
