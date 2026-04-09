@@ -11,6 +11,7 @@ from core import views as core_views
 from keel.accounts.forms import LoginForm
 from keel.core.views import health_check, robots_txt, SuiteLogoutView
 from keel.core.demo import demo_login_view
+from keel.core.search_views import search_view
 
 from django.utils.translation import gettext_lazy as _
 
@@ -52,6 +53,7 @@ urlpatterns = [
     path('notifications/', include('keel.notifications.urls')),
     path('api/', include('api.urls')),
     path('i18n/', include('django.conf.urls.i18n')),
+    path('search/', search_view, name='search'),
     path('keel/requests/', include('keel.requests.urls')),
     path('keel/', include('keel.core.foia_urls')),
     path('keel/', include('keel.accounts.urls')),
