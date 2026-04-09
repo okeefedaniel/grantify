@@ -128,7 +128,7 @@ def harbor_helm_feed(request):
         action_items.append({
             'id': f'harbor-app-review-{app.pk}',
             'type': 'review',
-            'title': f'Review: {app.grant_program.name} — {app.organization.name}',
+            'title': f'Review: {app.grant_program.title} — {app.organization.name}',
             'description': f'Application {app.get_status_display().lower()}',
             'priority': 'high' if app.status == 'submitted' else 'medium',
             'due_date': '',
@@ -148,7 +148,7 @@ def harbor_helm_feed(request):
         action_items.append({
             'id': f'harbor-drawdown-{dr.pk}',
             'type': 'approval',
-            'title': f'Approve drawdown: ${dr.amount:,.0f} — {dr.award.grant_program.name}',
+            'title': f'Approve drawdown: ${dr.amount:,.0f} — {dr.award.grant_program.title}',
             'description': f'Drawdown request {dr.get_status_display().lower()}',
             'priority': 'medium',
             'due_date': '',
@@ -169,7 +169,7 @@ def harbor_helm_feed(request):
             'id': f'harbor-award-approve-{award.pk}',
             'type': 'approval',
             'title': f'Approve award: ${award.award_amount:,.0f} — {award.organization.name}',
-            'description': f'{award.grant_program.name}',
+            'description': f'{award.grant_program.title}',
             'priority': 'high',
             'due_date': '',
             'assigned_to_role': 'program_director',
