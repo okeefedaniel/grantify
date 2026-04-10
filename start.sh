@@ -54,8 +54,10 @@ $MANAGE_CMD migrate --noinput 2>&1 || echo "ERROR: Migrations failed — see out
 if [ "$DJANGO_SETTINGS_MODULE" != "manifest.settings" ]; then
     echo "=== Running background startup tasks ==="
     (
-        echo "--- Seeding demo data ---"
-        python manage.py shell < seed_data.py || echo "WARNING: Seed data failed (non-fatal)"
+        if [ "$DEMO_MODE" = "true" ] || [ "$DEMO_MODE" = "True" ]; then
+            echo "--- Seeding demo data ---"
+            python manage.py shell < seed_data.py || echo "WARNING: Seed data failed (non-fatal)"
+        fi
 
         echo "--- Running AI grant matching ---"
         python manage.py match_opportunities || echo "WARNING: Grant matching failed (non-fatal)"
