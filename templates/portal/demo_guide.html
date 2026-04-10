@@ -279,9 +279,9 @@
                             <a href="{% url 'portal:opportunities' %}" class="btn btn-outline-primary btn-sm">
                                 <i class="bi bi-megaphone me-1"></i>{% trans "View Opportunities" %}
                             </a>
-                            <form method="post" action="{% url 'core:demo-login' %}" class="d-inline">
+                            <form method="post" action="{% url 'demo_login' %}" class="d-inline">
                                 {% csrf_token %}
-                                <input type="hidden" name="username" value="applicant">
+                                <input type="hidden" name="role" value="applicant">
                                 <button type="submit" class="btn btn-primary btn-sm">
                                     <i class="bi bi-box-arrow-in-right me-1"></i>{% trans "Log In as Applicant" %}
                                 </button>
@@ -322,9 +322,9 @@
                             </div>
                         </div>
                         <div class="mt-3">
-                            <form method="post" action="{% url 'core:demo-login' %}" class="d-inline">
+                            <form method="post" action="{% url 'demo_login' %}" class="d-inline">
                                 {% csrf_token %}
-                                <input type="hidden" name="username" value="reviewer">
+                                <input type="hidden" name="role" value="reviewer">
                                 <button type="submit" class="btn btn-primary btn-sm">
                                     <i class="bi bi-box-arrow-in-right me-1"></i>{% trans "Log In as Reviewer" %}
                                 </button>
@@ -373,9 +373,9 @@
                             </div>
                         </div>
                         <div class="mt-3">
-                            <form method="post" action="{% url 'core:demo-login' %}" class="d-inline">
+                            <form method="post" action="{% url 'demo_login' %}" class="d-inline">
                                 {% csrf_token %}
-                                <input type="hidden" name="username" value="program.officer">
+                                <input type="hidden" name="role" value="program_officer">
                                 <button type="submit" class="btn btn-primary btn-sm">
                                     <i class="bi bi-box-arrow-in-right me-1"></i>{% trans "Log In as Program Officer" %}
                                 </button>
@@ -416,9 +416,9 @@
                             </div>
                         </div>
                         <div class="mt-3">
-                            <form method="post" action="{% url 'core:demo-login' %}" class="d-inline">
+                            <form method="post" action="{% url 'demo_login' %}" class="d-inline">
                                 {% csrf_token %}
-                                <input type="hidden" name="username" value="fiscal.officer">
+                                <input type="hidden" name="role" value="fiscal_officer">
                                 <button type="submit" class="btn btn-primary btn-sm">
                                     <i class="bi bi-box-arrow-in-right me-1"></i>{% trans "Log In as Fiscal Officer" %}
                                 </button>
@@ -459,9 +459,9 @@
                             </div>
                         </div>
                         <div class="mt-3">
-                            <form method="post" action="{% url 'core:demo-login' %}" class="d-inline">
+                            <form method="post" action="{% url 'demo_login' %}" class="d-inline">
                                 {% csrf_token %}
-                                <input type="hidden" name="username" value="agency.admin">
+                                <input type="hidden" name="role" value="agency_admin">
                                 <button type="submit" class="btn btn-primary btn-sm">
                                     <i class="bi bi-box-arrow-in-right me-1"></i>{% trans "Log In as Agency Admin" %}
                                 </button>
@@ -502,9 +502,9 @@
                             </div>
                         </div>
                         <div class="mt-3">
-                            <form method="post" action="{% url 'core:demo-login' %}" class="d-inline">
+                            <form method="post" action="{% url 'demo_login' %}" class="d-inline">
                                 {% csrf_token %}
-                                <input type="hidden" name="username" value="auditor">
+                                <input type="hidden" name="role" value="auditor">
                                 <button type="submit" class="btn btn-primary btn-sm">
                                     <i class="bi bi-box-arrow-in-right me-1"></i>{% trans "Log In as Auditor" %}
                                 </button>
@@ -545,9 +545,9 @@
                             </div>
                         </div>
                         <div class="mt-3">
-                            <form method="post" action="{% url 'core:demo-login' %}" class="d-inline">
+                            <form method="post" action="{% url 'demo_login' %}" class="d-inline">
                                 {% csrf_token %}
-                                <input type="hidden" name="username" value="fed.coordinator">
+                                <input type="hidden" name="role" value="federal_fund_coordinator">
                                 <button type="submit" class="btn btn-primary btn-sm">
                                     <i class="bi bi-box-arrow-in-right me-1"></i>{% trans "Log In as Federal Coordinator" %}
                                 </button>
@@ -639,9 +639,9 @@
         <div class="row g-3 mb-4">
             {# Agency Admin #}
             <div class="col-md-4 col-sm-6">
-                <form method="post" action="{% url 'core:demo-login' %}">
+                <form method="post" action="{% url 'demo_login' %}">
                     {% csrf_token %}
-                    <input type="hidden" name="username" value="agency.admin">
+                    <input type="hidden" name="role" value="agency_admin">
                     <button type="submit" class="quick-login-card card border-0 shadow-sm w-100 text-start">
                         <div class="card-body">
                             <div class="d-flex align-items-center gap-3">
@@ -661,9 +661,9 @@
 
             {# Program Officer #}
             <div class="col-md-4 col-sm-6">
-                <form method="post" action="{% url 'core:demo-login' %}">
+                <form method="post" action="{% url 'demo_login' %}">
                     {% csrf_token %}
-                    <input type="hidden" name="username" value="program.officer">
+                    <input type="hidden" name="role" value="program_officer">
                     <button type="submit" class="quick-login-card card border-0 shadow-sm w-100 text-start">
                         <div class="card-body">
                             <div class="d-flex align-items-center gap-3">
@@ -683,9 +683,9 @@
 
             {# Fiscal Officer #}
             <div class="col-md-4 col-sm-6">
-                <form method="post" action="{% url 'core:demo-login' %}">
+                <form method="post" action="{% url 'demo_login' %}">
                     {% csrf_token %}
-                    <input type="hidden" name="username" value="fiscal.officer">
+                    <input type="hidden" name="role" value="fiscal_officer">
                     <button type="submit" class="quick-login-card card border-0 shadow-sm w-100 text-start">
                         <div class="card-body">
                             <div class="d-flex align-items-center gap-3">
@@ -705,9 +705,9 @@
 
             {# Reviewer #}
             <div class="col-md-4 col-sm-6">
-                <form method="post" action="{% url 'core:demo-login' %}">
+                <form method="post" action="{% url 'demo_login' %}">
                     {% csrf_token %}
-                    <input type="hidden" name="username" value="reviewer">
+                    <input type="hidden" name="role" value="reviewer">
                     <button type="submit" class="quick-login-card card border-0 shadow-sm w-100 text-start">
                         <div class="card-body">
                             <div class="d-flex align-items-center gap-3">
@@ -727,9 +727,9 @@
 
             {# Auditor #}
             <div class="col-md-4 col-sm-6">
-                <form method="post" action="{% url 'core:demo-login' %}">
+                <form method="post" action="{% url 'demo_login' %}">
                     {% csrf_token %}
-                    <input type="hidden" name="username" value="auditor">
+                    <input type="hidden" name="role" value="auditor">
                     <button type="submit" class="quick-login-card card border-0 shadow-sm w-100 text-start">
                         <div class="card-body">
                             <div class="d-flex align-items-center gap-3">
@@ -749,9 +749,9 @@
 
             {# Federal Coordinator #}
             <div class="col-md-4 col-sm-6">
-                <form method="post" action="{% url 'core:demo-login' %}">
+                <form method="post" action="{% url 'demo_login' %}">
                     {% csrf_token %}
-                    <input type="hidden" name="username" value="fed.coordinator">
+                    <input type="hidden" name="role" value="federal_fund_coordinator">
                     <button type="submit" class="quick-login-card card border-0 shadow-sm w-100 text-start">
                         <div class="card-body">
                             <div class="d-flex align-items-center gap-3">
@@ -776,9 +776,9 @@
         <div class="row g-3">
             {# Main Applicant #}
             <div class="col-md-4 col-sm-6">
-                <form method="post" action="{% url 'core:demo-login' %}">
+                <form method="post" action="{% url 'demo_login' %}">
                     {% csrf_token %}
-                    <input type="hidden" name="username" value="applicant">
+                    <input type="hidden" name="role" value="applicant">
                     <button type="submit" class="quick-login-card card border-0 shadow-sm w-100 text-start">
                         <div class="card-body">
                             <div class="d-flex align-items-center gap-3">
@@ -798,9 +798,9 @@
 
             {# Maria Santos #}
             <div class="col-md-4 col-sm-6">
-                <form method="post" action="{% url 'core:demo-login' %}">
+                <form method="post" action="{% url 'demo_login' %}">
                     {% csrf_token %}
-                    <input type="hidden" name="username" value="maria.santos">
+                    <input type="hidden" name="role" value="applicant">
                     <button type="submit" class="quick-login-card card border-0 shadow-sm w-100 text-start">
                         <div class="card-body">
                             <div class="d-flex align-items-center gap-3">
@@ -820,9 +820,9 @@
 
             {# James Chen #}
             <div class="col-md-4 col-sm-6">
-                <form method="post" action="{% url 'core:demo-login' %}">
+                <form method="post" action="{% url 'demo_login' %}">
                     {% csrf_token %}
-                    <input type="hidden" name="username" value="james.chen">
+                    <input type="hidden" name="role" value="applicant">
                     <button type="submit" class="quick-login-card card border-0 shadow-sm w-100 text-start">
                         <div class="card-body">
                             <div class="d-flex align-items-center gap-3">
@@ -842,9 +842,9 @@
 
             {# Priya Patel #}
             <div class="col-md-4 col-sm-6">
-                <form method="post" action="{% url 'core:demo-login' %}">
+                <form method="post" action="{% url 'demo_login' %}">
                     {% csrf_token %}
-                    <input type="hidden" name="username" value="priya.patel">
+                    <input type="hidden" name="role" value="applicant">
                     <button type="submit" class="quick-login-card card border-0 shadow-sm w-100 text-start">
                         <div class="card-body">
                             <div class="d-flex align-items-center gap-3">
@@ -864,9 +864,9 @@
 
             {# Derek Williams #}
             <div class="col-md-4 col-sm-6">
-                <form method="post" action="{% url 'core:demo-login' %}">
+                <form method="post" action="{% url 'demo_login' %}">
                     {% csrf_token %}
-                    <input type="hidden" name="username" value="derek.williams">
+                    <input type="hidden" name="role" value="applicant">
                     <button type="submit" class="quick-login-card card border-0 shadow-sm w-100 text-start">
                         <div class="card-body">
                             <div class="d-flex align-items-center gap-3">
@@ -886,9 +886,9 @@
 
             {# Rachel Kim #}
             <div class="col-md-4 col-sm-6">
-                <form method="post" action="{% url 'core:demo-login' %}">
+                <form method="post" action="{% url 'demo_login' %}">
                     {% csrf_token %}
-                    <input type="hidden" name="username" value="rachel.kim">
+                    <input type="hidden" name="role" value="applicant">
                     <button type="submit" class="quick-login-card card border-0 shadow-sm w-100 text-start">
                         <div class="card-body">
                             <div class="d-flex align-items-center gap-3">

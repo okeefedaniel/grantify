@@ -39,6 +39,11 @@ if RAILWAY_DOMAIN:
 CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
 if RAILWAY_DOMAIN:
     CSRF_TRUSTED_ORIGINS.append(f'https://{RAILWAY_DOMAIN}')
+# Auto-add HTTPS origins for every explicit ALLOWED_HOSTS entry
+for _host in ALLOWED_HOSTS:
+    _origin = f'https://{_host}'
+    if _host and not _host.startswith('.') and _origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(_origin)
 CSRF_TRUSTED_ORIGINS = [o for o in CSRF_TRUSTED_ORIGINS if o]  # filter blanks
 
 # Application definition

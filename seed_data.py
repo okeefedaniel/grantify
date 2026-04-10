@@ -183,30 +183,27 @@ def make_user(username, first, last, role, email, agency=None, org=None, is_staf
         )
     return u
 
-# System Admin (also the Django superuser)
-admin_user = User.objects.filter(username='admin').first()
-if admin_user:
-    admin_user.first_name = 'System'
-    admin_user.last_name = 'Administrator'
-    admin_user.save()
+# System Admin — username matches the demo-login role slug
+admin_user = make_user(
+    'system_admin', 'System', 'Administrator', 'system_admin',
+    'admin@dok.gov', agencies['DCD'], is_staff=True,
+)
+# Also ensure a Django superuser for /admin/ access
+if not User.objects.filter(username='admin').exists():
+    su = User.objects.create_superuser(
+        username='admin', email='superadmin@dok.gov',
+        password=DEMO_PASSWORD, first_name='Super', last_name='Admin',
+    )
     ProductAccess.objects.get_or_create(
-        user=admin_user, product='harbor',
+        user=su, product='harbor',
         defaults={'role': 'system_admin', 'is_active': True},
     )
-    admin_profile, _ = HarborProfile.objects.get_or_create(user=admin_user)
-    if not admin_profile.agency_id:
-        admin_profile.agency = agencies['DCD']
-        admin_profile.save(update_fields=['agency'])
-    if admin_user.email:
-        EmailAddress.objects.get_or_create(
-            user=admin_user, email=admin_user.email,
-            defaults={'verified': True, 'primary': True},
-        )
+    HarborProfile.objects.get_or_create(user=su)
 
 # Agency staff — one per role
-sarah = make_user('agency.admin', 'Agency', 'Administrator', 'agency_admin', 'agency.admin@dok.gov', agencies['DCD'])
-mike = make_user('program.officer', 'Program', 'Officer', 'program_officer', 'program.officer@dok.gov', agencies['DCD'])
-lisa = make_user('fiscal.officer', 'Fiscal', 'Officer', 'fiscal_officer', 'fiscal.officer@dok.gov', agencies['DCD'])
+sarah = make_user('agency_admin', 'Agency', 'Administrator', 'agency_admin', 'agency.admin@dok.gov', agencies['DCD'])
+mike = make_user('program_officer', 'Program', 'Officer', 'program_officer', 'program.officer@dok.gov', agencies['DCD'])
+lisa = make_user('fiscal_officer', 'Fiscal', 'Officer', 'fiscal_officer', 'fiscal.officer@dok.gov', agencies['DCD'])
 
 # Reviewer
 rev1 = make_user('reviewer', 'Grant', 'Reviewer', 'reviewer', 'reviewer@dok.gov')
@@ -219,7 +216,7 @@ auditor = make_user('auditor', 'System', 'Auditor', 'auditor', 'auditor@dok.gov'
 
 # Federal Fund Coordinator (manages the state's federal funding pipeline)
 fed_coord = make_user(
-    'fed.coordinator', 'Federal', 'Coordinator', 'federal_coordinator',
+    'federal_fund_coordinator', 'Federal', 'Coordinator', 'federal_fund_coordinator',
     'fed.coordinator@dok.gov', agencies['OBM'],
 )
 
