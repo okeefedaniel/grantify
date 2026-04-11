@@ -513,6 +513,115 @@
     <!-- Right Column (4 cols) -->
     <div class="col-lg-4">
 
+        <!-- Actions Card -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="bi bi-lightning me-2"></i>{% trans "Actions" %}</h5>
+            </div>
+            <div class="card-body d-grid gap-2">
+                {% if application.status == "draft" %}
+                    <form method="post" action="{% url 'applications:submit' application.pk %}"
+                          onsubmit="return confirm('{% trans "Are you sure you want to submit this application? You will not be able to edit it after submission." %}');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-send me-1"></i>{% trans "Submit Application" %}
+                        </button>
+                    </form>
+                {% endif %}
+
+                {% if application.is_editable %}
+                    <a href="{% url 'applications:update' application.pk %}" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil me-1"></i>{% trans "Edit Application" %}
+                    </a>
+                {% endif %}
+
+                {% if application.status != "withdrawn" and application.status != "denied" and application.status != "approved" %}
+                    <form method="post" action="{% url 'applications:withdraw' application.pk %}"
+                          onsubmit="return confirm('{% trans "Are you sure you want to withdraw this application? This action cannot be undone." %}');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger w-100">
+                            <i class="bi bi-x-circle me-1"></i>{% trans "Withdraw Application" %}
+                        </button>
+                    </form>
+                {% endif %}
+
+                {% if user.is_agency_staff %}
+                <hr>
+                <p class="small text-muted mb-2"><i class="bi bi-shield-lock me-1"></i>{% trans "Staff Actions" %}</p>
+
+                {% if application.status == "submitted" %}
+                    <form method="post" action="{% url 'applications:status-change' application.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="new_status" value="under_review">
+                        <div class="mb-2">
+                            <textarea name="comment" class="form-control form-control-sm" rows="2"
+                                      placeholder="{% trans "Comment (required)" %}" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-outline-primary w-100 btn-sm">
+                            <i class="bi bi-search me-1"></i>{% trans "Move to Review" %}
+                        </button>
+                    </form>
+                {% endif %}
+
+                {% if application.status == "under_review" %}
+                    <form method="post" action="{% url 'applications:status-change' application.pk %}"
+                          onsubmit="return confirm('{% trans "Approve this application?" %}');">
+                        {% csrf_token %}
+                        <input type="hidden" name="new_status" value="approved">
+                        <div class="mb-2">
+                            <textarea name="comment" class="form-control form-control-sm" rows="2"
+                                      placeholder="{% trans "Approval notes (required)" %}" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 btn-sm
+                            {% if not compliance_all_required_met %}disabled{% endif %}"
+                            {% if not compliance_all_required_met %}
+                            title="{% trans "All required compliance items must be verified before approval" %}"
+                            {% endif %}>
+                            <i class="bi bi-check-circle me-1"></i>{% trans "Approve" %}
+                        </button>
+                        {% if not compliance_all_required_met %}
+                        <small class="text-danger d-block mt-1">
+                            <i class="bi bi-exclamation-triangle me-1"></i>
+                            {% trans "Complete compliance checklist first" %}
+                        </small>
+                        {% endif %}
+                    </form>
+
+                    <form method="post" action="{% url 'applications:status-change' application.pk %}"
+                          onsubmit="return confirm('{% trans "Deny this application? This cannot be undone." %}');">
+                        {% csrf_token %}
+                        <input type="hidden" name="new_status" value="denied">
+                        <div class="mb-2">
+                            <textarea name="comment" class="form-control form-control-sm" rows="2"
+                                      placeholder="{% trans "Reason for denial (required)" %}" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-danger w-100 btn-sm">
+                            <i class="bi bi-x-circle me-1"></i>{% trans "Deny" %}
+                        </button>
+                    </form>
+
+                    <form method="post" action="{% url 'applications:status-change' application.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="new_status" value="revision_requested">
+                        <div class="mb-2">
+                            <textarea name="comment" class="form-control form-control-sm" rows="2"
+                                      placeholder="{% trans "Describe what needs revision (required)" %}" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-warning w-100 btn-sm">
+                            <i class="bi bi-arrow-return-left me-1"></i>{% trans "Request Revision" %}
+                        </button>
+                    </form>
+                {% endif %}
+
+                {% if application.status == "approved" %}
+                    <a href="{% url 'awards:create' application.pk %}" class="btn btn-primary w-100 btn-sm">
+                        <i class="bi bi-trophy me-1"></i>{% trans "Create Award" %}
+                    </a>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+
         {% if user.is_agency_staff %}
         <!-- Assignment Card (Staff Only) -->
         <div class="card mb-4 border-start border-3 border-primary">
@@ -779,118 +888,6 @@
             </div>
         </div>
 
-        <!-- Actions Card -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0"><i class="bi bi-lightning me-2"></i>{% trans "Actions" %}</h5>
-            </div>
-            <div class="card-body d-grid gap-2">
-                {% if application.status == "draft" %}
-                    <form method="post" action="{% url 'applications:submit' application.pk %}"
-                          onsubmit="return confirm('{% trans "Are you sure you want to submit this application? You will not be able to edit it after submission." %}');">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-success w-100">
-                            <i class="bi bi-send me-1"></i>{% trans "Submit Application" %}
-                        </button>
-                    </form>
-                {% endif %}
-
-                {% if application.is_editable %}
-                    <a href="{% url 'applications:update' application.pk %}" class="btn btn-outline-primary">
-                        <i class="bi bi-pencil me-1"></i>{% trans "Edit Application" %}
-                    </a>
-                {% endif %}
-
-                {% if application.status != "withdrawn" and application.status != "denied" and application.status != "approved" %}
-                    <form method="post" action="{% url 'applications:withdraw' application.pk %}"
-                          onsubmit="return confirm('{% trans "Are you sure you want to withdraw this application? This action cannot be undone." %}');">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-danger w-100">
-                            <i class="bi bi-x-circle me-1"></i>{% trans "Withdraw Application" %}
-                        </button>
-                    </form>
-                {% endif %}
-
-                {% if user.is_agency_staff %}
-                <hr>
-                <p class="small text-muted mb-2"><i class="bi bi-shield-lock me-1"></i>{% trans "Staff Actions" %}</p>
-
-                {% if application.status == "submitted" %}
-                    <!-- Move to Review -->
-                    <form method="post" action="{% url 'applications:status-change' application.pk %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="new_status" value="under_review">
-                        <div class="mb-2">
-                            <textarea name="comment" class="form-control form-control-sm" rows="2"
-                                      placeholder="{% trans "Comment (required)" %}" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-outline-primary w-100 btn-sm">
-                            <i class="bi bi-search me-1"></i>{% trans "Move to Review" %}
-                        </button>
-                    </form>
-                {% endif %}
-
-                {% if application.status == "under_review" %}
-                    <!-- Approve -->
-                    <form method="post" action="{% url 'applications:status-change' application.pk %}"
-                          onsubmit="return confirm('{% trans "Approve this application?" %}');">
-                        {% csrf_token %}
-                        <input type="hidden" name="new_status" value="approved">
-                        <div class="mb-2">
-                            <textarea name="comment" class="form-control form-control-sm" rows="2"
-                                      placeholder="{% trans "Approval notes (required)" %}" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-success w-100 btn-sm
-                            {% if not compliance_all_required_met %}disabled{% endif %}"
-                            {% if not compliance_all_required_met %}
-                            title="{% trans "All required compliance items must be verified before approval" %}"
-                            {% endif %}>
-                            <i class="bi bi-check-circle me-1"></i>{% trans "Approve" %}
-                        </button>
-                        {% if not compliance_all_required_met %}
-                        <small class="text-danger d-block mt-1">
-                            <i class="bi bi-exclamation-triangle me-1"></i>
-                            {% trans "Complete compliance checklist first" %}
-                        </small>
-                        {% endif %}
-                    </form>
-
-                    <!-- Deny -->
-                    <form method="post" action="{% url 'applications:status-change' application.pk %}"
-                          onsubmit="return confirm('{% trans "Deny this application? This cannot be undone." %}');">
-                        {% csrf_token %}
-                        <input type="hidden" name="new_status" value="denied">
-                        <div class="mb-2">
-                            <textarea name="comment" class="form-control form-control-sm" rows="2"
-                                      placeholder="{% trans "Reason for denial (required)" %}" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-danger w-100 btn-sm">
-                            <i class="bi bi-x-circle me-1"></i>{% trans "Deny" %}
-                        </button>
-                    </form>
-
-                    <!-- Request Revision -->
-                    <form method="post" action="{% url 'applications:status-change' application.pk %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="new_status" value="revision_requested">
-                        <div class="mb-2">
-                            <textarea name="comment" class="form-control form-control-sm" rows="2"
-                                      placeholder="{% trans "Describe what needs revision (required)" %}" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-warning w-100 btn-sm">
-                            <i class="bi bi-arrow-return-left me-1"></i>{% trans "Request Revision" %}
-                        </button>
-                    </form>
-                {% endif %}
-
-                {% if application.status == "approved" %}
-                    <a href="{% url 'awards:create' application.pk %}" class="btn btn-primary w-100 btn-sm">
-                        <i class="bi bi-trophy me-1"></i>{% trans "Create Award" %}
-                    </a>
-                {% endif %}
-                {% endif %}
-            </div>
-        </div>
     </div>
 </div>
 {% endblock %}
