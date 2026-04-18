@@ -20,6 +20,26 @@ from financial.models import DrawdownRequest
 logger = logging.getLogger(__name__)
 
 
+# Characters that Excel / LibreOffice / Google Sheets interpret as the start
+# of a formula. Prefixing with a single quote neutralizes the cell.
+_CSV_FORMULA_CHARS = ('=', '+', '-', '@', '\t', '\r')
+
+
+def csv_safe(value):
+    """Neutralize CSV formula-injection payloads before writing to a spreadsheet.
+
+    Strings that begin with =, +, -, @, or leading whitespace control
+    characters can be interpreted as formulas by Excel and trigger RCE
+    when a grant officer opens the exported file. Prefix with a single
+    quote so the cell renders as literal text.
+    """
+    if not isinstance(value, str):
+        return value
+    if value and value[0] in _CSV_FORMULA_CHARS:
+        return "'" + value
+    return value
+
+
 class BulkApplicationStatusChangeView(GrantManagerRequiredMixin, View):
     """POST-only: change status for multiple applications at once.
 
@@ -184,13 +204,13 @@ class BulkAwardExportView(AgencyStaffRequiredMixin, View):
             remaining = award.award_amount - total_spent
 
             writer.writerow([
-                award.award_number,
-                award.title,
-                award.grant_program.title,
-                award.agency.abbreviation if award.agency else '',
-                award.recipient.get_full_name() if award.recipient else '',
-                award.organization.name if award.organization else '',
-                award.get_status_display(),
+                csv_safe(award.award_number),
+                csv_safe(award.title),
+                csv_safe(award.grant_program.title),
+                csv_safe(award.agency.abbreviation if award.agency else ''),
+                csv_safe(award.recipient.get_full_name() if award.recipient else ''),
+                csv_safe(award.organization.name if award.organization else ''),
+                csv_safe(award.get_status_display()),
                 award.award_amount,
                 award.start_date,
                 award.end_date,
