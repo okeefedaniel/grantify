@@ -139,11 +139,6 @@ def score_opportunity(preference, opportunity):
     Returns a dict ``{'score': int, 'explanation': str}`` or ``None`` on
     failure.  Scores range from 0 (no relevance) to 100 (perfect match).
     """
-    api_key = preference.user.get_anthropic_api_key()
-    if not api_key:
-        logger.warning('No API key for user %s — skipping AI scoring', preference.user)
-        return None
-
     from keel.core.ai import get_client, call_claude
 
     pref_context = build_preference_context(preference)
@@ -163,7 +158,9 @@ def score_opportunity(preference, opportunity):
     )
 
     try:
-        client = get_client(api_key=api_key)
+        client = get_client()
+        if client is None:
+            return None
         text = call_claude(
             client, system=system, user_message=user_message,
             model=MODEL, max_tokens=MAX_TOKENS,
@@ -215,8 +212,8 @@ def run_matching_for_user(user, include_state=False):
         OpportunityMatch,
     )
 
-    if not getattr(user, 'anthropic_api_key', ''):
-        logger.info('No API key for %s — skipping matching.', user)
+    if not getattr(settings, 'ANTHROPIC_API_KEY', ''):
+        logger.info('ANTHROPIC_API_KEY not configured — skipping matching for %s.', user)
         return {'scored': 0, 'stored': 0, 'notified': 0}
 
     min_score = getattr(settings, 'GRANT_MATCH_MIN_SCORE', 60)

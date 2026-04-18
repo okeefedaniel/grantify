@@ -67,26 +67,6 @@ class ProfileView(LoginRequiredMixin, UpdateView):
     def get_object(self, queryset=None):
         return self.request.user
 
-    def post(self, request, *args, **kwargs):
-        action = request.POST.get('action', '')
-        if action == 'save_api_key':
-            return self._handle_api_key(request)
-        return super().post(request, *args, **kwargs)
-
-    def _handle_api_key(self, request):
-        api_key = request.POST.get('anthropic_api_key', '').strip()
-        if request.POST.get('clear_key'):
-            request.user.set_anthropic_api_key('')
-            request.user.save(update_fields=['anthropic_api_key'])
-            messages.success(request, _('API key removed.'))
-        elif api_key:
-            request.user.set_anthropic_api_key(api_key)
-            request.user.save(update_fields=['anthropic_api_key'])
-            messages.success(request, _('API key saved successfully.'))
-        else:
-            messages.warning(request, _('Please enter a valid API key.'))
-        return redirect('core:profile')
-
     def form_valid(self, form):
         response = super().form_valid(form)
         messages.success(self.request, _('Profile updated successfully.'))
@@ -277,11 +257,6 @@ class UserRoleUpdateView(LoginRequiredMixin, UpdateView):
             return redirect('dashboard')
         return super().dispatch(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['edit_user_has_ai_access'] = get_harbor_profile(self.object).has_ai_access
-        return context
-
     def get_success_url(self):
         return reverse_lazy('core:user-list')
 
@@ -296,39 +271,6 @@ class UserRoleUpdateView(LoginRequiredMixin, UpdateView):
             },
         )
         return response
-
-
-@login_required
-def user_api_key_update(request, pk):
-    """Allow system admins to set or clear a user's Anthropic API key."""
-    if request.method != 'POST' or getattr(request.user, 'role', '') != 'system_admin':
-        messages.error(request, _('Access denied.'))
-        return redirect('dashboard')
-
-    target_user = get_object_or_404(User, pk=pk)
-    from core.models import get_harbor_profile
-    profile = get_harbor_profile(target_user)
-
-    if request.POST.get('clear_key'):
-        profile.set_anthropic_api_key('')
-        profile.save(update_fields=['anthropic_api_key'])
-        messages.success(
-            request,
-            _('API key removed for %(user)s.') % {'user': target_user.get_full_name() or target_user.username},
-        )
-    else:
-        api_key = request.POST.get('anthropic_api_key', '').strip()
-        if api_key:
-            profile.set_anthropic_api_key(api_key)
-            profile.save(update_fields=['anthropic_api_key'])
-            messages.success(
-                request,
-                _('API key set for %(user)s.') % {'user': target_user.get_full_name() or target_user.username},
-            )
-        else:
-            messages.warning(request, _('Please enter a valid API key.'))
-
-    return redirect('core:user-role-edit', pk=pk)
 
 
 # ---------------------------------------------------------------------------

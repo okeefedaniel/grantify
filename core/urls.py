@@ -38,11 +38,6 @@ urlpatterns = [
         name='user-role-edit',
     ),
     path(
-        'users/<uuid:pk>/api-key/',
-        views.user_api_key_update,
-        name='user-api-key',
-    ),
-    path(
         'organizations/<uuid:pk>/claim/',
         views.OrganizationClaimView.as_view(),
         name='organization-claim',

@@ -26,10 +26,9 @@ def _harbor_organization_id(user):
 
 
 def _harbor_has_ai_access(user):
-    """Check AI access via HarborProfile."""
+    """Check AI access via suite-wide settings.ANTHROPIC_API_KEY."""
     from django.conf import settings
-    profile = _get_harbor_profile_cached(user)
-    return bool(profile.anthropic_api_key) or bool(getattr(settings, 'ANTHROPIC_API_KEY', ''))
+    return bool(getattr(settings, 'ANTHROPIC_API_KEY', ''))
 
 
 class CoreConfig(AppConfig):

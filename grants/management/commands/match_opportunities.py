@@ -18,7 +18,6 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 
 from django.contrib.auth import get_user_model; User = get_user_model()
-from core.models import get_harbor_profile
 from keel.core.notifications import build_absolute_url, create_notification, send_notification_email
 from grants.matching import score_opportunity
 from grants.models import (
@@ -104,18 +103,16 @@ class Command(BaseCommand):
         total_stored = 0
         total_notified = 0
 
+        if not getattr(settings, 'ANTHROPIC_API_KEY', ''):
+            self.stdout.write(
+                self.style.ERROR(
+                    'ANTHROPIC_API_KEY is not configured — aborting.'
+                )
+            )
+            return
+
         for pref in prefs:
             user = pref.user
-
-            profile = get_harbor_profile(user)
-            api_key = profile.get_anthropic_api_key()
-            if not api_key and not getattr(settings, 'ANTHROPIC_API_KEY', ''):
-                self.stdout.write(
-                    self.style.WARNING(
-                        f'Skipping {user.username} — no API key configured.'
-                    )
-                )
-                continue
 
             from keel.accounts.models import ProductAccess
             pa = ProductAccess.objects.filter(

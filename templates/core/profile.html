@@ -75,67 +75,17 @@
             </div>
         </div>
 
-        {# -- AI / Claude API Key -- #}
+        {# -- AI-Powered Features -- #}
+        {% if has_ai_access %}
         <div class="card mb-4">
             <div class="card-header">
                 <i class="bi bi-robot me-2"></i>{% trans "AI-Powered Features" %}
             </div>
             <div class="card-body">
-                <div class="d-flex align-items-center mb-3">
-                    {% if has_ai_access %}
-                        <i class="bi bi-check-circle-fill text-success me-2 fs-5"></i>
-                        <span class="text-success fw-semibold">{% trans "API Key Configured" %}</span>
-                    {% else %}
-                        <i class="bi bi-x-circle-fill text-danger me-2 fs-5"></i>
-                        <span class="text-danger fw-semibold">{% trans "Not Configured" %}</span>
-                    {% endif %}
-                </div>
-
-                {% if has_ai_access %}
-                <p class="small text-muted mb-3">
-                    {% trans "Key:" %} <code>sk-ant-...{{ user.anthropic_api_key|truncatechars:8 }}</code>
-                </p>
-                <form method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="save_api_key">
-                    <input type="hidden" name="clear_key" value="1">
-                    <button type="submit" class="btn btn-outline-danger btn-sm w-100">
-                        <i class="bi bi-trash me-1"></i>{% trans "Remove API Key" %}
-                    </button>
-                </form>
-                {% else %}
-                <form method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="save_api_key">
-                    <div class="mb-3">
-                        <label for="anthropic_api_key" class="form-label small fw-semibold">{% trans "Anthropic API Key" %}</label>
-                        <div class="input-group">
-                            <input type="password" class="form-control form-control-sm" name="anthropic_api_key"
-                                   id="anthropic_api_key" placeholder="sk-ant-api03-...">
-                            <button class="btn btn-outline-secondary btn-sm" type="button"
-                                    onclick="let f=document.getElementById('anthropic_api_key'); f.type = f.type==='password' ? 'text' : 'password';">
-                                <i class="bi bi-eye"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-sm w-100">
-                        <i class="bi bi-save me-1"></i>{% trans "Save API Key" %}
-                    </button>
-                </form>
-                {% endif %}
-
-                <hr>
-                <p class="small text-muted mb-2">{% trans "AI features include grant matching and personalized recommendations." %}</p>
-                <p class="small text-muted mb-0">
-                    {% trans "To get an API key:" %}
-                </p>
-                <ol class="small text-muted mb-0">
-                    <li>{% trans "Visit" %} <a href="https://console.anthropic.com/" target="_blank" rel="noopener">console.anthropic.com</a></li>
-                    <li>{% trans "Create an account or sign in" %}</li>
-                    <li>{% trans "Go to API Keys and create a new key" %}</li>
-                </ol>
+                <p class="small text-muted mb-0">{% trans "AI features include grant matching and personalized recommendations." %}</p>
             </div>
         </div>
+        {% endif %}
 
         {# -- Organization Details (if applicable) -- #}
         {% if user.organization %}
