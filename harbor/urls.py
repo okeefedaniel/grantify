@@ -9,7 +9,7 @@ from django.conf.urls.static import static
 from django.views.generic import RedirectView
 from core import views as core_views
 from keel.accounts.forms import LoginForm
-from keel.core.views import health_check, robots_txt, SuiteLogoutView
+from keel.core.views import health_check, robots_txt, favicon_view, SuiteLogoutView
 from keel.core.demo import demo_login_view
 from keel.core.search_views import search_view
 
@@ -22,6 +22,7 @@ admin.site.index_title = _('Grants Management System')
 urlpatterns = [
     path('demo-login/', demo_login_view, name='demo_login'),
     path('robots.txt', robots_txt, name='robots_txt'),
+    path('favicon.ico', favicon_view, name='favicon'),
     path('health/', health_check, name='health_check'),
     path('admin/', admin.site.urls),
     path('', include('portal.urls')),

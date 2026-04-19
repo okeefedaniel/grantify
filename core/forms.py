@@ -1,7 +1,22 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.urls import reverse_lazy
+from django.utils.functional import lazy
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _lazy
+
+
+def _accepted_terms_label():
+    terms_url = reverse_lazy('portal:terms')
+    privacy_url = reverse_lazy('portal:privacy')
+    return mark_safe(
+        f'I accept the <a href="{terms_url}" target="_blank" rel="noopener">Terms of Service</a> '
+        f'and <a href="{privacy_url}" target="_blank" rel="noopener">Privacy Policy</a>'
+    )
+
+
+_accepted_terms_label_lazy = lazy(_accepted_terms_label, str)
 
 from .models import Agency, Organization, OrganizationClaim, OrganizationContact
 from keel.accounts.forms import LoginForm  # noqa: F401  (shared across DockLabs suite)
@@ -54,7 +69,7 @@ class RegistrationForm(UserCreationForm):
     )
     accepted_terms = forms.BooleanField(
         required=True,
-        label=_lazy('I accept the Terms of Service and Privacy Policy'),
+        label=_accepted_terms_label_lazy(),
     )
 
     class Meta:
