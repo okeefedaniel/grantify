@@ -18,6 +18,26 @@
         </p>
         {% endif %}
     </div>
+    <div class="d-flex align-items-center gap-2">
+        <a href="{% url 'grants:program-create' %}" class="btn btn-sm btn-primary">
+            <i class="bi bi-plus-circle me-1"></i>{% trans "Create Grant Program" %}
+        </a>
+        <a href="{% url 'awards:list' %}" class="btn btn-sm btn-outline-primary" title="{% trans 'Manage Awards' %}">
+            <i class="bi bi-trophy"></i>
+        </a>
+        <a href="{% url 'applications:my-assignments' %}" class="btn btn-sm btn-outline-primary" title="{% trans 'My Assignments' %}">
+            <i class="bi bi-person-check"></i>
+        </a>
+        <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="{% trans 'More actions' %}">
+                <i class="bi bi-three-dots"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{% url 'applications:list' %}"><i class="bi bi-folder me-2"></i>{% trans "View All Applications" %}</a></li>
+                <li><a class="dropdown-item" href="{% url 'reporting:list' %}"><i class="bi bi-bar-chart me-2"></i>{% trans "View Reports" %}</a></li>
+            </ul>
+        </div>
+    </div>
 </div>
 
 {# -- Stat Cards -- #}
@@ -252,33 +272,8 @@
         </div>
     </div>
 
-    {# Right column: Quick Actions #}
+    {# Right column: Recent Awards #}
     <div class="col-lg-4">
-        <div class="card">
-            <div class="card-header">
-                <i class="bi bi-lightning me-2"></i>{% trans "Quick Actions" %}
-            </div>
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a href="{% url 'grants:program-create' %}" class="btn btn-primary">
-                        <i class="bi bi-plus-circle me-2"></i>{% trans "Create Grant Program" %}
-                    </a>
-                    <a href="{% url 'applications:list' %}" class="btn btn-outline-primary">
-                        <i class="bi bi-folder me-2"></i>{% trans "View All Applications" %}
-                    </a>
-                    <a href="{% url 'applications:my-assignments' %}" class="btn btn-outline-primary">
-                        <i class="bi bi-person-check me-2"></i>{% trans "My Assignments" %}
-                    </a>
-                    <a href="{% url 'reporting:list' %}" class="btn btn-outline-primary">
-                        <i class="bi bi-bar-chart me-2"></i>{% trans "View Reports" %}
-                    </a>
-                    <a href="{% url 'awards:list' %}" class="btn btn-outline-primary">
-                        <i class="bi bi-trophy me-2"></i>{% trans "Manage Awards" %}
-                    </a>
-                </div>
-            </div>
-        </div>
-
         {# Active Awards Summary #}
         {% if active_awards %}
         <div class="card mt-4">
@@ -319,8 +314,24 @@
         </p>
         {% endif %}
     </div>
-    <div>
-        <span class="badge bg-info fs-6">{{ user.get_role_display }}</span>
+    <div class="d-flex align-items-center gap-2">
+        <a href="{% url 'portal:federal-opportunities' %}" class="btn btn-sm btn-primary">
+            <i class="bi bi-globe me-1"></i>{% trans "Browse Federal" %}
+        </a>
+        <a href="{% url 'grants:tracked-list' %}" class="btn btn-sm btn-outline-primary" title="{% trans 'Manage Tracked' %}">
+            <i class="bi bi-bookmark-star"></i>
+        </a>
+        <a href="{% url 'grants:program-create' %}" class="btn btn-sm btn-outline-primary" title="{% trans 'Create Grant Program' %}">
+            <i class="bi bi-plus-circle"></i>
+        </a>
+        <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="{% trans 'More actions' %}">
+                <i class="bi bi-three-dots"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{% url 'grants:program-list' %}"><i class="bi bi-folder me-2"></i>{% trans "View Grant Programs" %}</a></li>
+            </ul>
+        </div>
     </div>
 </div>
 
@@ -458,30 +469,8 @@
         </div>
     </div>
 
-    {# Right column: Quick Actions + Recent Opps #}
+    {# Right column: Deadlines + AI Suggestions #}
     <div class="col-lg-4">
-        <div class="card">
-            <div class="card-header">
-                <i class="bi bi-lightning me-2"></i>{% trans "Quick Actions" %}
-            </div>
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a href="{% url 'portal:federal-opportunities' %}" class="btn btn-primary">
-                        <i class="bi bi-globe me-2"></i>{% trans "Browse Federal Opportunities" %}
-                    </a>
-                    <a href="{% url 'grants:tracked-list' %}" class="btn btn-outline-primary">
-                        <i class="bi bi-bookmark-star me-2"></i>{% trans "Manage Tracked" %}
-                    </a>
-                    <a href="{% url 'grants:program-create' %}" class="btn btn-outline-primary">
-                        <i class="bi bi-plus-circle me-2"></i>{% trans "Create Grant Program" %}
-                    </a>
-                    <a href="{% url 'grants:program-list' %}" class="btn btn-outline-primary">
-                        <i class="bi bi-folder me-2"></i>{% trans "View Grant Programs" %}
-                    </a>
-                </div>
-            </div>
-        </div>
-
         {# Approaching Deadlines #}
         {% if approaching_deadlines %}
         <div class="card mt-4 border-start border-3 border-danger">
@@ -604,8 +593,13 @@
         <h2 class="mb-1">Welcome, {{ name }}</h2>
         {% endblocktrans %}
     </div>
-    <div>
-        <span class="badge bg-info fs-6">{{ user.get_role_display }}</span>
+    <div class="d-flex align-items-center gap-2">
+        <a href="{% url 'reviews:dashboard' %}" class="btn btn-sm btn-primary">
+            <i class="bi bi-clipboard-check me-1"></i>{% trans "My Reviews" %}
+        </a>
+        <a href="{% url 'applications:list' %}" class="btn btn-sm btn-outline-primary" title="{% trans 'All Applications' %}">
+            <i class="bi bi-folder"></i>
+        </a>
     </div>
 </div>
 
@@ -658,9 +652,9 @@
     </div>
 </div>
 
-{# -- Pending Applications + Quick Actions -- #}
+{# -- Pending Applications -- #}
 <div class="row g-4">
-    <div class="col-lg-8">
+    <div class="col-12">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-file-earmark-text me-2"></i>{% trans "Applications Awaiting Review" %}</span>
@@ -713,23 +707,6 @@
         </div>
     </div>
 
-    <div class="col-lg-4">
-        <div class="card">
-            <div class="card-header">
-                <i class="bi bi-lightning me-2"></i>{% trans "Quick Actions" %}
-            </div>
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a href="{% url 'reviews:dashboard' %}" class="btn btn-primary">
-                        <i class="bi bi-clipboard-check me-2"></i>{% trans "My Review Assignments" %}
-                    </a>
-                    <a href="{% url 'applications:list' %}" class="btn btn-outline-primary">
-                        <i class="bi bi-folder me-2"></i>{% trans "All Applications" %}
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
 {% else %}
