@@ -112,6 +112,19 @@ class SignatureDocumentForm(forms.ModelForm):
                 raise forms.ValidationError(_('Only PDF files are accepted.'))
             if f.content_type != 'application/pdf':
                 raise forms.ValidationError(_('Only PDF files are accepted.'))
+            # Magic-byte check — content_type + filename are both
+            # attacker-controlled, so require the %PDF- header.
+            pos = f.tell() if hasattr(f, 'tell') else 0
+            try:
+                f.seek(0)
+                head = f.read(5)
+            finally:
+                try:
+                    f.seek(pos)
+                except Exception:
+                    pass
+            if head[:4] != b'%PDF':
+                raise forms.ValidationError(_('File is not a valid PDF.'))
         return f
 
 

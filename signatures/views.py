@@ -2,6 +2,7 @@ import json
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
@@ -295,8 +296,26 @@ class PlacementEditorView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class PlacementAPIView(LoginRequiredMixin, View):
-    """AJAX endpoint for managing signature placements on a document."""
+class PlacementAPIView(AgencyStaffRequiredMixin, View):
+    """AJAX endpoint for managing signature placements on a document.
+
+    Authorization: restricted to agency staff (template designers). Also
+    refuses to mutate placements on a document whose flow has any packet
+    still in a completed/cancelled state — those packets reference the
+    placements as evidence of signing position and must stay immutable.
+    """
+
+    def _writable_or_403(self, document):
+        locked_statuses = (
+            SigningPacket.Status.COMPLETED,
+            SigningPacket.Status.CANCELLED,
+        )
+        if SigningPacket.objects.filter(
+            flow=document.flow, status__in=locked_statuses,
+        ).exists():
+            raise PermissionDenied(
+                'Cannot modify placements: packets referencing this document have been finalized.'
+            )
 
     def get(self, request, document_id):
         document = get_object_or_404(SignatureDocument, pk=document_id)
@@ -317,6 +336,7 @@ class PlacementAPIView(LoginRequiredMixin, View):
 
     def post(self, request, document_id):
         document = get_object_or_404(SignatureDocument, pk=document_id)
+        self._writable_or_403(document)
         try:
             data = json.loads(request.body)
         except json.JSONDecodeError:
@@ -325,11 +345,13 @@ class PlacementAPIView(LoginRequiredMixin, View):
         placements_data = data.get('placements', [])
         created = []
 
-        # Delete existing placements and recreate
+        # Delete existing placements and recreate — scope kept to this doc.
         document.placements.all().delete()
 
         for p in placements_data:
-            step = get_object_or_404(SignatureFlowStep, pk=p['step_id'])
+            step = get_object_or_404(
+                SignatureFlowStep, pk=p['step_id'], flow=document.flow,
+            )
             placement = SignaturePlacement.objects.create(
                 document=document,
                 step=step,
@@ -345,6 +367,8 @@ class PlacementAPIView(LoginRequiredMixin, View):
         return JsonResponse({'created': created, 'count': len(created)})
 
     def delete(self, request, document_id):
+        document = get_object_or_404(SignatureDocument, pk=document_id)
+        self._writable_or_403(document)
         try:
             data = json.loads(request.body)
         except json.JSONDecodeError:
@@ -352,7 +376,9 @@ class PlacementAPIView(LoginRequiredMixin, View):
 
         placement_id = data.get('placement_id')
         if placement_id:
-            SignaturePlacement.objects.filter(pk=placement_id, document_id=document_id).delete()
+            SignaturePlacement.objects.filter(
+                pk=placement_id, document=document,
+            ).delete()
         return JsonResponse({'deleted': True})
 
 

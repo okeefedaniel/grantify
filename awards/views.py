@@ -1,3 +1,6 @@
+import base64
+import hashlib
+import hmac
 import logging
 import uuid
 import xml.etree.ElementTree as ET
@@ -604,7 +607,35 @@ class DocuSignWebhookView(View):
         'voided': SignatureRequest.Status.VOIDED,
     }
 
+    def _verify_hmac(self, request):
+        """Verify DocuSign Connect HMAC signature.
+
+        DocuSign sends one or more ``X-DocuSign-Signature-N`` headers containing
+        base64(HMAC-SHA256(body, secret)). Any configured secret must match one.
+        Returns True if the signature is valid (fail-closed when configured).
+        """
+        secret = getattr(django_settings, 'DOCUSIGN_HMAC_KEY', '') or ''
+        if not secret:
+            # Fail closed: if no secret is configured, refuse unsigned webhooks
+            # in production. Keep the legacy bypass only in DEBUG for local dev.
+            return bool(django_settings.DEBUG)
+
+        expected = base64.b64encode(
+            hmac.new(secret.encode('utf-8'), request.body, hashlib.sha256).digest()
+        ).decode('ascii')
+
+        # DocuSign numbers signature headers starting at 1; accept any match.
+        for header, value in request.META.items():
+            if not header.startswith('HTTP_X_DOCUSIGN_SIGNATURE'):
+                continue
+            if hmac.compare_digest(value.strip(), expected):
+                return True
+        return False
+
     def post(self, request):
+        if not self._verify_hmac(request):
+            logger.warning('DocuSign webhook: HMAC verification failed.')
+            return JsonResponse({'status': 'error', 'message': 'Invalid signature'}, status=401)
         try:
             body = request.body.decode('utf-8')
             root = ET.fromstring(body)

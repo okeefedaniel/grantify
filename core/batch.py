@@ -16,28 +16,9 @@ from core.audit import log_audit
 from core.mixins import AgencyStaffRequiredMixin, FiscalOfficerRequiredMixin, GrantManagerRequiredMixin
 from core.models import AuditLog
 from financial.models import DrawdownRequest
+from keel.core.export import csv_safe
 
 logger = logging.getLogger(__name__)
-
-
-# Characters that Excel / LibreOffice / Google Sheets interpret as the start
-# of a formula. Prefixing with a single quote neutralizes the cell.
-_CSV_FORMULA_CHARS = ('=', '+', '-', '@', '\t', '\r')
-
-
-def csv_safe(value):
-    """Neutralize CSV formula-injection payloads before writing to a spreadsheet.
-
-    Strings that begin with =, +, -, @, or leading whitespace control
-    characters can be interpreted as formulas by Excel and trigger RCE
-    when a grant officer opens the exported file. Prefix with a single
-    quote so the cell renders as literal text.
-    """
-    if not isinstance(value, str):
-        return value
-    if value and value[0] in _CSV_FORMULA_CHARS:
-        return "'" + value
-    return value
 
 
 class BulkApplicationStatusChangeView(GrantManagerRequiredMixin, View):

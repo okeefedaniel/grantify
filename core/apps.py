@@ -190,3 +190,45 @@ class CoreConfig(AppConfig):
             default_roles=['program_officer', 'agency_admin'],
             priority='medium',
         ))
+
+        # -- Register Harbor models for signal-based audit logging --
+        from keel.core.audit_signals import register_audited_model, connect_audit_signals
+
+        # Grants
+        register_audited_model('grants.GrantProgram', 'Grant Program')
+        register_audited_model('grants.FederalOpportunity', 'Federal Opportunity')
+        register_audited_model('grants.TrackedOpportunity', 'Tracked Opportunity')
+        # Applications
+        register_audited_model('applications.Application', 'Application')
+        register_audited_model('applications.ApplicationAssignment', 'Application Assignment')
+        register_audited_model('applications.ApplicationDocument', 'Application Document')
+        register_audited_model('applications.ApplicationComplianceItem', 'Compliance Item')
+        # Reviews
+        register_audited_model('reviews.ReviewAssignment', 'Review Assignment')
+        register_audited_model('reviews.ReviewScore', 'Review Score')
+        register_audited_model('reviews.ReviewSummary', 'Review Summary')
+        register_audited_model('reviews.ReviewRubric', 'Review Rubric')
+        # Awards
+        register_audited_model('awards.Award', 'Award')
+        register_audited_model('awards.AwardAmendment', 'Award Amendment')
+        register_audited_model('awards.AwardDocument', 'Award Document')
+        register_audited_model('awards.Budget', 'Budget')
+        register_audited_model('awards.BudgetLineItem', 'Budget Line Item')
+        # Financial
+        register_audited_model('financial.DrawdownRequest', 'Drawdown Request')
+        register_audited_model('financial.Transaction', 'Transaction')
+        register_audited_model('financial.FundReturn', 'Fund Return')
+        # Reporting
+        register_audited_model('reporting.Report', 'Report')
+        register_audited_model('reporting.SF425Report', 'SF-425 Report')
+        register_audited_model('reporting.PerformanceMetric', 'Performance Metric')
+        # Closeout
+        register_audited_model('closeout.Closeout', 'Closeout')
+        register_audited_model('closeout.CloseoutChecklist', 'Closeout Checklist')
+        # Signatures
+        register_audited_model('signatures.SignatureFlow', 'Signature Flow')
+        register_audited_model('signatures.SignatureRequest', 'Signature Request')
+        register_audited_model('signatures.SignatureDocument', 'Signature Document')
+        register_audited_model('signatures.OrganizationClaim', 'Organization Claim')
+
+        connect_audit_signals()

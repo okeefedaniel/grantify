@@ -1,0 +1,5 @@
+# Default owner for everything in this repo
+*                      @okeefedaniel
+
+# Workflows must be reviewed by a maintainer — pinned actions only
+.github/workflows/     @okeefedaniel
