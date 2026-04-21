@@ -713,6 +713,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
     @staticmethod
     def _federal_coordinator_context(user):
         """Build dashboard context for the Federal Fund Coordinator."""
+        from core.models import get_harbor_profile
         from grants.models import FederalOpportunity, GrantPreference, OpportunityMatch, TrackedOpportunity
 
         # Federal opportunity KPIs
