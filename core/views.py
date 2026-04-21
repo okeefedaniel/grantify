@@ -646,13 +646,21 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             user=user, status=OpportunityMatch.Status.NEW,
         ).count()
 
+        applications_count = Application.objects.filter(applicant=user).count()
+        awards_count = Award.objects.filter(recipient=user).count()
+        saved_programs_count = SavedProgram.objects.filter(user=user).count()
+        from django.urls import reverse
+        browse_url = reverse('portal:opportunities')
         return {
             'recent_applications': recent_applications,
             'recent_awards': recent_awards,
-            'applications_count': Application.objects.filter(applicant=user).count(),
-            'awards_count': Award.objects.filter(recipient=user).count(),
+            'applications_count': applications_count,
+            'awards_count': awards_count,
             'saved_programs': saved_programs,
-            'saved_programs_count': SavedProgram.objects.filter(user=user).count(),
+            'saved_programs_count': saved_programs_count,
+            'applications_card_url': reverse('applications:my-applications') if applications_count else browse_url,
+            'awards_card_url': reverse('awards:my-awards') if awards_count else browse_url,
+            'saved_card_url': reverse('grants:saved-list') if saved_programs_count else browse_url,
             'pending_actions_count': Notification.objects.filter(
                 recipient=user, is_read=False,
             ).count(),
@@ -760,6 +768,8 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             user=user, status=OpportunityMatch.Status.NEW,
         ).count()
 
+        from django.urls import reverse
+        browse_federal = reverse('portal:federal-opportunities')
         return {
             'open_federal_count': open_federal,
             'tracked_count': tracked_count,
@@ -767,6 +777,8 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             'total_federal_funding': int(total_federal_funding),
             'tracked_opportunities': tracked_opportunities,
             'recent_federal': recent_federal,
+            'tracked_card_url': reverse('grants:tracked-list') if tracked_count else browse_federal,
+            'linked_card_url': reverse('grants:program-list') if linked_count else browse_federal,
             'approaching_deadlines': approaching_deadlines,
             'recommended_matches': recommended_matches,
             'new_match_count': new_match_count,

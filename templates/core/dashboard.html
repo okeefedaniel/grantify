@@ -353,7 +353,7 @@
         </a>
     </div>
     <div class="col-md-3">
-        <a href="{% url 'grants:tracked-list' %}" class="text-decoration-none">
+        <a href="{{ tracked_card_url }}" class="text-decoration-none">
             <div class="card stat-card accent-gold h-100 stat-card-link">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start">
@@ -368,7 +368,7 @@
         </a>
     </div>
     <div class="col-md-3">
-        <a href="{% url 'grants:program-list' %}" class="text-decoration-none">
+        <a href="{{ linked_card_url }}" class="text-decoration-none">
             <div class="card stat-card h-100 stat-card-link">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start">
@@ -727,7 +727,7 @@
 {# -- Stat Cards -- #}
 <div class="row g-3 mb-4">
     <div class="col-md-3">
-        <a href="{% url 'applications:my-applications' %}" class="text-decoration-none">
+        <a href="{{ applications_card_url }}" class="text-decoration-none">
             <div class="card stat-card h-100 stat-card-link">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start">
@@ -742,7 +742,7 @@
         </a>
     </div>
     <div class="col-md-3">
-        <a href="{% url 'awards:my-awards' %}" class="text-decoration-none">
+        <a href="{{ awards_card_url }}" class="text-decoration-none">
             <div class="card stat-card accent-green h-100 stat-card-link">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start">
@@ -757,7 +757,7 @@
         </a>
     </div>
     <div class="col-md-3">
-        <a href="{% url 'grants:saved-list' %}" class="text-decoration-none">
+        <a href="{{ saved_card_url }}" class="text-decoration-none">
             <div class="card stat-card accent-blue h-100 stat-card-link">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start">
