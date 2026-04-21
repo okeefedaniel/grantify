@@ -60,11 +60,12 @@ class HomeView(LandingView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            context['recent_opportunities'] = list(GrantProgram.objects.filter(
-                is_published=True,
-            ).order_by('-posting_date')[:3])
+            published = GrantProgram.objects.filter(is_published=True)
+            context['recent_opportunities'] = list(published.order_by('-posting_date')[:3])
+            context['active_programs_count'] = published.count()
         except Exception:
             context['recent_opportunities'] = []
+            context['active_programs_count'] = 0
         return context
 
 
