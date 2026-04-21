@@ -15,4 +15,4 @@ pypdf>=4.0,<6.0
 Pillow>=10.4,<12.0
 reportlab>=4.0,<5.0
 cryptography>=42.0,<44.0
-keel @ git+https://github.com/okeefedaniel/keel.git@1c9289d5dda906b99c2b1534b9151d79ae1da9f8
+keel @ git+https://github.com/okeefedaniel/keel.git@4fc57217e2b82b44833c572a803f51fdf13a70c7
