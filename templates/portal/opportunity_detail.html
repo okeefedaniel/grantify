@@ -23,10 +23,10 @@
     <div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-2">
         <div>
             <h1 class="fw-bold mb-2">{{ opportunity.title }}</h1>
-            <span class="badge badge-grant-type me-2">
+            <span class="pill pill-grant-type me-2">
                 <i class="bi bi-building me-1"></i>{{ opportunity.agency.name }}
             </span>
-            <span class="badge
+            <span class="pill
                 {% if opportunity.status == 'accepting_applications' %}bg-success
                 {% elif opportunity.status == 'posted' %}bg-info
                 {% elif opportunity.status == 'under_review' %}bg-warning text-dark
@@ -34,7 +34,7 @@
                 {% else %}bg-primary{% endif %} me-2">
                 {{ opportunity.get_status_display }}
             </span>
-            <span class="badge bg-light text-dark border">
+            <span class="pill pill-muted border">
                 {{ opportunity.get_grant_type_display }}
             </span>
         </div>
@@ -46,7 +46,7 @@
         <div>
             <strong>{% trans "Application Deadline:" %}</strong>
             {{ opportunity.application_deadline|date:"F j, Y g:i A" }}
-            <span class="ms-2 badge {% if opportunity.days_until_deadline <= 7 %}bg-danger{% elif opportunity.days_until_deadline <= 30 %}bg-warning text-dark{% else %}bg-success{% endif %}">
+            <span class="ms-2 pill {% if opportunity.days_until_deadline <= 7 %}pill-error{% elif opportunity.days_until_deadline <= 30 %}pill-brass{% else %}pill-success{% endif %}">
                 {% blocktrans with days=opportunity.days_until_deadline %}{{ days }} days remaining{% endblocktrans %}
             </span>
         </div>
@@ -57,7 +57,7 @@
         <div>
             <strong>{% trans "Application Deadline:" %}</strong>
             {{ opportunity.application_deadline|date:"F j, Y g:i A" }}
-            <span class="ms-2 badge bg-secondary">{% trans "Deadline passed" %}</span>
+            <span class="ms-2 pill pill-muted">{% trans"Deadline passed" %}</span>
         </div>
     </div>
     {% endif %}
@@ -105,7 +105,7 @@
                         <div>
                             <i class="bi bi-file-earmark me-2 text-muted"></i>
                             <strong>{{ doc.title }}</strong>
-                            <span class="badge bg-light text-muted border ms-2">
+                            <span class="pill pill-muted border ms-2">
                                 {{ doc.get_document_type_display }}
                             </span>
                             {% if doc.description %}

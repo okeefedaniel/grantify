@@ -86,25 +86,25 @@
             <span class="fw-semibold">{{ award.award_number }}</span>
             &middot;
             {% if award.status == 'draft' %}
-                <span class="badge bg-secondary">{% trans "Draft" %}</span>
+                <span class="pill pill-muted">{% trans"Draft" %}</span>
             {% elif award.status == 'pending_approval' %}
-                <span class="badge bg-warning text-dark">{% trans "Pending Approval" %}</span>
+                <span class="pill pill-brass">{% trans"Pending Approval" %}</span>
             {% elif award.status == 'approved' %}
-                <span class="badge bg-info text-dark">{% trans "Approved" %}</span>
+                <span class="pill pill-navy">{% trans"Approved" %}</span>
             {% elif award.status == 'executed' %}
-                <span class="badge bg-primary">{% trans "Executed" %}</span>
+                <span class="pill pill-navy">{% trans"Executed" %}</span>
             {% elif award.status == 'active' %}
-                <span class="badge bg-success">{% trans "Active" %}</span>
+                <span class="pill pill-success">{% trans"Active" %}</span>
             {% elif award.status == 'on_hold' %}
-                <span class="badge bg-warning text-dark">{% trans "On Hold" %}</span>
+                <span class="pill pill-brass">{% trans"On Hold" %}</span>
             {% elif award.status == 'completed' %}
-                <span class="badge bg-dark">{% trans "Completed" %}</span>
+                <span class="pill pill-muted">{% trans"Completed" %}</span>
             {% elif award.status == 'terminated' %}
-                <span class="badge bg-danger">{% trans "Terminated" %}</span>
+                <span class="pill pill-error">{% trans"Terminated" %}</span>
             {% elif award.status == 'cancelled' %}
-                <span class="badge bg-danger">{% trans "Cancelled" %}</span>
+                <span class="pill pill-error">{% trans"Cancelled" %}</span>
             {% else %}
-                <span class="badge bg-secondary">{{ award.get_status_display }}</span>
+                <span class="pill pill-muted">{{ award.get_status_display }}</span>
             {% endif %}
         </p>
     </div>
@@ -381,13 +381,13 @@
                         <td class="text-end">${{ budget.total_amount|intcomma }}</td>
                         <td>
                             {% if budget.status == 'draft' %}
-                                <span class="badge bg-secondary">{% trans "Draft" %}</span>
+                                <span class="pill pill-muted">{% trans"Draft" %}</span>
                             {% elif budget.status == 'submitted' %}
-                                <span class="badge bg-warning text-dark">{% trans "Submitted" %}</span>
+                                <span class="pill pill-brass">{% trans"Submitted" %}</span>
                             {% elif budget.status == 'approved' %}
-                                <span class="badge bg-success">{% trans "Approved" %}</span>
+                                <span class="pill pill-success">{% trans"Approved" %}</span>
                             {% elif budget.status == 'revision_requested' %}
-                                <span class="badge bg-danger">{% trans "Revision Requested" %}</span>
+                                <span class="pill pill-error">{% trans"Revision Requested" %}</span>
                             {% endif %}
                         </td>
                         <td>{{ budget.submitted_at|date:"M d, Y"|default:"--" }}</td>
@@ -438,19 +438,19 @@
                         <td>{{ dd.period_start|date:"m/d/Y" }} &ndash; {{ dd.period_end|date:"m/d/Y" }}</td>
                         <td>
                             {% if dd.status == 'draft' %}
-                                <span class="badge bg-secondary">{% trans "Draft" %}</span>
+                                <span class="pill pill-muted">{% trans"Draft" %}</span>
                             {% elif dd.status == 'submitted' %}
-                                <span class="badge bg-warning text-dark">{% trans "Submitted" %}</span>
+                                <span class="pill pill-brass">{% trans"Submitted" %}</span>
                             {% elif dd.status == 'under_review' %}
-                                <span class="badge bg-info text-dark">{% trans "Under Review" %}</span>
+                                <span class="pill pill-navy">{% trans"Under Review" %}</span>
                             {% elif dd.status == 'approved' %}
-                                <span class="badge bg-success">{% trans "Approved" %}</span>
+                                <span class="pill pill-success">{% trans"Approved" %}</span>
                             {% elif dd.status == 'paid' %}
-                                <span class="badge bg-primary">{% trans "Paid" %}</span>
+                                <span class="pill pill-navy">{% trans"Paid" %}</span>
                             {% elif dd.status == 'denied' %}
-                                <span class="badge bg-danger">{% trans "Denied" %}</span>
+                                <span class="pill pill-error">{% trans"Denied" %}</span>
                             {% elif dd.status == 'returned' %}
-                                <span class="badge bg-warning text-dark">{% trans "Returned" %}</span>
+                                <span class="pill pill-brass">{% trans"Returned" %}</span>
                             {% endif %}
                         </td>
                         <td>{{ dd.submitted_at|date:"M d, Y"|default:"--" }}</td>
@@ -500,23 +500,23 @@
                         <td>{{ report.reporting_period_start|date:"m/d/Y" }} &ndash; {{ report.reporting_period_end|date:"m/d/Y" }}</td>
                         <td>
                             {% if report.status == 'draft' %}
-                                <span class="badge bg-secondary">{% trans "Draft" %}</span>
+                                <span class="pill pill-muted">{% trans"Draft" %}</span>
                             {% elif report.status == 'submitted' %}
-                                <span class="badge bg-warning text-dark">{% trans "Submitted" %}</span>
+                                <span class="pill pill-brass">{% trans"Submitted" %}</span>
                             {% elif report.status == 'under_review' %}
-                                <span class="badge bg-info text-dark">{% trans "Under Review" %}</span>
+                                <span class="pill pill-navy">{% trans"Under Review" %}</span>
                             {% elif report.status == 'revision_requested' %}
-                                <span class="badge bg-danger">{% trans "Revision Requested" %}</span>
+                                <span class="pill pill-error">{% trans"Revision Requested" %}</span>
                             {% elif report.status == 'approved' %}
-                                <span class="badge bg-success">{% trans "Approved" %}</span>
+                                <span class="pill pill-success">{% trans"Approved" %}</span>
                             {% elif report.status == 'rejected' %}
-                                <span class="badge bg-danger">{% trans "Rejected" %}</span>
+                                <span class="pill pill-error">{% trans"Rejected" %}</span>
                             {% endif %}
                         </td>
                         <td>
                             {{ report.due_date|date:"M d, Y" }}
                             {% if report.is_overdue %}
-                                <span class="badge bg-danger ms-1">{% trans "Overdue" %}</span>
+                                <span class="pill pill-error ms-1">{% trans"Overdue" %}</span>
                             {% endif %}
                         </td>
                         <td>{{ report.submitted_at|date:"M d, Y"|default:"--" }}</td>
@@ -587,17 +587,17 @@
                                 <td>{{ sig.signer_email }}</td>
                                 <td>
                                     {% if sig.status == 'sent' %}
-                                        <span class="badge bg-warning text-dark">{% trans "Sent" %}</span>
+                                        <span class="pill pill-brass">{% trans"Sent" %}</span>
                                     {% elif sig.status == 'delivered' %}
-                                        <span class="badge bg-info text-dark">{% trans "Delivered" %}</span>
+                                        <span class="pill pill-navy">{% trans"Delivered" %}</span>
                                     {% elif sig.status == 'signed' %}
-                                        <span class="badge bg-success">{% trans "Signed" %}</span>
+                                        <span class="pill pill-success">{% trans"Signed" %}</span>
                                     {% elif sig.status == 'declined' %}
-                                        <span class="badge bg-danger">{% trans "Declined" %}</span>
+                                        <span class="pill pill-error">{% trans"Declined" %}</span>
                                     {% elif sig.status == 'voided' %}
-                                        <span class="badge bg-secondary">{% trans "Voided" %}</span>
+                                        <span class="pill pill-muted">{% trans"Voided" %}</span>
                                     {% else %}
-                                        <span class="badge bg-secondary">{{ sig.get_status_display }}</span>
+                                        <span class="pill pill-muted">{{ sig.get_status_display }}</span>
                                     {% endif %}
                                 </td>
                                 <td>{{ sig.sent_at|date:"M d, Y H:i" }}</td>
@@ -650,15 +650,15 @@
                                 <td>{{ pkt.flow.name }}</td>
                                 <td>
                                     {% if pkt.status == 'completed' %}
-                                        <span class="badge bg-success">{% trans "Completed" %}</span>
+                                        <span class="pill pill-success">{% trans"Completed" %}</span>
                                     {% elif pkt.status == 'in_progress' %}
-                                        <span class="badge bg-primary">{% trans "In Progress" %}</span>
+                                        <span class="pill pill-navy">{% trans"In Progress" %}</span>
                                     {% elif pkt.status == 'declined' %}
-                                        <span class="badge bg-danger">{% trans "Declined" %}</span>
+                                        <span class="pill pill-error">{% trans"Declined" %}</span>
                                     {% elif pkt.status == 'cancelled' %}
-                                        <span class="badge bg-warning text-dark">{% trans "Cancelled" %}</span>
+                                        <span class="pill pill-brass">{% trans"Cancelled" %}</span>
                                     {% else %}
-                                        <span class="badge bg-secondary">{{ pkt.get_status_display }}</span>
+                                        <span class="pill pill-muted">{{ pkt.get_status_display }}</span>
                                     {% endif %}
                                 </td>
                                 <td>
@@ -712,7 +712,7 @@
                             <i class="bi bi-file-earmark me-1 text-muted"></i>
                             {{ doc.title }}
                         </td>
-                        <td><span class="badge bg-light text-dark border">{{ doc.get_document_type_display }}</span></td>
+                        <td><span class="pill pill-muted border">{{ doc.get_document_type_display }}</span></td>
                         <td>{{ doc.uploaded_by.get_full_name|default:"--" }}</td>
                         <td>{{ doc.created_at|date:"M d, Y" }}</td>
                         <td class="text-center">
@@ -763,13 +763,13 @@
                         <td>{{ amend.description|truncatewords:12 }}</td>
                         <td>
                             {% if amend.status == 'draft' %}
-                                <span class="badge bg-secondary">{% trans "Draft" %}</span>
+                                <span class="pill pill-muted">{% trans"Draft" %}</span>
                             {% elif amend.status == 'submitted' %}
-                                <span class="badge bg-warning text-dark">{% trans "Submitted" %}</span>
+                                <span class="pill pill-brass">{% trans"Submitted" %}</span>
                             {% elif amend.status == 'approved' %}
-                                <span class="badge bg-success">{% trans "Approved" %}</span>
+                                <span class="pill pill-success">{% trans"Approved" %}</span>
                             {% elif amend.status == 'denied' %}
-                                <span class="badge bg-danger">{% trans "Denied" %}</span>
+                                <span class="pill pill-error">{% trans"Denied" %}</span>
                             {% endif %}
                         </td>
                         <td>{{ amend.requested_by.get_full_name }}</td>
@@ -799,7 +799,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="fw-bold mb-0">{% trans "Closeout Process" %}</h4>
-                    <span class="badge bg-{% if closeout.status == 'completed' %}success{% elif closeout.status == 'in_progress' %}primary{% elif closeout.status == 'pending_review' %}warning{% else %}secondary{% endif %} fs-6">
+                    <span class="pill bg-{% if closeout.status == 'completed' %}success{% elif closeout.status == 'in_progress' %}primary{% elif closeout.status == 'pending_review' %}warning{% else %}secondary{% endif %}">
                         {{ closeout.get_status_display }}
                     </span>
                 </div>
@@ -859,7 +859,7 @@
                                 clearInterval(pollInterval);
                                 location.reload();
                             } else if (data.status === 'delivered') {
-                                statusBadge.className = 'badge bg-info text-dark';
+                                statusBadge.className = 'pill pill-navy';
                                 statusBadge.textContent = data.status_display;
                             }
                         })

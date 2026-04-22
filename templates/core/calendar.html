@@ -43,14 +43,14 @@
                                 <strong>{% trans "Award:" %}</strong> {{ report.award.award_number }}
                             </p>
                         </div>
-                        <span class="badge bg-danger">{% trans "Overdue" %}</span>
+                        <span class="pill pill-error">{% trans"Overdue" %}</span>
                     </div>
                     <hr class="my-2">
                     <div class="d-flex justify-content-between align-items-center">
                         <span class="small text-danger fw-bold">
                             <i class="bi bi-clock me-1"></i>{% trans "Due:" %} {{ report.due_date }}
                         </span>
-                        <span class="badge bg-danger bg-opacity-10 text-danger">
+                        <span class="pill pill-error bg-opacity-10 text-danger">
                             {% blocktrans with time=report.due_date|timesince %}{{ time }} overdue{% endblocktrans %}
                         </span>
                     </div>
@@ -91,18 +91,18 @@
                         <td>
                             {% if program.days_until_deadline is not None %}
                                 {% if program.days_until_deadline <= 7 %}
-                                    {% blocktrans with days=program.days_until_deadline count counter=program.days_until_deadline %}<span class="badge bg-danger">{{ days }} day</span>{% plural %}<span class="badge bg-danger">{{ days }} days</span>{% endblocktrans %}
+                                    {% blocktrans with days=program.days_until_deadline count counter=program.days_until_deadline %}<span class="pill pill-error">{{ days }} day</span>{% plural %}<span class="pill pill-error">{{ days }} days</span>{% endblocktrans %}
                                 {% elif program.days_until_deadline <= 30 %}
-                                    {% blocktrans with days=program.days_until_deadline %}<span class="badge bg-warning text-dark">{{ days }} days</span>{% endblocktrans %}
+                                    {% blocktrans with days=program.days_until_deadline %}<span class="pill pill-brass">{{ days }} days</span>{% endblocktrans %}
                                 {% else %}
-                                    {% blocktrans with days=program.days_until_deadline %}<span class="badge bg-info text-dark">{{ days }} days</span>{% endblocktrans %}
+                                    {% blocktrans with days=program.days_until_deadline %}<span class="pill pill-navy">{{ days }} days</span>{% endblocktrans %}
                                 {% endif %}
                             {% else %}
-                                <span class="badge bg-secondary">{% trans "Passed" %}</span>
+                                <span class="pill pill-muted">{% trans"Passed" %}</span>
                             {% endif %}
                         </td>
                         <td>
-                            <span class="badge bg-success">{{ program.get_status_display }}</span>
+                            <span class="pill pill-success">{{ program.get_status_display }}</span>
                         </td>
                     </tr>
                     {% endfor %}
@@ -144,19 +144,19 @@
                         <td>
                             {% with days=report.due_date|timeuntil %}
                                 {% if "day" in days %}
-                                    <span class="badge bg-info text-dark">{{ days }}</span>
+                                    <span class="pill pill-navy">{{ days }}</span>
                                 {% else %}
-                                    <span class="badge bg-warning text-dark">{{ days }}</span>
+                                    <span class="pill pill-brass">{{ days }}</span>
                                 {% endif %}
                             {% endwith %}
                         </td>
                         <td>
                             {% if report.status == 'draft' %}
-                                <span class="badge bg-secondary">{% trans "Draft" %}</span>
+                                <span class="pill pill-muted">{% trans"Draft" %}</span>
                             {% elif report.status == 'revision_requested' %}
-                                <span class="badge bg-warning text-dark">{% trans "Revision Requested" %}</span>
+                                <span class="pill pill-brass">{% trans"Revision Requested" %}</span>
                             {% else %}
-                                <span class="badge bg-primary">{{ report.get_status_display }}</span>
+                                <span class="pill pill-navy">{{ report.get_status_display }}</span>
                             {% endif %}
                         </td>
                     </tr>
@@ -191,7 +191,7 @@
                             <p class="small text-muted mb-1">{{ award.grant_program.title|truncatechars:50 }}</p>
                             <p class="small mb-0"><strong>{% trans "Award #:" %}</strong> {{ award.award_number }}</p>
                         </div>
-                        <span class="badge bg-warning text-dark">{% trans "Expiring" %}</span>
+                        <span class="pill pill-brass">{% trans"Expiring" %}</span>
                     </div>
                     <hr class="my-2">
                     <div class="d-flex justify-content-between align-items-center">

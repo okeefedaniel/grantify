@@ -224,31 +224,31 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><span class="role-badge role-applicant">{% trans "Applicant" %}</span></td>
+                                    <td><span class="role-pill role-applicant">{% trans"Applicant" %}</span></td>
                                     <td>{% trans "External users (municipalities, nonprofits, businesses) who apply for and manage grants." %}</td>
                                 </tr>
                                 <tr>
-                                    <td><span class="role-badge role-reviewer">{% trans "Reviewer" %}</span></td>
+                                    <td><span class="role-pill role-reviewer">{% trans"Reviewer" %}</span></td>
                                     <td>{% trans "Panel members who score and evaluate grant applications using rubrics." %}</td>
                                 </tr>
                                 <tr>
-                                    <td><span class="role-badge role-program">{% trans "Program Officer" %}</span></td>
+                                    <td><span class="role-pill role-program">{% trans"Program Officer" %}</span></td>
                                     <td>{% trans "Agency staff who create and manage grant programs and review applications." %}</td>
                                 </tr>
                                 <tr>
-                                    <td><span class="role-badge role-fiscal">{% trans "Fiscal Officer" %}</span></td>
+                                    <td><span class="role-pill role-fiscal">{% trans"Fiscal Officer" %}</span></td>
                                     <td>{% trans "Agency staff who manage budgets, drawdowns, and financial transactions." %}</td>
                                 </tr>
                                 <tr>
-                                    <td><span class="role-badge role-agency">{% trans "Agency Admin" %}</span></td>
+                                    <td><span class="role-pill role-agency">{% trans"Agency Admin" %}</span></td>
                                     <td>{% trans "Agency leadership with full control over their agency's programs and staff." %}</td>
                                 </tr>
                                 <tr>
-                                    <td><span class="role-badge role-admin">{% trans "System Admin" %}</span></td>
+                                    <td><span class="role-pill role-admin">{% trans"System Admin" %}</span></td>
                                     <td>{% trans "Harbor administrators with full access to all features across all agencies." %}</td>
                                 </tr>
                                 <tr>
-                                    <td><span class="role-badge role-auditor">{% trans "Auditor" %}</span></td>
+                                    <td><span class="role-pill role-auditor">{% trans"Auditor" %}</span></td>
                                     <td>{% trans "Compliance staff with read-only access to audit logs, reports, and financial records." %}</td>
                                 </tr>
                             </tbody>
@@ -330,7 +330,7 @@
                         <li><strong>{% trans "Grant Type" %}</strong> -- {% trans "competitive, non-competitive, formula, continuation, or other" %}</li>
                         <li><strong>{% trans "Status" %}</strong> -- {% trans "posted, accepting applications, under review, awards pending, or closed" %}</li>
                     </ul>
-                    <p>{% trans "Each opportunity card shows the grant type, title, agency, total funding, and application deadline. Deadlines are color-coded: <span class='badge bg-danger'>red</span> if 7 or fewer days remain, <span class='badge bg-warning text-dark'>yellow</span> if 30 or fewer." %}</p>
+                    <p>{% trans"Each opportunity card shows the grant type, title, agency, total funding, and application deadline. Deadlines are color-coded: <span class='pill pill-error'>red</span> if 7 or fewer days remain, <span class='pill pill-brass'>yellow</span> if 30 or fewer." %}</p>
                     <p class="mb-0">{% trans "Click <strong>View Details</strong> on any opportunity to see full program details, eligibility criteria, funding amounts, downloadable documents, and the <strong>Apply</strong> button." %}</p>
                 </div>
             </div>
@@ -886,29 +886,29 @@
                 <div class="card-body p-4 lh-lg">
                     <h5 class="fw-bold">{% trans "Application Statuses" %}</h5>
                     <div class="status-flow mb-3">
-                        <span class="badge bg-secondary">{% trans "Draft" %}</span>
+                        <span class="pill pill-muted">{% trans"Draft" %}</span>
                         <i class="bi bi-arrow-right"></i>
-                        <span class="badge bg-primary">{% trans "Submitted" %}</span>
+                        <span class="pill pill-navy">{% trans"Submitted" %}</span>
                         <i class="bi bi-arrow-right"></i>
-                        <span class="badge bg-info">{% trans "Under Review" %}</span>
+                        <span class="pill pill-navy">{% trans"Under Review" %}</span>
                         <i class="bi bi-arrow-right"></i>
-                        <span class="badge bg-success">{% trans "Approved" %}</span>
+                        <span class="pill pill-success">{% trans"Approved" %}</span>
                         /
-                        <span class="badge bg-danger">{% trans "Denied" %}</span>
+                        <span class="pill pill-error">{% trans"Denied" %}</span>
                         /
-                        <span class="badge bg-warning text-dark">{% trans "Revision Requested" %}</span>
+                        <span class="pill pill-brass">{% trans"Revision Requested" %}</span>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-sm">
                             <thead><tr><th>{% trans "Status" %}</th><th>{% trans "Meaning" %}</th><th>{% trans "Who Triggers" %}</th></tr></thead>
                             <tbody>
-                                <tr><td><span class="badge bg-secondary">{% trans "Draft" %}</span></td><td>{% trans "Started, not yet submitted. Editable." %}</td><td>{% trans "Applicant" %}</td></tr>
-                                <tr><td><span class="badge bg-primary">{% trans "Submitted" %}</span></td><td>{% trans "Received by agency, awaiting review." %}</td><td>{% trans "Applicant" %}</td></tr>
-                                <tr><td><span class="badge bg-info">{% trans "Under Review" %}</span></td><td>{% trans "Being evaluated by staff or reviewers." %}</td><td>{% trans "Program Officer" %}</td></tr>
-                                <tr><td><span class="badge bg-warning text-dark">{% trans "Revision Requested" %}</span></td><td>{% trans "Changes requested. Applicant can edit and resubmit." %}</td><td>{% trans "Program Officer" %}</td></tr>
-                                <tr><td><span class="badge bg-success">{% trans "Approved" %}</span></td><td>{% trans "Selected for funding. Award will be processed." %}</td><td>{% trans "Program Officer" %}</td></tr>
-                                <tr><td><span class="badge bg-danger">{% trans "Denied" %}</span></td><td>{% trans "Not selected for funding in this cycle." %}</td><td>{% trans "Program Officer" %}</td></tr>
-                                <tr><td><span class="badge bg-dark">{% trans "Withdrawn" %}</span></td><td>{% trans "Application withdrawn from consideration." %}</td><td>{% trans "Applicant / Staff" %}</td></tr>
+                                <tr><td><span class="pill pill-muted">{% trans"Draft" %}</span></td><td>{% trans"Started, not yet submitted. Editable." %}</td><td>{% trans"Applicant" %}</td></tr>
+                                <tr><td><span class="pill pill-navy">{% trans"Submitted" %}</span></td><td>{% trans"Received by agency, awaiting review." %}</td><td>{% trans"Applicant" %}</td></tr>
+                                <tr><td><span class="pill pill-navy">{% trans"Under Review" %}</span></td><td>{% trans"Being evaluated by staff or reviewers." %}</td><td>{% trans"Program Officer" %}</td></tr>
+                                <tr><td><span class="pill pill-brass">{% trans"Revision Requested" %}</span></td><td>{% trans"Changes requested. Applicant can edit and resubmit." %}</td><td>{% trans"Program Officer" %}</td></tr>
+                                <tr><td><span class="pill pill-success">{% trans"Approved" %}</span></td><td>{% trans"Selected for funding. Award will be processed." %}</td><td>{% trans"Program Officer" %}</td></tr>
+                                <tr><td><span class="pill pill-error">{% trans"Denied" %}</span></td><td>{% trans"Not selected for funding in this cycle." %}</td><td>{% trans"Program Officer" %}</td></tr>
+                                <tr><td><span class="pill pill-muted">{% trans"Withdrawn" %}</span></td><td>{% trans"Application withdrawn from consideration." %}</td><td>{% trans"Applicant / Staff" %}</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -922,15 +922,15 @@
                         <table class="table table-sm mb-0">
                             <thead><tr><th>{% trans "Status" %}</th><th>{% trans "Description" %}</th></tr></thead>
                             <tbody>
-                                <tr><td><span class="badge bg-secondary">{% trans "Draft" %}</span></td><td>{% trans "Award created, not yet finalized." %}</td></tr>
-                                <tr><td><span class="badge bg-info">{% trans "Pending Approval" %}</span></td><td>{% trans "Awaiting administrative approval." %}</td></tr>
-                                <tr><td><span class="badge bg-primary">{% trans "Approved" %}</span></td><td>{% trans "Approved but not yet signed." %}</td></tr>
-                                <tr><td><span class="badge bg-success">{% trans "Executed" %}</span></td><td>{% trans "Agreement signed (via DocuSign or manual)." %}</td></tr>
-                                <tr><td><span class="badge bg-success">{% trans "Active" %}</span></td><td>{% trans "Award is in progress." %}</td></tr>
-                                <tr><td><span class="badge bg-warning text-dark">{% trans "On Hold" %}</span></td><td>{% trans "Temporarily suspended." %}</td></tr>
-                                <tr><td><span class="badge bg-primary">{% trans "Completed" %}</span></td><td>{% trans "All work finished, grant closed out." %}</td></tr>
-                                <tr><td><span class="badge bg-danger">{% trans "Terminated" %}</span></td><td>{% trans "Ended early." %}</td></tr>
-                                <tr><td><span class="badge bg-dark">{% trans "Cancelled" %}</span></td><td>{% trans "Cancelled before execution." %}</td></tr>
+                                <tr><td><span class="pill pill-muted">{% trans"Draft" %}</span></td><td>{% trans"Award created, not yet finalized." %}</td></tr>
+                                <tr><td><span class="pill pill-navy">{% trans"Pending Approval" %}</span></td><td>{% trans"Awaiting administrative approval." %}</td></tr>
+                                <tr><td><span class="pill pill-navy">{% trans"Approved" %}</span></td><td>{% trans"Approved but not yet signed." %}</td></tr>
+                                <tr><td><span class="pill pill-success">{% trans"Executed" %}</span></td><td>{% trans"Agreement signed (via DocuSign or manual)." %}</td></tr>
+                                <tr><td><span class="pill pill-success">{% trans"Active" %}</span></td><td>{% trans"Award is in progress." %}</td></tr>
+                                <tr><td><span class="pill pill-brass">{% trans"On Hold" %}</span></td><td>{% trans"Temporarily suspended." %}</td></tr>
+                                <tr><td><span class="pill pill-navy">{% trans"Completed" %}</span></td><td>{% trans"All work finished, grant closed out." %}</td></tr>
+                                <tr><td><span class="pill pill-error">{% trans"Terminated" %}</span></td><td>{% trans"Ended early." %}</td></tr>
+                                <tr><td><span class="pill pill-muted">{% trans"Cancelled" %}</span></td><td>{% trans"Cancelled before execution." %}</td></tr>
                             </tbody>
                         </table>
                     </div>

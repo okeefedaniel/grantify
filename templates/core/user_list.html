@@ -8,7 +8,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="bi bi-people me-2"></i>{% trans "User Management" %}</h2>
-    <span class="badge bg-secondary fs-6">{{ page_obj.paginator.count }} {% trans "users" %}</span>
+    <span class="pill pill-muted">{{ page_obj.paginator.count }} {% trans"users" %}</span>
 </div>
 
 {# -- Search & Filter Bar -- #}
@@ -74,16 +74,16 @@
                         <td><code>{{ u.username }}</code></td>
                         <td>{{ u.email }}</td>
                         <td>
-                            <span class="badge {% if u.role == 'system_admin' %}bg-danger{% elif u.role == 'agency_admin' %}bg-warning text-dark{% elif u.role == 'applicant' %}bg-info text-dark{% else %}bg-primary{% endif %}">
+                            <span class="pill {% if u.role == 'system_admin' %}pill-error{% elif u.role == 'agency_admin' %}pill-brass{% elif u.role == 'applicant' %}pill-navy{% else %}pill-navy{% endif %}">
                                 {{ u.get_role_display }}
                             </span>
                         </td>
                         <td>{{ u.agency.abbreviation|default:"-" }}</td>
                         <td>
                             {% if u.is_active %}
-                                <span class="badge bg-success">{% trans "Active" %}</span>
+                                <span class="pill pill-success">{% trans"Active" %}</span>
                             {% else %}
-                                <span class="badge bg-secondary">{% trans "Inactive" %}</span>
+                                <span class="pill pill-muted">{% trans"Inactive" %}</span>
                             {% endif %}
                         </td>
                         <td class="small text-muted">{{ u.last_login|date:"M d, Y"|default:"Never" }}</td>

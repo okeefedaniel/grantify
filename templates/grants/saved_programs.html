@@ -76,15 +76,15 @@
                             <br><small class="text-muted">{% trans "Saved" %} {{ saved.created_at|date:"M d, Y" }}</small>
                         </td>
                         <td>
-                            <span class="badge bg-light text-dark">{{ saved.grant_program.agency.name|default:"--" }}</span>
+                            <span class="pill pill-muted">{{ saved.grant_program.agency.name|default:"--" }}</span>
                         </td>
                         <td>
                             {% if saved.interest_level == 'planning_to_apply' %}
-                                <span class="badge bg-success">{% trans "Planning to Apply" %}</span>
+                                <span class="pill pill-success">{% trans"Planning to Apply" %}</span>
                             {% elif saved.interest_level == 'interested' %}
-                                <span class="badge bg-info text-dark">{% trans "Interested" %}</span>
+                                <span class="pill pill-navy">{% trans"Interested" %}</span>
                             {% else %}
-                                <span class="badge bg-secondary">{% trans "Watching" %}</span>
+                                <span class="pill pill-muted">{% trans"Watching" %}</span>
                             {% endif %}
                         </td>
                         <td class="small">

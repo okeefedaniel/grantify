@@ -100,19 +100,19 @@
                     <td>{{ award.title|truncatewords:8 }}</td>
                     <td class="text-muted small">{{ award.organization.name }}</td>
                     <td>
-                        <span class="badge bg-light text-dark border">{{ award.agency.abbreviation }}</span>
+                        <span class="pill pill-muted border">{{ award.agency.abbreviation }}</span>
                     </td>
                     <td class="small">{{ award.grant_program.title|truncatewords:6 }}</td>
                     <td class="text-end fw-semibold">${{ award.award_amount|intcomma }}</td>
                     <td>
                         {% if award.status == 'active' %}
-                            <span class="badge bg-success">{% trans "Active" %}</span>
+                            <span class="pill pill-success">{% trans"Active" %}</span>
                         {% elif award.status == 'executed' %}
-                            <span class="badge bg-primary">{% trans "Executed" %}</span>
+                            <span class="pill pill-navy">{% trans"Executed" %}</span>
                         {% elif award.status == 'completed' %}
-                            <span class="badge bg-dark">{% trans "Completed" %}</span>
+                            <span class="pill pill-muted">{% trans"Completed" %}</span>
                         {% else %}
-                            <span class="badge bg-secondary">{{ award.get_status_display }}</span>
+                            <span class="pill pill-muted">{{ award.get_status_display }}</span>
                         {% endif %}
                     </td>
                     <td>

@@ -112,7 +112,7 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-person-check me-2"></i>{% trans "My Assignments" %}
-                    {% if my_assignments_count %}<span class="badge bg-primary ms-1">{{ my_assignments_count }}</span>{% endif %}
+                    {% if my_assignments_count %}<span class="pill pill-navy ms-1">{{ my_assignments_count }}</span>{% endif %}
                 </span>
                 <a href="{% url 'applications:my-assignments' %}" class="btn btn-sm btn-outline-primary">{% trans "View All" %}</a>
             </div>
@@ -142,11 +142,11 @@
                                 <td class="text-muted small">{{ assignment.application.grant_program.title|truncatewords:4 }}</td>
                                 <td>
                                     {% if assignment.status == 'assigned' and assignment.assignment_type == 'claimed' %}
-                                        <span class="badge badge-claimed"><i class="bi bi-check-circle-fill me-1"></i>{% trans "Claimed" %}</span>
+                                        <span class="pill pill-claimed"><i class="bi bi-check-circle-fill me-1"></i>{% trans"Claimed" %}</span>
                                     {% elif assignment.status == 'assigned' %}
-                                        <span class="badge bg-info text-dark">{% trans "Assigned" %}</span>
+                                        <span class="pill pill-navy">{% trans"Assigned" %}</span>
                                     {% elif assignment.status == 'in_progress' %}
-                                        <span class="badge bg-primary">{% trans "In Progress" %}</span>
+                                        <span class="pill pill-navy">{% trans"In Progress" %}</span>
                                     {% endif %}
                                 </td>
                                 <td class="small text-muted">{{ assignment.assigned_at|date:"M d" }}</td>
@@ -206,7 +206,7 @@
                                     <small class="text-muted">{{ app.organization.name|default:"" }}</small>
                                 </td>
                                 <td>
-                                    <span class="badge badge-{{ app.status|slugify }}">
+                                    <span class="pill pill-{{ app.status|slugify }}">
                                         {{ app.get_status_display }}
                                     </span>
                                 </td>
@@ -218,11 +218,11 @@
                                         <br>
                                         <small>
                                             {% if assignment.status == 'in_progress' %}
-                                                <span class="badge bg-primary" style="font-size: 0.65rem;">{% trans "In Progress" %}</span>
+                                                <span class="pill pill-navy" style="font-size: 0.65rem;">{% trans"In Progress" %}</span>
                                             {% elif assignment.assignment_type == 'claimed' %}
-                                                <span class="badge badge-claimed" style="font-size: 0.65rem;"><i class="bi bi-check-circle-fill me-1"></i>{% trans "Claimed" %}</span>
+                                                <span class="pill pill-claimed" style="font-size: 0.65rem;"><i class="bi bi-check-circle-fill me-1"></i>{% trans"Claimed" %}</span>
                                             {% else %}
-                                                <span class="badge bg-info text-dark" style="font-size: 0.65rem;">{% trans "Assigned" %}</span>
+                                                <span class="pill pill-navy" style="font-size: 0.65rem;">{% trans"Assigned" %}</span>
                                             {% endif %}
                                         </small>
                                     {% else %}
@@ -427,9 +427,9 @@
                                         {{ tracked.federal_opportunity.title|truncatewords:8 }}
                                     </a>
                                 </td>
-                                <td><span class="badge bg-light text-dark">{{ tracked.federal_opportunity.agency_code }}</span></td>
+                                <td><span class="pill pill-muted">{{ tracked.federal_opportunity.agency_code }}</span></td>
                                 <td>
-                                    <span class="badge badge-{{ tracked.status }}">{{ tracked.get_status_display }}</span>
+                                    <span class="pill pill-{{ tracked.status }}">{{ tracked.get_status_display }}</span>
                                 </td>
                                 <td>
                                     {% if tracked.federal_opportunity.close_date %}
@@ -489,7 +489,7 @@
                                 <br>
                                 <small class="text-muted">{{ tracked.federal_opportunity.agency_code }}</small>
                             </div>
-                            <span class="badge bg-danger">
+                            <span class="pill pill-error">
                                 {{ tracked.federal_opportunity.close_date|date:"M d" }}
                             </span>
                         </div>
@@ -505,7 +505,7 @@
             <div class="card-header d-flex justify-content-between align-items-center text-white" style="background-color: var(--ct-dark-blue);">
                 <span>
                     <i class="bi bi-stars me-2"></i>{% trans "AI Suggestions" %}
-                    {% if new_match_count %}<span class="badge bg-danger ms-1">{{ new_match_count }}</span>{% endif %}
+                    {% if new_match_count %}<span class="pill pill-error ms-1">{{ new_match_count }}</span>{% endif %}
                 </span>
                 <a href="{% url 'grants:preferences' %}" class="btn btn-sm btn-outline-light" title="{% trans 'Edit Preferences' %}">
                     <i class="bi bi-gear"></i>
@@ -524,7 +524,7 @@
                                 <br>
                                 <small class="text-muted"><i class="bi bi-robot me-1"></i>{{ match.explanation|truncatewords:10 }}</small>
                             </div>
-                            <span class="badge {% if match.relevance_score >= 85 %}bg-success{% elif match.relevance_score >= 70 %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                            <span class="pill {% if match.relevance_score >= 85 %}pill-success{% elif match.relevance_score >= 70 %}pill-brass{% else %}pill-muted{% endif %}">
                                 {{ match.relevance_score }}%
                             </span>
                         </div>
@@ -684,7 +684,7 @@
                                 </td>
                                 <td class="text-muted small">{{ app.grant_program.title|truncatewords:5 }}</td>
                                 <td>
-                                    <span class="badge badge-{{ app.status|slugify }}">{{ app.get_status_display }}</span>
+                                    <span class="pill pill-{{ app.status|slugify }}">{{ app.get_status_display }}</span>
                                 </td>
                                 <td>{{ app.submitted_at|date:"M d, Y"|default:"--" }}</td>
                                 <td>
@@ -817,7 +817,7 @@
                         <td class="text-muted small">{{ app.grant_program.title|truncatewords:6 }}</td>
                         <td>${{ app.requested_amount|intcomma }}</td>
                         <td>
-                            <span class="badge badge-{{ app.status|slugify }}">
+                            <span class="pill pill-{{ app.status|slugify }}">
                                 {{ app.get_status_display }}
                             </span>
                         </td>
@@ -874,11 +874,11 @@
                         <td class="text-muted small">{{ saved.grant_program.agency.name|default:"--" }}</td>
                         <td>
                             {% if saved.interest_level == 'planning_to_apply' %}
-                                <span class="badge bg-success">{% trans "Planning to Apply" %}</span>
+                                <span class="pill pill-success">{% trans"Planning to Apply" %}</span>
                             {% elif saved.interest_level == 'interested' %}
-                                <span class="badge bg-info text-dark">{% trans "Interested" %}</span>
+                                <span class="pill pill-navy">{% trans"Interested" %}</span>
                             {% else %}
-                                <span class="badge bg-secondary">{% trans "Watching" %}</span>
+                                <span class="pill pill-muted">{% trans"Watching" %}</span>
                             {% endif %}
                         </td>
                         <td class="small text-muted">{{ saved.created_at|date:"M d, Y" }}</td>
@@ -909,7 +909,7 @@
     <div class="card-header d-flex justify-content-between align-items-center">
         <span>
             <i class="bi bi-stars me-2"></i>{% trans "AI Recommendations" %}
-            {% if new_match_count %}<span class="badge bg-danger ms-1">{{ new_match_count }} {% trans "new" %}</span>{% endif %}
+            {% if new_match_count %}<span class="pill pill-error ms-1">{{ new_match_count }} {% trans"new" %}</span>{% endif %}
         </span>
         <div>
             <a href="{% url 'grants:preferences' %}" class="btn btn-sm btn-outline-secondary me-1" title="{% trans 'Edit Preferences' %}">
@@ -933,7 +933,7 @@
                             <i class="bi bi-robot me-1"></i>{{ match.explanation|truncatewords:15 }}
                         </small>
                     </div>
-                    <span class="badge {% if match.relevance_score >= 85 %}bg-success{% elif match.relevance_score >= 70 %}bg-warning text-dark{% else %}bg-secondary{% endif %} fs-6">
+                    <span class="pill {% if match.relevance_score >= 85 %}pill-success{% elif match.relevance_score >= 70 %}pill-brass{% else %}pill-muted{% endif %}">
                         {{ match.relevance_score }}%
                     </span>
                 </div>

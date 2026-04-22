@@ -60,24 +60,24 @@
                 {% if summary and summary.recommendation %}
                     {% if summary.recommendation == "fund" %}
                         <div class="display-6 mb-2">
-                            <span class="badge bg-success fs-4 px-4 py-2">{% trans "Fund" %}</span>
+                            <span class="pill pill-success fs-4 px-4 py-2">{% trans"Fund" %}</span>
                         </div>
                     {% elif summary.recommendation == "do_not_fund" %}
                         <div class="display-6 mb-2">
-                            <span class="badge bg-danger fs-4 px-4 py-2">{% trans "Do Not Fund" %}</span>
+                            <span class="pill pill-error fs-4 px-4 py-2">{% trans"Do Not Fund" %}</span>
                         </div>
                     {% elif summary.recommendation == "fund_with_conditions" %}
                         <div class="display-6 mb-2">
-                            <span class="badge bg-warning text-dark fs-4 px-4 py-2">{% trans "Fund with Conditions" %}</span>
+                            <span class="pill pill-brass fs-4 px-4 py-2">{% trans"Fund with Conditions" %}</span>
                         </div>
                     {% elif summary.recommendation == "needs_discussion" %}
                         <div class="display-6 mb-2">
-                            <span class="badge bg-info text-dark fs-4 px-4 py-2">{% trans "Needs Discussion" %}</span>
+                            <span class="pill pill-navy fs-4 px-4 py-2">{% trans"Needs Discussion" %}</span>
                         </div>
                     {% endif %}
                 {% else %}
                     <div class="display-6 mb-2">
-                        <span class="badge bg-secondary fs-5 px-4 py-2">{% trans "Pending" %}</span>
+                        <span class="pill pill-muted fs-5 px-4 py-2">{% trans"Pending" %}</span>
                     </div>
                 {% endif %}
             </div>
@@ -92,19 +92,19 @@
                 {% if summary and summary.risk_level %}
                     {% if summary.risk_level == "low" %}
                         <div class="display-6 mb-2">
-                            <span class="badge bg-success fs-4 px-4 py-2">
+                            <span class="pill pill-success fs-4 px-4 py-2">
                                 <i class="bi bi-shield-check me-1"></i>{% trans "Low Risk" %}
                             </span>
                         </div>
                     {% elif summary.risk_level == "medium" %}
                         <div class="display-6 mb-2">
-                            <span class="badge bg-warning text-dark fs-4 px-4 py-2">
+                            <span class="pill pill-brass fs-4 px-4 py-2">
                                 <i class="bi bi-exclamation-triangle me-1"></i>{% trans "Medium Risk" %}
                             </span>
                         </div>
                     {% elif summary.risk_level == "high" %}
                         <div class="display-6 mb-2">
-                            <span class="badge bg-danger fs-4 px-4 py-2">
+                            <span class="pill pill-error fs-4 px-4 py-2">
                                 <i class="bi bi-exclamation-octagon me-1"></i>{% trans "High Risk" %}
                             </span>
                         </div>
@@ -114,7 +114,7 @@
                     {% endif %}
                 {% else %}
                     <div class="display-6 mb-2">
-                        <span class="badge bg-secondary fs-5 px-4 py-2">{% trans "Not Assessed" %}</span>
+                        <span class="pill pill-muted fs-5 px-4 py-2">{% trans"Not Assessed" %}</span>
                     </div>
                 {% endif %}
             </div>
@@ -161,13 +161,13 @@
                     <td class="fw-semibold">{% blocktrans with num=forloop.counter %}Reviewer {{ num }}{% endblocktrans %}</td>
                     <td>
                         {% if assignment.status == "completed" %}
-                            <span class="badge bg-success">{% trans "Completed" %}</span>
+                            <span class="pill pill-success">{% trans"Completed" %}</span>
                         {% elif assignment.status == "in_progress" %}
-                            <span class="badge bg-warning text-dark">{% trans "In Progress" %}</span>
+                            <span class="pill pill-brass">{% trans"In Progress" %}</span>
                         {% elif assignment.status == "assigned" %}
-                            <span class="badge bg-info text-dark">{% trans "Assigned" %}</span>
+                            <span class="pill pill-navy">{% trans"Assigned" %}</span>
                         {% elif assignment.status == "recused" %}
-                            <span class="badge bg-dark">{% trans "Recused" %}</span>
+                            <span class="pill pill-muted">{% trans"Recused" %}</span>
                         {% endif %}
                     </td>
                     {% if assignment.status == "completed" %}
@@ -183,7 +183,7 @@
                             </td>
                         {% endfor %}
                         <td class="text-center">
-                            <span class="badge bg-primary fs-6">
+                            <span class="pill pill-navy">
                                 {% with total=0 %}
                                     {% for score in assignment.scores.all %}
                                         {% if forloop.last %}
@@ -244,7 +244,7 @@
                     <td class="text-center text-muted">{{ item.min_score }}</td>
                     <td class="text-center text-muted">{{ item.max_score }}</td>
                     <td class="text-center">
-                        <span class="badge bg-light text-dark">{{ item.weighted_average|floatformat:1 }}</span>
+                        <span class="pill pill-muted">{{ item.weighted_average|floatformat:1 }}</span>
                     </td>
                 </tr>
                 {% endfor %}
@@ -256,7 +256,7 @@
                     <td class="text-center">{{ summary.average_score|floatformat:1 }}</td>
                     <td colspan="2"></td>
                     <td class="text-center">
-                        <span class="badge bg-primary">{{ total_weighted_average|floatformat:1|default:"--" }}</span>
+                        <span class="pill pill-navy">{{ total_weighted_average|floatformat:1|default:"--" }}</span>
                     </td>
                 </tr>
             </tfoot>

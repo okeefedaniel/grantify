@@ -20,7 +20,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="fw-bold mb-0">
-        <i class="bi bi-person-badge me-2"></i>{% trans "Saved Signatures" %}
+        <i class="bi bi-person-pill me-2"></i>{% trans"Saved Signatures" %}
     </h1>
     <a href="{% url 'signatures:user-signature-create' %}" class="btn btn-primary">
         <i class="bi bi-plus-lg me-1"></i>{% trans "Create Signature" %}
@@ -85,7 +85,7 @@
     <div class="col-12">
         <div class="card shadow-sm mb-4">
             <div class="card-body text-center py-5">
-                <i class="bi bi-person-badge display-4 d-block mb-3 text-muted"></i>
+                <i class="bi bi-person-pill display-4 d-block mb-3 text-muted"></i>
                 <h5 class="text-muted mb-3">{% trans "No saved signatures yet" %}</h5>
                 <p class="text-muted mb-4">{% trans "Create a signature to use when signing documents. You can type your name, upload an image, or draw your signature." %}</p>
                 <a href="{% url 'signatures:user-signature-create' %}" class="btn btn-primary">

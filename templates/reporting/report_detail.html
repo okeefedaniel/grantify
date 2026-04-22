@@ -30,20 +30,20 @@
             {{ report.reporting_period_start|date:"M d, Y" }} &ndash; {{ report.reporting_period_end|date:"M d, Y" }}
             &middot;
             {% if report.status == 'draft' %}
-                <span class="badge bg-secondary">{% trans "Draft" %}</span>
+                <span class="pill pill-muted">{% trans"Draft" %}</span>
             {% elif report.status == 'submitted' %}
-                <span class="badge bg-warning text-dark">{% trans "Submitted" %}</span>
+                <span class="pill pill-brass">{% trans"Submitted" %}</span>
             {% elif report.status == 'under_review' %}
-                <span class="badge bg-info text-dark">{% trans "Under Review" %}</span>
+                <span class="pill pill-navy">{% trans"Under Review" %}</span>
             {% elif report.status == 'revision_requested' %}
-                <span class="badge bg-danger">{% trans "Revision Requested" %}</span>
+                <span class="pill pill-error">{% trans"Revision Requested" %}</span>
             {% elif report.status == 'approved' %}
-                <span class="badge bg-success">{% trans "Approved" %}</span>
+                <span class="pill pill-success">{% trans"Approved" %}</span>
             {% elif report.status == 'rejected' %}
-                <span class="badge bg-danger">{% trans "Rejected" %}</span>
+                <span class="pill pill-error">{% trans"Rejected" %}</span>
             {% endif %}
             {% if report.is_overdue %}
-                <span class="badge bg-danger">{% trans "Overdue" %}</span>
+                <span class="pill pill-error">{% trans"Overdue" %}</span>
             {% endif %}
         </p>
     </div>
@@ -282,17 +282,17 @@
                 <div class="mb-3">
                     <small class="text-muted text-uppercase d-block">{% trans "Status" %}</small>
                     {% if report.status == 'draft' %}
-                        <span class="badge bg-secondary fs-6">{% trans "Draft" %}</span>
+                        <span class="pill pill-muted">{% trans"Draft" %}</span>
                     {% elif report.status == 'submitted' %}
-                        <span class="badge bg-warning text-dark fs-6">{% trans "Submitted" %}</span>
+                        <span class="pill pill-brass">{% trans"Submitted" %}</span>
                     {% elif report.status == 'under_review' %}
-                        <span class="badge bg-info text-dark fs-6">{% trans "Under Review" %}</span>
+                        <span class="pill pill-navy">{% trans"Under Review" %}</span>
                     {% elif report.status == 'revision_requested' %}
-                        <span class="badge bg-danger fs-6">{% trans "Revision Requested" %}</span>
+                        <span class="pill pill-error">{% trans"Revision Requested" %}</span>
                     {% elif report.status == 'approved' %}
-                        <span class="badge bg-success fs-6">{% trans "Approved" %}</span>
+                        <span class="pill pill-success">{% trans"Approved" %}</span>
                     {% elif report.status == 'rejected' %}
-                        <span class="badge bg-danger fs-6">{% trans "Rejected" %}</span>
+                        <span class="pill pill-error">{% trans"Rejected" %}</span>
                     {% endif %}
                 </div>
 

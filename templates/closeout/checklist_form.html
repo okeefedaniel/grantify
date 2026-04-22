@@ -36,9 +36,9 @@
                 <p class="text-muted small mb-1">{{ checklist_item.item_description }}</p>
                 {% endif %}
                 {% if checklist_item.is_required %}
-                    <span class="badge bg-danger">{% trans "Required" %}</span>
+                    <span class="pill pill-error">{% trans"Required" %}</span>
                 {% else %}
-                    <span class="badge bg-light text-dark border">{% trans "Optional" %}</span>
+                    <span class="pill pill-muted border">{% trans"Optional" %}</span>
                 {% endif %}
             </div>
         </div>

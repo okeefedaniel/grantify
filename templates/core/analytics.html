@@ -176,21 +176,21 @@
                 <div class="d-flex align-items-center mb-3">
                     <div style="width: 140px;" class="text-muted small">
                         {% if item.status == 'draft' %}
-                            <span class="badge bg-secondary me-1">{% trans "Draft" %}</span>
+                            <span class="pill pill-muted me-1">{% trans"Draft" %}</span>
                         {% elif item.status == 'submitted' %}
-                            <span class="badge bg-warning text-dark me-1">{% trans "Submitted" %}</span>
+                            <span class="pill pill-brass me-1">{% trans"Submitted" %}</span>
                         {% elif item.status == 'under_review' %}
-                            <span class="badge bg-info text-dark me-1">{% trans "Under Review" %}</span>
+                            <span class="pill pill-navy me-1">{% trans"Under Review" %}</span>
                         {% elif item.status == 'revision_requested' %}
-                            <span class="badge bg-danger me-1">{% trans "Revision Req." %}</span>
+                            <span class="pill pill-error me-1">{% trans"Revision Req." %}</span>
                         {% elif item.status == 'approved' %}
-                            <span class="badge bg-success me-1">{% trans "Approved" %}</span>
+                            <span class="pill pill-success me-1">{% trans"Approved" %}</span>
                         {% elif item.status == 'denied' %}
-                            <span class="badge bg-danger me-1">{% trans "Denied" %}</span>
+                            <span class="pill pill-error me-1">{% trans"Denied" %}</span>
                         {% elif item.status == 'withdrawn' %}
-                            <span class="badge bg-dark me-1">{% trans "Withdrawn" %}</span>
+                            <span class="pill pill-muted me-1">{% trans"Withdrawn" %}</span>
                         {% else %}
-                            <span class="badge bg-secondary me-1">{{ item.status }}</span>
+                            <span class="pill pill-muted me-1">{{ item.status }}</span>
                         {% endif %}
                     </div>
                     <div class="flex-grow-1 me-3">
@@ -240,13 +240,13 @@
                             <br><small class="text-muted">{{ stat.agency.name }}</small>
                         </td>
                         <td class="text-center">
-                            <span class="badge bg-light text-dark border">{{ stat.programs }}</span>
+                            <span class="pill pill-muted border">{{ stat.programs }}</span>
                         </td>
                         <td class="text-center">
-                            <span class="badge bg-light text-dark border">{{ stat.applications }}</span>
+                            <span class="pill pill-muted border">{{ stat.applications }}</span>
                         </td>
                         <td class="text-center">
-                            <span class="badge bg-light text-dark border">{{ stat.awards }}</span>
+                            <span class="pill pill-muted border">{{ stat.awards }}</span>
                         </td>
                         <td class="text-end fw-semibold">${{ stat.total_funding|intcomma }}</td>
                     </tr>
@@ -289,17 +289,17 @@
                             </div>
                             <div>
                                 {% if app.status == 'draft' %}
-                                    <span class="badge bg-secondary">{% trans "Draft" %}</span>
+                                    <span class="pill pill-muted">{% trans"Draft" %}</span>
                                 {% elif app.status == 'submitted' %}
-                                    <span class="badge bg-warning text-dark">{% trans "Submitted" %}</span>
+                                    <span class="pill pill-brass">{% trans"Submitted" %}</span>
                                 {% elif app.status == 'under_review' %}
-                                    <span class="badge bg-info text-dark">{% trans "Under Review" %}</span>
+                                    <span class="pill pill-navy">{% trans"Under Review" %}</span>
                                 {% elif app.status == 'approved' %}
-                                    <span class="badge bg-success">{% trans "Approved" %}</span>
+                                    <span class="pill pill-success">{% trans"Approved" %}</span>
                                 {% elif app.status == 'denied' %}
-                                    <span class="badge bg-danger">{% trans "Denied" %}</span>
+                                    <span class="pill pill-error">{% trans"Denied" %}</span>
                                 {% else %}
-                                    <span class="badge bg-secondary">{{ app.get_status_display }}</span>
+                                    <span class="pill pill-muted">{{ app.get_status_display }}</span>
                                 {% endif %}
                             </div>
                         </div>

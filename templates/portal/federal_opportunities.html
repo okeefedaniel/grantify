@@ -116,10 +116,10 @@
                         </a>
                     </td>
                     <td>
-                        <span class="badge badge-grant-type">{{ opp.agency_code }}</span>
+                        <span class="pill pill-grant-type">{{ opp.agency_code }}</span>
                     </td>
                     <td>
-                        <span class="badge badge-{{ opp.opportunity_status }}">
+                        <span class="pill pill-{{ opp.opportunity_status }}">
                             {{ opp.get_opportunity_status_display }}
                         </span>
                     </td>
@@ -138,7 +138,7 @@
                         {% if opp.close_date %}
                             {{ opp.close_date|date:"M d, Y" }}
                             {% if opp.days_until_close is not None %}
-                                <span class="badge {% if opp.days_until_close <= 7 %}bg-danger{% elif opp.days_until_close <= 30 %}bg-warning text-dark{% else %}bg-success{% endif %} ms-1">
+                                <span class="pill {% if opp.days_until_close <= 7 %}pill-error{% elif opp.days_until_close <= 30 %}pill-brass{% else %}pill-success{% endif %} ms-1">
                                     {{ opp.days_until_close }}{% trans "d" %}
                                 </span>
                             {% endif %}
@@ -177,10 +177,10 @@
         <div class="card h-100 border-0 shadow-sm">
             <div class="card-body d-flex flex-column">
                 <div class="d-flex justify-content-between align-items-start mb-2">
-                    <span class="badge badge-grant-type">
+                    <span class="pill pill-grant-type">
                         {{ opp.agency_code }}
                     </span>
-                    <span class="badge badge-{{ opp.opportunity_status }}">
+                    <span class="pill pill-{{ opp.opportunity_status }}">
                         {{ opp.get_opportunity_status_display }}
                     </span>
                 </div>
@@ -232,11 +232,11 @@
                             {% endif %}
                         </span>
                         {% if opp.days_until_close is not None %}
-                        <span class="badge {% if opp.days_until_close <= 7 %}bg-danger{% elif opp.days_until_close <= 30 %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                        <span class="pill {% if opp.days_until_close <= 7 %}pill-error{% elif opp.days_until_close <= 30 %}pill-brass{% else %}pill-success{% endif %}">
                             {% blocktrans with days=opp.days_until_close %}{{ days }} days left{% endblocktrans %}
                         </span>
                         {% elif opp.close_date %}
-                        <span class="badge bg-secondary">{% trans "Deadline passed" %}</span>
+                        <span class="pill pill-muted">{% trans"Deadline passed" %}</span>
                         {% endif %}
                     </div>
                     {% if user.is_authenticated and user.can_manage_federal %}

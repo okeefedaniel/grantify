@@ -24,7 +24,7 @@
                         <h6>{{ organization.name }}</h6>
                         <p class="mb-1 small text-muted">{{ organization.get_org_type_display }}</p>
                         {% if organization.is_high_priority %}
-                        <span class="badge bg-danger">{% trans "High Priority" %}</span>
+                        <span class="pill pill-error">{% trans"High Priority" %}</span>
                         {% endif %}
                     </div>
                 </div>

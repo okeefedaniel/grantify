@@ -54,13 +54,13 @@
                     </td>
                     <td>
                         {% if flow.grant_program %}
-                            <span class="badge bg-light text-dark border">{{ flow.grant_program.title|truncatewords:5 }}</span>
+                            <span class="pill pill-muted border">{{ flow.grant_program.title|truncatewords:5 }}</span>
                         {% else %}
                             <span class="text-muted">--</span>
                         {% endif %}
                     </td>
                     <td class="text-center">
-                        <span class="badge bg-info text-dark">{{ flow.step_count }}</span>
+                        <span class="pill pill-navy">{{ flow.step_count }}</span>
                     </td>
                     <td class="text-center">
                         {% if flow.is_active %}

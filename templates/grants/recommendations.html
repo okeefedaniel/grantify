@@ -71,11 +71,11 @@
                                     {{ match.opportunity_title|truncatewords:15 }}
                                 </a>
                             </h5>
-                            <span class="badge {% if match.source == 'federal' %}bg-primary{% else %}bg-info text-dark{% endif %} me-1">
+                            <span class="pill {% if match.source == 'federal' %}pill-navy{% else %}pill-navy{% endif %} me-1">
                                 {{ match.get_source_display }}
                             </span>
                             {% if match.status == 'new' %}
-                            <span class="badge bg-danger">{% trans "New" %}</span>
+                            <span class="pill pill-error">{% trans"New" %}</span>
                             {% endif %}
                         </div>
 

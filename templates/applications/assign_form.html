@@ -36,7 +36,7 @@
                         <div class="col-md-3">
                             <strong>{% trans "Status:" %}</strong>
                             <br>
-                            <span class="badge badge-{{ application.status|slugify }}">{{ application.get_status_display }}</span>
+                            <span class="pill pill-{{ application.status|slugify }}">{{ application.get_status_display }}</span>
                         </div>
                         <div class="col-md-3">
                             <strong>{% trans "Applicant:" %}</strong>

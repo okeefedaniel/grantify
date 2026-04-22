@@ -28,13 +28,13 @@
             {% blocktrans with fy=budget.fiscal_year %}Fiscal Year {{ fy }}{% endblocktrans %}
             &middot;
             {% if budget.status == 'draft' %}
-                <span class="badge bg-secondary">{% trans "Draft" %}</span>
+                <span class="pill pill-muted">{% trans"Draft" %}</span>
             {% elif budget.status == 'submitted' %}
-                <span class="badge bg-warning text-dark">{% trans "Submitted" %}</span>
+                <span class="pill pill-brass">{% trans"Submitted" %}</span>
             {% elif budget.status == 'approved' %}
-                <span class="badge bg-success">{% trans "Approved" %}</span>
+                <span class="pill pill-success">{% trans"Approved" %}</span>
             {% elif budget.status == 'revision_requested' %}
-                <span class="badge bg-danger">{% trans "Revision Requested" %}</span>
+                <span class="pill pill-error">{% trans"Revision Requested" %}</span>
             {% endif %}
         </p>
     </div>
@@ -112,7 +112,7 @@
                 {% for item in line_items %}
                 <tr>
                     <td>
-                        <span class="badge bg-light text-dark border">{{ item.get_category_display }}</span>
+                        <span class="pill pill-muted border">{{ item.get_category_display }}</span>
                     </td>
                     <td>{{ item.description|truncatewords:15 }}</td>
                     <td class="text-end fw-semibold">${{ item.amount|intcomma }}</td>

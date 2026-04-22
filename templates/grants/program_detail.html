@@ -22,8 +22,8 @@
     <div>
         <h2 class="mb-1">{{ program.title }}</h2>
         <div class="d-flex align-items-center gap-2">
-            <span class="badge badge-{{ program.status|slugify }} fs-6">{{ program.get_status_display }}</span>
-            <span class="badge bg-light text-dark">{{ program.agency.abbreviation }}</span>
+            <span class="pill pill-{{ program.status|slugify }}">{{ program.get_status_display }}</span>
+            <span class="pill pill-muted">{{ program.agency.abbreviation }}</span>
             <span class="text-muted small">{{ program.get_grant_type_display }}</span>
         </div>
     </div>
@@ -128,7 +128,7 @@
                                     <br><small class="text-muted">{{ doc.description|truncatewords:10 }}</small>
                                     {% endif %}
                                 </td>
-                                <td><span class="badge bg-light text-dark">{{ doc.get_document_type_display }}</span></td>
+                                <td><span class="pill pill-muted">{{ doc.get_document_type_display }}</span></td>
                                 <td class="text-muted small">{{ doc.created_at|date:"M d, Y" }}</td>
                                 <td>
                                     <a href="{{ doc.file.url }}" class="btn btn-sm btn-outline-primary" target="_blank">
@@ -154,7 +154,7 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>
                     <i class="bi bi-file-earmark-text me-2"></i>Applications
-                    <span class="badge bg-secondary rounded-pill ms-1">{{ applications|length }}</span>
+                    <span class="pill pill-muted ms-1">{{ applications|length }}</span>
                 </span>
             </div>
             <div class="card-body p-0">
@@ -179,7 +179,7 @@
                                 <td class="text-muted small">{{ app.organization.name }}</td>
                                 <td class="fw-bold">${{ app.requested_amount|intcomma }}</td>
                                 <td>
-                                    <span class="badge badge-{{ app.status|slugify }}">
+                                    <span class="pill pill-{{ app.status|slugify }}">
                                         {{ app.get_status_display }}
                                     </span>
                                 </td>
@@ -289,7 +289,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <span class="text-muted">Applications Received</span>
-                    <span class="badge bg-primary rounded-pill fs-6">{{ program.applications_count }}</span>
+                    <span class="pill pill-navy">{{ program.applications_count }}</span>
                 </div>
                 {% if applications %}
                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -307,19 +307,19 @@
                 <div class="small">
                     <div class="d-flex justify-content-between mb-1">
                         <span>Submitted</span>
-                        <span class="badge badge-submitted">{{ submitted_count|default:"0" }}</span>
+                        <span class="pill pill-submitted">{{ submitted_count|default:"0" }}</span>
                     </div>
                     <div class="d-flex justify-content-between mb-1">
                         <span>Under Review</span>
-                        <span class="badge badge-under-review">{{ under_review_count|default:"0" }}</span>
+                        <span class="pill pill-under-review">{{ under_review_count|default:"0" }}</span>
                     </div>
                     <div class="d-flex justify-content-between mb-1">
                         <span>Approved</span>
-                        <span class="badge badge-approved">{{ approved_count|default:"0" }}</span>
+                        <span class="pill pill-approved">{{ approved_count|default:"0" }}</span>
                     </div>
                     <div class="d-flex justify-content-between mb-1">
                         <span>Denied</span>
-                        <span class="badge badge-denied">{{ denied_count|default:"0" }}</span>
+                        <span class="pill pill-denied">{{ denied_count|default:"0" }}</span>
                     </div>
                 </div>
                 {% else %}

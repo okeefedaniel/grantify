@@ -23,14 +23,14 @@
     <div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-2">
         <div>
             <h1 class="fw-bold mb-2">{{ opportunity.title }}</h1>
-            <span class="badge badge-grant-type me-2">
+            <span class="pill pill-grant-type me-2">
                 <i class="bi bi-building me-1"></i>{{ opportunity.agency_code }}
             </span>
-            <span class="badge badge-{{ opportunity.opportunity_status }} me-2">
+            <span class="pill pill-{{ opportunity.opportunity_status }} me-2">
                 {{ opportunity.get_opportunity_status_display }}
             </span>
             {% if opportunity.opportunity_number %}
-            <span class="badge bg-light text-dark border">
+            <span class="pill pill-muted border">
                 {{ opportunity.opportunity_number }}
             </span>
             {% endif %}
@@ -44,7 +44,7 @@
             <div>
                 <strong>{% trans "Close Date:" %}</strong>
                 {{ opportunity.close_date|date:"F j, Y" }}
-                <span class="ms-2 badge {% if opportunity.days_until_close <= 7 %}bg-danger{% elif opportunity.days_until_close <= 30 %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                <span class="ms-2 pill {% if opportunity.days_until_close <= 7 %}pill-error{% elif opportunity.days_until_close <= 30 %}pill-brass{% else %}pill-success{% endif %}">
                     {% blocktrans with days=opportunity.days_until_close %}{{ days }} days remaining{% endblocktrans %}
                 </span>
             </div>
@@ -55,7 +55,7 @@
             <div>
                 <strong>{% trans "Close Date:" %}</strong>
                 {{ opportunity.close_date|date:"F j, Y" }}
-                <span class="ms-2 badge bg-secondary">{% trans "Deadline passed" %}</span>
+                <span class="ms-2 pill pill-muted">{% trans"Deadline passed" %}</span>
             </div>
         </div>
         {% endif %}
@@ -97,7 +97,7 @@
                 <div>
                     <strong class="d-block mb-2">{% trans "Eligible Applicant Types:" %}</strong>
                     {% for atype in opportunity.applicant_types %}
-                        <span class="badge bg-light text-dark border me-1 mb-1">{{ atype }}</span>
+                        <span class="pill pill-muted border me-1 mb-1">{{ atype }}</span>
                     {% endfor %}
                 </div>
                 {% endif %}
@@ -114,7 +114,7 @@
                 </h4>
                 <div>
                     {% for cfda in opportunity.cfda_numbers %}
-                        <span class="badge bg-light text-dark border me-1 mb-1 fs-6">{{ cfda }}</span>
+                        <span class="pill pill-muted border me-1 mb-1">{{ cfda }}</span>
                     {% endfor %}
                 </div>
             </div>
@@ -191,7 +191,7 @@
                         {% if opportunity.close_date %}
                             {{ opportunity.close_date|date:"F j, Y" }}
                             {% if opportunity.days_until_close is not None %}
-                                <span class="badge {% if opportunity.days_until_close <= 7 %}bg-danger{% elif opportunity.days_until_close <= 30 %}bg-warning text-dark{% else %}bg-success{% endif %} ms-1">
+                                <span class="pill {% if opportunity.days_until_close <= 7 %}pill-error{% elif opportunity.days_until_close <= 30 %}pill-brass{% else %}pill-success{% endif %} ms-1">
                                     {% blocktrans with days=opportunity.days_until_close %}{{ days }}d{% endblocktrans %}
                                 </span>
                             {% endif %}
@@ -224,7 +224,7 @@
 
                     <dt class="text-muted small text-uppercase">{% trans "Agency Code" %}</dt>
                     <dd class="mb-3">
-                        <span class="badge badge-grant-type">{{ opportunity.agency_code|default_if_none:"N/A" }}</span>
+                        <span class="pill pill-grant-type">{{ opportunity.agency_code|default_if_none:"N/A" }}</span>
                     </dd>
 
                     {% if opportunity.category %}
@@ -257,7 +257,7 @@
                         <i class="bi bi-bookmark-check-fill text-warning me-1"></i>
                         <strong>{% trans "Tracking" %}</strong>
                     </div>
-                    <span class="badge bg-info">{{ tracked_record.get_status_display }}</span>
+                    <span class="pill pill-navy">{{ tracked_record.get_status_display }}</span>
                 </div>
                 <p class="text-muted small mt-2 mb-0">
                     {% trans "You are already tracking this opportunity." %}

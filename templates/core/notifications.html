@@ -12,7 +12,7 @@
             <i class="bi bi-bell me-2"></i>{% trans "Notifications" %}
             {% if notifications %}
             {% with unread=notifications|dictsort:"is_read" %}
-                <span class="badge bg-danger fs-6 align-middle">
+                <span class="pill pill-error align-middle">
                     {{ unread_notifications_count|default:"0" }}
                 </span>
             {% endwith %}
@@ -77,7 +77,7 @@
                     <i class="bi bi-check2"></i>
                 </button>
                 {% else %}
-                <span class="badge bg-secondary">{% trans "Read" %}</span>
+                <span class="pill pill-muted">{% trans"Read" %}</span>
                 {% endif %}
             </div>
         </div>
@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     title.classList.add('text-muted');
                     const message = item.querySelector('p');
                     message.classList.add('text-muted');
-                    btn.outerHTML = '<span class="badge bg-secondary">Read</span>';
+                    btn.outerHTML = '<span class="pill pill-muted">Read</span>';
                     updateBadge();
                 }
             });
@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (message) { message.classList.add('text-muted'); }
                     });
                     document.querySelectorAll('.mark-read-btn').forEach(function(btn) {
-                        btn.outerHTML = '<span class="badge bg-secondary">Read</span>';
+                        btn.outerHTML = '<span class="pill pill-muted">Read</span>';
                     });
                     markAllBtn.disabled = true;
                     updateBadge();

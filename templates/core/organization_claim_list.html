@@ -8,7 +8,7 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="bi bi-building-check me-2"></i>{% trans "Organization Claims" %}</h2>
     {% if pending_count %}
-    <span class="badge bg-warning text-dark fs-6">{{ pending_count }} {% trans "pending" %}</span>
+    <span class="pill pill-brass">{{ pending_count }} {% trans"pending" %}</span>
     {% endif %}
 </div>
 
@@ -61,11 +61,11 @@
                         </td>
                         <td>
                             {% if claim.status == 'pending' %}
-                                <span class="badge bg-warning text-dark">{% trans "Pending" %}</span>
+                                <span class="pill pill-brass">{% trans"Pending" %}</span>
                             {% elif claim.status == 'approved' %}
-                                <span class="badge bg-success">{% trans "Approved" %}</span>
+                                <span class="pill pill-success">{% trans"Approved" %}</span>
                             {% else %}
-                                <span class="badge bg-danger">{% trans "Denied" %}</span>
+                                <span class="pill pill-error">{% trans"Denied" %}</span>
                             {% endif %}
                         </td>
                         <td class="small text-muted">{{ claim.created_at|date:"M d, Y" }}</td>

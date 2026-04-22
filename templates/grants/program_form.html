@@ -32,7 +32,7 @@
     </h2>
     {% if object %}
     <div>
-        <span class="badge badge-{{ object.status|slugify }} fs-6">{{ object.get_status_display }}</span>
+        <span class="pill pill-{{ object.status|slugify }}">{{ object.get_status_display }}</span>
     </div>
     {% endif %}
 </div>

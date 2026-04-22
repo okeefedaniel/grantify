@@ -28,7 +28,7 @@
 <div class="card border-0 shadow-sm mb-4 border-start border-4 border-warning">
     <div class="card-header bg-white fw-bold">
         <i class="bi bi-exclamation-triangle text-warning me-1"></i>{% trans "Awards Needing Closeout" %}
-        <span class="badge bg-warning text-dark ms-2">{{ awards_needing_closeout|length }}</span>
+        <span class="pill pill-brass ms-2">{{ awards_needing_closeout|length }}</span>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -128,17 +128,17 @@
                     <td>{{ closeout.award.organization.name|truncatewords:4 }}</td>
                     <td>
                         {% if closeout.status == 'not_started' %}
-                            <span class="badge bg-secondary">{% trans "Not Started" %}</span>
+                            <span class="pill pill-muted">{% trans"Not Started" %}</span>
                         {% elif closeout.status == 'in_progress' %}
-                            <span class="badge bg-primary">{% trans "In Progress" %}</span>
+                            <span class="pill pill-navy">{% trans"In Progress" %}</span>
                         {% elif closeout.status == 'pending_review' %}
-                            <span class="badge bg-warning text-dark">{% trans "Pending Review" %}</span>
+                            <span class="pill pill-brass">{% trans"Pending Review" %}</span>
                         {% elif closeout.status == 'completed' %}
-                            <span class="badge bg-success">{% trans "Completed" %}</span>
+                            <span class="pill pill-success">{% trans"Completed" %}</span>
                         {% elif closeout.status == 'reopened' %}
-                            <span class="badge bg-info text-dark">{% trans "Reopened" %}</span>
+                            <span class="pill pill-navy">{% trans"Reopened" %}</span>
                         {% else %}
-                            <span class="badge bg-secondary">{{ closeout.get_status_display }}</span>
+                            <span class="pill pill-muted">{{ closeout.get_status_display }}</span>
                         {% endif %}
                     </td>
                     <td>{{ closeout.initiated_at|date:"M d, Y" }}</td>

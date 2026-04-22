@@ -91,16 +91,16 @@
                             <small class="text-muted">{{ program.get_grant_type_display }}</small>
                         </td>
                         <td>
-                            <span class="badge bg-light text-dark">{{ program.agency.abbreviation }}</span>
+                            <span class="pill pill-muted">{{ program.agency.abbreviation }}</span>
                         </td>
                         <td class="fw-bold text-success">${{ program.total_funding|intcomma }}</td>
                         <td>
-                            <span class="badge badge-{{ program.status|slugify }}">
+                            <span class="pill pill-{{ program.status|slugify }}">
                                 {{ program.get_status_display }}
                             </span>
                         </td>
                         <td>
-                            <span class="badge bg-secondary rounded-pill">{{ program.applications_count }}</span>
+                            <span class="pill pill-muted">{{ program.applications_count }}</span>
                         </td>
                         <td>
                             {% if program.days_until_deadline is not None %}

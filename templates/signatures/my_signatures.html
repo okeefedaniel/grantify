@@ -22,7 +22,7 @@
         <i class="bi bi-pen me-2"></i>{% trans "My Signatures" %}
     </h1>
     <a href="{% url 'signatures:user-signature-list' %}" class="btn btn-outline-secondary">
-        <i class="bi bi-person-badge me-1"></i>{% trans "Manage Saved Signatures" %}
+        <i class="bi bi-person-pill me-1"></i>{% trans"Manage Saved Signatures" %}
     </a>
 </div>
 
@@ -32,7 +32,7 @@
         <h5 class="card-title mb-0 fw-bold">
             <i class="bi bi-hourglass-split me-2 text-warning"></i>{% trans "Pending Signatures" %}
             {% if pending_steps %}
-            <span class="badge bg-warning text-dark ms-2">{{ pending_steps|length }}</span>
+            <span class="pill pill-brass ms-2">{{ pending_steps|length }}</span>
             {% endif %}
         </h5>
     </div>
@@ -57,7 +57,7 @@
                         </a>
                     </td>
                     <td>
-                        <span class="badge bg-primary rounded-pill me-1">{{ step.order }}</span>
+                        <span class="pill pill-navy me-1">{{ step.order }}</span>
                         {{ step.flow_step.label }}
                     </td>
                     <td class="text-muted">{{ step.packet.flow.name }}</td>
@@ -110,21 +110,21 @@
                         </a>
                     </td>
                     <td>
-                        <span class="badge bg-secondary rounded-pill me-1">{{ step.order }}</span>
+                        <span class="pill pill-muted me-1">{{ step.order }}</span>
                         {{ step.flow_step.label }}
                     </td>
                     <td class="text-muted">{{ step.packet.flow.name }}</td>
                     <td>
                         {% if step.status == 'signed' %}
-                            <span class="badge bg-success">
+                            <span class="pill pill-success">
                                 <i class="bi bi-check-circle me-1"></i>{% trans "Signed" %}
                             </span>
                         {% elif step.status == 'declined' %}
-                            <span class="badge bg-danger">
+                            <span class="pill pill-error">
                                 <i class="bi bi-x-circle me-1"></i>{% trans "Declined" %}
                             </span>
                         {% elif step.status == 'skipped' %}
-                            <span class="badge bg-secondary">
+                            <span class="pill pill-muted">
                                 <i class="bi bi-skip-forward me-1"></i>{% trans "Skipped" %}
                             </span>
                         {% endif %}

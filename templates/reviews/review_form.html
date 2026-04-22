@@ -89,11 +89,11 @@
                 {% endif %}
             </div>
             <div class="text-end">
-                <span class="badge bg-light text-dark">
+                <span class="pill pill-muted">
                     {% blocktrans with max=criterion.max_score %}Max Score: {{ max }}{% endblocktrans %}
                 </span>
                 {% if criterion.weight != 1 %}
-                    <span class="badge bg-light text-dark ms-1">
+                    <span class="pill pill-muted ms-1">
                         {% blocktrans with weight=criterion.weight %}Weight: {{ weight }}x{% endblocktrans %}
                     </span>
                 {% endif %}

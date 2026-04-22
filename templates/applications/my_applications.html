@@ -39,19 +39,19 @@
                     <small class="text-muted">{{ app.grant_program.title|truncatewords:8 }}</small>
                 </div>
                 {% if app.status == "draft" %}
-                    <span class="badge bg-secondary">{% trans "Draft" %}</span>
+                    <span class="pill pill-muted">{% trans"Draft" %}</span>
                 {% elif app.status == "submitted" %}
-                    <span class="badge bg-info text-dark">{% trans "Submitted" %}</span>
+                    <span class="pill pill-navy">{% trans"Submitted" %}</span>
                 {% elif app.status == "under_review" %}
-                    <span class="badge bg-primary">{% trans "Under Review" %}</span>
+                    <span class="pill pill-navy">{% trans"Under Review" %}</span>
                 {% elif app.status == "revision_requested" %}
-                    <span class="badge bg-warning text-dark">{% trans "Revision Requested" %}</span>
+                    <span class="pill pill-brass">{% trans"Revision Requested" %}</span>
                 {% elif app.status == "approved" %}
-                    <span class="badge bg-success">{% trans "Approved" %}</span>
+                    <span class="pill pill-success">{% trans"Approved" %}</span>
                 {% elif app.status == "denied" %}
-                    <span class="badge bg-danger">{% trans "Denied" %}</span>
+                    <span class="pill pill-error">{% trans"Denied" %}</span>
                 {% elif app.status == "withdrawn" %}
-                    <span class="badge bg-dark">{% trans "Withdrawn" %}</span>
+                    <span class="pill pill-muted">{% trans"Withdrawn" %}</span>
                 {% endif %}
             </div>
             <div class="card-body">

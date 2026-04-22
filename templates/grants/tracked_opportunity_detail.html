@@ -23,13 +23,13 @@
     <div>
         <h2 class="mb-1">{{ tracked.federal_opportunity.title|truncatewords:15 }}</h2>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-            <span class="badge badge-{{ tracked.status }} fs-6">{{ tracked.get_status_display }}</span>
+            <span class="pill pill-{{ tracked.status }}">{{ tracked.get_status_display }}</span>
             {% if tracked.priority == 'high' %}
-            <span class="badge bg-danger">{% trans "High Priority" %}</span>
+            <span class="pill pill-error">{% trans"High Priority" %}</span>
             {% elif tracked.priority == 'medium' %}
-            <span class="badge bg-warning text-dark">{% trans "Medium Priority" %}</span>
+            <span class="pill pill-brass">{% trans"Medium Priority" %}</span>
             {% else %}
-            <span class="badge bg-secondary">{% trans "Low Priority" %}</span>
+            <span class="pill pill-muted">{% trans"Low Priority" %}</span>
             {% endif %}
             {% if tracked.federal_opportunity.opportunity_number %}
             <span class="text-muted small">{{ tracked.federal_opportunity.opportunity_number }}</span>
@@ -112,7 +112,7 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>
                     <i class="bi bi-people me-2"></i>{% trans "Collaborators" %}
-                    <span class="badge bg-secondary rounded-pill ms-1">{{ collaborators|length }}</span>
+                    <span class="pill pill-muted ms-1">{{ collaborators|length }}</span>
                 </span>
             </div>
             <div class="card-body p-0">
@@ -139,13 +139,13 @@
                                 </td>
                                 <td>
                                     {% if collab.user %}
-                                    <span class="badge bg-info text-dark">{% trans "Internal" %}</span>
+                                    <span class="pill pill-navy">{% trans"Internal" %}</span>
                                     {% else %}
-                                    <span class="badge bg-light text-dark">{% trans "External" %}</span>
+                                    <span class="pill pill-muted">{% trans"External" %}</span>
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <span class="badge bg-light text-dark">{{ collab.get_role_display }}</span>
+                                    <span class="pill pill-muted">{{ collab.get_role_display }}</span>
                                 </td>
                                 <td class="text-muted small">{{ collab.invited_at|date:"M d, Y" }}</td>
                                 <td>
@@ -219,7 +219,7 @@
                     {% endif %}
                     <li class="mb-3">
                         <small class="text-muted d-block text-uppercase" style="letter-spacing: 0.5px;">{% trans "Opportunity Status" %}</small>
-                        <span class="badge badge-{{ tracked.federal_opportunity.opportunity_status }}">
+                        <span class="pill pill-{{ tracked.federal_opportunity.opportunity_status }}">
                             {{ tracked.federal_opportunity.get_opportunity_status_display }}
                         </span>
                     </li>

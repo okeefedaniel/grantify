@@ -105,19 +105,19 @@
                     <td>{{ dd.period_start|date:"m/d/Y" }} &ndash; {{ dd.period_end|date:"m/d/Y" }}</td>
                     <td>
                         {% if dd.status == 'draft' %}
-                            <span class="badge bg-secondary">Draft</span>
+                            <span class="pill pill-muted">Draft</span>
                         {% elif dd.status == 'submitted' %}
-                            <span class="badge bg-warning text-dark">Submitted</span>
+                            <span class="pill pill-brass">Submitted</span>
                         {% elif dd.status == 'under_review' %}
-                            <span class="badge bg-info text-dark">Under Review</span>
+                            <span class="pill pill-navy">Under Review</span>
                         {% elif dd.status == 'approved' %}
-                            <span class="badge bg-success">Approved</span>
+                            <span class="pill pill-success">Approved</span>
                         {% elif dd.status == 'paid' %}
-                            <span class="badge bg-primary">Paid</span>
+                            <span class="pill pill-navy">Paid</span>
                         {% elif dd.status == 'denied' %}
-                            <span class="badge bg-danger">Denied</span>
+                            <span class="pill pill-error">Denied</span>
                         {% elif dd.status == 'returned' %}
-                            <span class="badge bg-warning text-dark">Returned</span>
+                            <span class="pill pill-brass">Returned</span>
                         {% endif %}
                     </td>
                     <td>{{ dd.submitted_at|date:"M d, Y"|default:"--" }}</td>

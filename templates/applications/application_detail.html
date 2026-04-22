@@ -32,19 +32,19 @@
     </div>
     <div>
         {% if application.status == "draft" %}
-            <span class="badge bg-secondary fs-6 px-3 py-2">{% trans "Draft" %}</span>
+            <span class="pill pill-muted px-3 py-2">{% trans"Draft" %}</span>
         {% elif application.status == "submitted" %}
-            <span class="badge bg-info text-dark fs-6 px-3 py-2">{% trans "Submitted" %}</span>
+            <span class="pill pill-navy px-3 py-2">{% trans"Submitted" %}</span>
         {% elif application.status == "under_review" %}
-            <span class="badge bg-primary fs-6 px-3 py-2">{% trans "Under Review" %}</span>
+            <span class="pill pill-navy px-3 py-2">{% trans"Under Review" %}</span>
         {% elif application.status == "revision_requested" %}
-            <span class="badge bg-warning text-dark fs-6 px-3 py-2">{% trans "Revision Requested" %}</span>
+            <span class="pill pill-brass px-3 py-2">{% trans"Revision Requested" %}</span>
         {% elif application.status == "approved" %}
-            <span class="badge bg-success fs-6 px-3 py-2">{% trans "Approved" %}</span>
+            <span class="pill pill-success px-3 py-2">{% trans"Approved" %}</span>
         {% elif application.status == "denied" %}
-            <span class="badge bg-danger fs-6 px-3 py-2">{% trans "Denied" %}</span>
+            <span class="pill pill-error px-3 py-2">{% trans"Denied" %}</span>
         {% elif application.status == "withdrawn" %}
-            <span class="badge bg-dark fs-6 px-3 py-2">{% trans "Withdrawn" %}</span>
+            <span class="pill pill-muted px-3 py-2">{% trans"Withdrawn" %}</span>
         {% endif %}
     </div>
 </div>
@@ -154,7 +154,7 @@
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0"><i class="bi bi-paperclip me-2"></i>{% trans "Applicant Documents" %}</h5>
-                <span class="badge bg-secondary">{{ application.documents.count }}</span>
+                <span class="pill pill-muted">{{ application.documents.count }}</span>
             </div>
             <div class="card-body">
                 {% if application.documents.all %}
@@ -176,7 +176,7 @@
                                     <i class="bi bi-file-earmark me-1 text-muted"></i>
                                     {{ doc.title }}
                                 </td>
-                                <td><span class="badge bg-light text-dark">{{ doc.get_document_type_display }}</span></td>
+                                <td><span class="pill pill-muted">{{ doc.get_document_type_display }}</span></td>
                                 <td class="small text-muted">{{ doc.uploaded_by.get_full_name|default:doc.uploaded_by.username }}</td>
                                 <td class="small text-muted">{{ doc.created_at|date:"M d, Y" }}</td>
                                 <td>
@@ -243,7 +243,7 @@
                     </h5>
                     <div>
                         {% if compliance_total > 0 %}
-                        {% blocktrans with verified=compliance_verified total=compliance_total %}<span class="badge bg-primary">{{ verified }}/{{ total }} verified</span>{% endblocktrans %}
+                        {% blocktrans with verified=compliance_verified total=compliance_total %}<span class="pill pill-navy">{{ verified }}/{{ total }} verified</span>{% endblocktrans %}
                         {% endif %}
                     </div>
                 </div>
@@ -300,9 +300,9 @@
                                     <div class="{% if item.is_verified %}text-decoration-line-through text-muted{% endif %}">
                                         <strong>{{ item.label }}</strong>
                                         {% if item.is_required %}
-                                            <span class="badge bg-danger bg-opacity-10 text-danger ms-1" style="font-size: 0.65rem;">{% trans "Required" %}</span>
+                                            <span class="pill pill-error bg-opacity-10 text-danger ms-1" style="font-size: 0.65rem;">{% trans"Required" %}</span>
                                         {% else %}
-                                            <span class="badge bg-secondary bg-opacity-10 text-secondary ms-1" style="font-size: 0.65rem;">{% trans "Optional" %}</span>
+                                            <span class="pill pill-muted bg-opacity-10 text-secondary ms-1" style="font-size: 0.65rem;">{% trans"Optional" %}</span>
                                         {% endif %}
                                     </div>
                                     {% if item.is_verified and item.verified_by %}
@@ -365,9 +365,9 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">
                         <i class="bi bi-folder-check me-2"></i>{% trans "Staff Documents" %}
-                        <span class="badge bg-warning text-dark ms-1">{% trans "Internal" %}</span>
+                        <span class="pill pill-brass ms-1">{% trans"Internal" %}</span>
                     </h5>
-                    <span class="badge bg-secondary">{{ staff_documents.count }}</span>
+                    <span class="pill pill-muted">{{ staff_documents.count }}</span>
                 </div>
             </div>
             <div class="card-body">
@@ -393,7 +393,7 @@
                                         <div class="small text-muted">{{ doc.description|truncatewords:10 }}</div>
                                     {% endif %}
                                 </td>
-                                <td><span class="badge bg-warning bg-opacity-10 text-dark">{{ doc.get_document_type_display }}</span></td>
+                                <td><span class="pill pill-brass bg-opacity-10">{{ doc.get_document_type_display }}</span></td>
                                 <td class="small text-muted">{{ doc.uploaded_by.get_full_name|default:doc.uploaded_by.username }}</td>
                                 <td class="small text-muted">{{ doc.created_at|date:"M d, Y" }}</td>
                                 <td>
@@ -465,7 +465,7 @@
                                 <div>
                                     <strong>{{ comment.author.get_full_name|default:comment.author.username }}</strong>
                                     {% if comment.is_internal %}
-                                        <span class="badge bg-warning text-dark ms-1">{% trans "Internal" %}</span>
+                                        <span class="pill pill-brass ms-1">{% trans"Internal" %}</span>
                                     {% endif %}
                                 </div>
                                 <small class="text-muted">{{ comment.created_at|naturaltime }}</small>
@@ -649,11 +649,11 @@
                     </div>
                     <div class="mb-3">
                         {% if current_assignment.status == 'in_progress' %}
-                            <span class="badge bg-primary">{% trans "In Progress" %}</span>
+                            <span class="pill pill-navy">{% trans"In Progress" %}</span>
                         {% elif current_assignment.assignment_type == 'claimed' %}
-                            <span class="badge badge-claimed"><i class="bi bi-check-circle-fill me-1"></i>{% trans "Claimed" %}</span>
+                            <span class="pill pill-claimed"><i class="bi bi-check-circle-fill me-1"></i>{% trans"Claimed" %}</span>
                         {% else %}
-                            <span class="badge bg-info text-dark">{% trans "Assigned" %}</span>
+                            <span class="pill pill-navy">{% trans"Assigned" %}</span>
                         {% endif %}
                     </div>
                     {% if current_assignment.assigned_to == user %}
@@ -709,7 +709,7 @@
             </div>
             <div class="card-body">
                 <h6 class="fw-bold mb-2">{{ application.organization.name }}</h6>
-                <span class="badge bg-light text-dark mb-3">{{ application.organization.get_org_type_display }}</span>
+                <span class="pill pill-muted mb-3">{{ application.organization.get_org_type_display }}</span>
 
                 <dl class="row mb-0 small">
                     <dt class="col-5">{% trans "UEI" %}</dt>
@@ -783,7 +783,7 @@
         <!-- Applicant Info Card -->
         <div class="card mb-4">
             <div class="card-header">
-                <h5 class="card-title mb-0"><i class="bi bi-person-badge me-2"></i>{% trans "Applicant" %}</h5>
+                <h5 class="card-title mb-0"><i class="bi bi-person-pill me-2"></i>{% trans"Applicant" %}</h5>
             </div>
             <div class="card-body">
                 <dl class="row mb-0 small">
@@ -811,19 +811,19 @@
                 <div class="mb-3">
                     <strong>{% trans "Current Status:" %}</strong>
                     {% if application.status == "draft" %}
-                        <span class="badge bg-secondary">{% trans "Draft" %}</span>
+                        <span class="pill pill-muted">{% trans"Draft" %}</span>
                     {% elif application.status == "submitted" %}
-                        <span class="badge bg-info text-dark">{% trans "Submitted" %}</span>
+                        <span class="pill pill-navy">{% trans"Submitted" %}</span>
                     {% elif application.status == "under_review" %}
-                        <span class="badge bg-primary">{% trans "Under Review" %}</span>
+                        <span class="pill pill-navy">{% trans"Under Review" %}</span>
                     {% elif application.status == "revision_requested" %}
-                        <span class="badge bg-warning text-dark">{% trans "Revision Requested" %}</span>
+                        <span class="pill pill-brass">{% trans"Revision Requested" %}</span>
                     {% elif application.status == "approved" %}
-                        <span class="badge bg-success">{% trans "Approved" %}</span>
+                        <span class="pill pill-success">{% trans"Approved" %}</span>
                     {% elif application.status == "denied" %}
-                        <span class="badge bg-danger">{% trans "Denied" %}</span>
+                        <span class="pill pill-error">{% trans"Denied" %}</span>
                     {% elif application.status == "withdrawn" %}
-                        <span class="badge bg-dark">{% trans "Withdrawn" %}</span>
+                        <span class="pill pill-muted">{% trans"Withdrawn" %}</span>
                     {% endif %}
                 </div>
 

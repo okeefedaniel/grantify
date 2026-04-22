@@ -47,14 +47,14 @@
                     <div class="list-group-item">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <span class="badge bg-primary rounded-pill me-2">{{ step.order }}</span>
+                                <span class="pill pill-navy me-2">{{ step.order }}</span>
                                 <span class="fw-semibold">{{ step.label }}</span>
                             </div>
                             <div>
                                 {% if step.is_required %}
-                                    <span class="badge bg-danger">{% trans "Required" %}</span>
+                                    <span class="pill pill-error">{% trans"Required" %}</span>
                                 {% else %}
-                                    <span class="badge bg-secondary">{% trans "Optional" %}</span>
+                                    <span class="pill pill-muted">{% trans"Optional" %}</span>
                                 {% endif %}
                             </div>
                         </div>

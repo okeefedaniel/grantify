@@ -92,7 +92,7 @@
         <h6 class="card-title">{% trans "Step Legend" %}</h6>
         <div class="d-flex flex-wrap gap-3">
             {% for step in steps %}
-            <span class="badge bg-light text-dark border" style="border-left: 4px solid
+            <span class="pill pill-muted border" style="border-left: 4px solid
                 {% if step.order == 1 %}#1F64E5{% elif step.order == 2 %}#198754{% elif step.order == 3 %}#F27124{% elif step.order == 4 %}#6f42c1{% else %}#d63384{% endif %} !important;">
                 Step {{ step.order }}: {{ step.label }}
             </span>

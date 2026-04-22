@@ -85,11 +85,11 @@
                         </a>
                     </td>
                     <td>
-                        {% if packet.status == 'completed' %}<span class="badge bg-success">{% trans "Completed" %}</span>
-                        {% elif packet.status == 'in_progress' %}<span class="badge bg-primary">{% trans "In Progress" %}</span>
-                        {% elif packet.status == 'declined' %}<span class="badge bg-danger">{% trans "Declined" %}</span>
-                        {% elif packet.status == 'cancelled' %}<span class="badge bg-warning text-dark">{% trans "Cancelled" %}</span>
-                        {% else %}<span class="badge bg-secondary">{% trans "Draft" %}</span>{% endif %}
+                        {% if packet.status == 'completed' %}<span class="pill pill-success">{% trans"Completed" %}</span>
+                        {% elif packet.status == 'in_progress' %}<span class="pill pill-navy">{% trans"In Progress" %}</span>
+                        {% elif packet.status == 'declined' %}<span class="pill pill-error">{% trans"Declined" %}</span>
+                        {% elif packet.status == 'cancelled' %}<span class="pill pill-brass">{% trans"Cancelled" %}</span>
+                        {% else %}<span class="pill pill-muted">{% trans"Draft" %}</span>{% endif %}
                     </td>
                     <td>{{ packet.initiated_by.get_full_name|default:"--" }}</td>
                     <td>{{ packet.created_at|date:"M d, Y" }}</td>

@@ -85,11 +85,11 @@
     <div>
         <h1 class="fw-bold mb-1">{{ packet.title }}</h1>
         <p class="text-muted mb-0">
-            {% if packet.status == 'completed' %}<span class="badge bg-success">{% trans "Completed" %}</span>
-            {% elif packet.status == 'in_progress' %}<span class="badge bg-primary">{% trans "In Progress" %}</span>
-            {% elif packet.status == 'declined' %}<span class="badge bg-danger">{% trans "Declined" %}</span>
-            {% elif packet.status == 'cancelled' %}<span class="badge bg-warning text-dark">{% trans "Cancelled" %}</span>
-            {% else %}<span class="badge bg-secondary">{% trans "Draft" %}</span>{% endif %}
+            {% if packet.status == 'completed' %}<span class="pill pill-success">{% trans"Completed" %}</span>
+            {% elif packet.status == 'in_progress' %}<span class="pill pill-navy">{% trans"In Progress" %}</span>
+            {% elif packet.status == 'declined' %}<span class="pill pill-error">{% trans"Declined" %}</span>
+            {% elif packet.status == 'cancelled' %}<span class="pill pill-brass">{% trans"Cancelled" %}</span>
+            {% else %}<span class="pill pill-muted">{% trans"Draft" %}</span>{% endif %}
             &middot;
             <i class="bi bi-diagram-3 me-1"></i>{{ packet.flow.name }}
         </p>
@@ -209,21 +209,21 @@
                                     </div>
                                     <div class="text-end">
                                         {% if step.status == 'signed' %}
-                                            <span class="badge bg-success">{% trans "Signed" %}</span>
+                                            <span class="pill pill-success">{% trans"Signed" %}</span>
                                             {% if step.signed_at %}
                                             <br><small class="text-muted">{{ step.signed_at|date:"M d, Y H:i" }}</small>
                                             {% endif %}
                                         {% elif step.status == 'active' %}
-                                            <span class="badge bg-primary">{% trans "Awaiting Signature" %}</span>
+                                            <span class="pill pill-navy">{% trans"Awaiting Signature" %}</span>
                                         {% elif step.status == 'declined' %}
-                                            <span class="badge bg-danger">{% trans "Declined" %}</span>
+                                            <span class="pill pill-error">{% trans"Declined" %}</span>
                                             {% if step.declined_at %}
                                             <br><small class="text-muted">{{ step.declined_at|date:"M d, Y H:i" }}</small>
                                             {% endif %}
                                         {% elif step.status == 'skipped' %}
-                                            <span class="badge bg-secondary">{% trans "Skipped" %}</span>
+                                            <span class="pill pill-muted">{% trans"Skipped" %}</span>
                                         {% else %}
-                                            <span class="badge bg-light text-dark border">{% trans "Pending" %}</span>
+                                            <span class="pill pill-muted border">{% trans"Pending" %}</span>
                                         {% endif %}
                                     </div>
                                 </div>
