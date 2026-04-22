@@ -149,7 +149,7 @@
                                         <span class="pill pill-navy">{% trans"In Progress" %}</span>
                                     {% endif %}
                                 </td>
-                                <td class="small text-muted">{{ assignment.assigned_at|date:"M d" }}</td>
+                                <td class="small text-muted">{{ assignment.claimed_at|date:"M d" }}</td>
                                 <td>
                                     <a href="{% url 'applications:detail' assignment.application.pk %}" class="btn btn-sm btn-outline-primary">
                                         <i class="bi bi-eye me-1"></i>{% trans "View" %}

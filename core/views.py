@@ -553,7 +553,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                 'application', 'application__grant_program',
                 'application__organization',
             )
-            .order_by('-assigned_at')[:5]
+            .order_by('-claimed_at')[:5]
         )
 
         # Build assignments dict for dashboard claim/assign buttons

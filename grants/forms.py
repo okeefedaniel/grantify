@@ -160,7 +160,7 @@ class CollaboratorForm(forms.Form):
         help_text=_lazy('Full name for external collaborators.'),
     )
     role = forms.ChoiceField(
-        choices=OpportunityCollaborator.CollaboratorRole.choices,
+        choices=OpportunityCollaborator.Role.choices,
         label=_lazy('Role'),
         widget=forms.Select(attrs={'class': 'form-select'}),
     )

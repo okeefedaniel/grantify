@@ -5,6 +5,8 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from keel.core.models import AbstractCollaborator
+
 from core.validators import validate_document_file
 
 
@@ -454,64 +456,24 @@ class TrackedOpportunity(models.Model):
 # ---------------------------------------------------------------------------
 # OpportunityCollaborator  (invite internal/external people to collaborate)
 # ---------------------------------------------------------------------------
-class OpportunityCollaborator(models.Model):
-    """A collaborator invited to work on a tracked federal opportunity."""
+class OpportunityCollaborator(AbstractCollaborator):
+    """A collaborator invited to work on a tracked federal opportunity.
 
-    class CollaboratorRole(models.TextChoices):
-        LEAD = 'lead', _('Lead')
-        CONTRIBUTOR = 'contributor', _('Contributor')
-        REVIEWER = 'reviewer', _('Reviewer')
-        OBSERVER = 'observer', _('Observer')
+    Extends keel.core.models.AbstractCollaborator (canonical LEAD /
+    CONTRIBUTOR / REVIEWER / OBSERVER role vocabulary, invite lifecycle,
+    internal-user or external-email support, per-collaborator notification
+    prefs).
+    """
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     tracked_opportunity = models.ForeignKey(
         TrackedOpportunity,
         on_delete=models.CASCADE,
         related_name='collaborators',
     )
 
-    # Internal user (if they have an account)
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        null=True, blank=True,
-        related_name='federal_collaborations',
-        help_text=_('Internal Harbor user'),
-    )
-
-    # External collaborator (if not in the system)
-    email = models.EmailField(
-        blank=True, default='',
-        help_text=_('Email for external collaborators not yet in Harbor'),
-    )
-    name = models.CharField(
-        max_length=255, blank=True, default='',
-        help_text=_('Name for external collaborators'),
-    )
-
-    role = models.CharField(
-        max_length=15,
-        choices=CollaboratorRole.choices,
-        default=CollaboratorRole.CONTRIBUTOR,
-    )
-    invited_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name='federal_invitations_sent',
-    )
-    invited_at = models.DateTimeField(auto_now_add=True)
-    accepted_at = models.DateTimeField(null=True, blank=True)
-    is_active = models.BooleanField(default=True)
-
-    class Meta:
-        ordering = ['role', '-invited_at']
+    class Meta(AbstractCollaborator.Meta):
         verbose_name = _('Opportunity Collaborator')
         verbose_name_plural = _('Opportunity Collaborators')
-
-    def __str__(self):
-        display = str(self.user) if self.user else self.email or self.name
-        return f"{display} ({self.get_role_display()})"
 
     @property
     def display_name(self):

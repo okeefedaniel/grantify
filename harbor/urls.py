@@ -56,6 +56,7 @@ urlpatterns = [
     path('i18n/', include('django.conf.urls.i18n')),
     path('search/', search_view, name='search'),
     path('keel/requests/', include('keel.requests.urls')),
+    path('keel/signatures/', include('keel.signatures.urls')),
     path('keel/', include('keel.core.foia_urls')),
     path('keel/', include('keel.accounts.urls')),
 ]

@@ -872,9 +872,13 @@ class UpdateAssignmentStatusView(AgencyStaffRequiredMixin, View):
             return redirect('applications:detail', pk=assignment.application.pk)
 
         assignment.status = new_status
-        if new_status == ApplicationAssignment.Status.COMPLETED:
-            assignment.completed_at = timezone.now()
-        assignment.save(update_fields=['status', 'completed_at', 'updated_at'])
+        if new_status in {
+            ApplicationAssignment.Status.COMPLETED,
+            ApplicationAssignment.Status.REASSIGNED,
+            ApplicationAssignment.Status.RELEASED,
+        }:
+            assignment.released_at = timezone.now()
+        assignment.save(update_fields=['status', 'released_at'])
 
         messages.success(request, _('Assignment status updated.'))
         return redirect('applications:detail', pk=assignment.application.pk)
@@ -892,9 +896,9 @@ class MyAssignmentsView(AgencyStaffRequiredMixin, SortableListMixin, ListView):
         'application': 'application__project_title',
         'app_status': 'application__status',
         'assignment_status': 'status',
-        'assigned_at': 'assigned_at',
+        'claimed_at': 'claimed_at',
     }
-    default_sort = 'assigned_at'
+    default_sort = 'claimed_at'
     default_dir = 'desc'
 
     def get_queryset(self):

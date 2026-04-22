@@ -6,7 +6,11 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 
-from keel.core.models import AbstractInternalNote, AbstractStatusHistory
+from keel.core.models import (
+    AbstractAssignment,
+    AbstractInternalNote,
+    AbstractStatusHistory,
+)
 
 from core.validators import validate_document_file
 
@@ -340,61 +344,32 @@ class ApplicationStatusHistory(AbstractStatusHistory):
         return f"{self.application}: {self.old_status} -> {self.new_status}"
 
 
-class ApplicationAssignment(models.Model):
+class ApplicationAssignment(AbstractAssignment):
     """Assignment of internal staff to process/work on an application.
 
-    This is distinct from ReviewAssignment (which is for formal scoring
-    reviews with rubrics).  ApplicationAssignment tracks which staff member
-    is responsible for shepherding an application through the
-    due-diligence pipeline.
+    Extends keel.core.models.AbstractAssignment (canonical CLAIMED vs
+    MANAGER_ASSIGNED types; ASSIGNED / IN_PROGRESS / COMPLETED /
+    REASSIGNED / RELEASED status machine). Distinct from ReviewAssignment
+    (formal scoring with rubrics).
+
+    Field renames from the pre-0.13 bespoke version, aligned with the
+    abstract's naming:
+
+      * ``assigned_at``  → ``claimed_at`` (auto_now_add; unchanged semantics)
+      * ``completed_at`` → ``released_at`` (nullable; now also set on
+        REASSIGNED / RELEASED, not only on COMPLETED)
+
+    The ``updated_at`` field was dropped — the abstract does not expose
+    one and nothing in harbor queried it.
     """
 
-    class Status(models.TextChoices):
-        ASSIGNED = 'assigned', _('Assigned')
-        IN_PROGRESS = 'in_progress', _('In Progress')
-        COMPLETED = 'completed', _('Completed')
-        REASSIGNED = 'reassigned', _('Reassigned')
-
-    class AssignmentType(models.TextChoices):
-        CLAIMED = 'claimed', _('Self-Claimed')
-        MANAGER_ASSIGNED = 'manager_assigned', _('Manager Assigned')
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     application = models.ForeignKey(
         'Application',
         on_delete=models.CASCADE,
         related_name='staff_assignments',
     )
-    assigned_to = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='application_assignments',
-    )
-    assigned_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='assigned_applications',
-        help_text=_('The manager who made this assignment (null if self-claimed)'),
-    )
-    assignment_type = models.CharField(
-        max_length=20,
-        choices=AssignmentType.choices,
-        default=AssignmentType.CLAIMED,
-    )
-    status = models.CharField(
-        max_length=15,
-        choices=Status.choices,
-        default=Status.ASSIGNED,
-    )
-    notes = models.TextField(blank=True, default='')
-    assigned_at = models.DateTimeField(auto_now_add=True)
-    completed_at = models.DateTimeField(null=True, blank=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
-    class Meta:
-        ordering = ['-assigned_at']
+    class Meta(AbstractAssignment.Meta):
         verbose_name = _('Application Assignment')
         verbose_name_plural = _('Application Assignments')
 

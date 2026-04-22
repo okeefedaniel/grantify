@@ -136,7 +136,7 @@ class StaffDocumentAdmin(admin.ModelAdmin):
 class ApplicationAssignmentAdmin(admin.ModelAdmin):
     list_display = (
         'application', 'assigned_to', 'assigned_by', 'assignment_type',
-        'status', 'assigned_at',
+        'status', 'claimed_at',
     )
     list_filter = ('status', 'assignment_type')
     search_fields = (
@@ -144,4 +144,4 @@ class ApplicationAssignmentAdmin(admin.ModelAdmin):
         'assigned_to__username', 'assigned_to__first_name', 'assigned_to__last_name',
         'notes',
     )
-    readonly_fields = ('assigned_at', 'updated_at')
+    readonly_fields = ('claimed_at', 'released_at')

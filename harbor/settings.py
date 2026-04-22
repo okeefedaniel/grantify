@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'keel.security',
     'keel.notifications',
     'keel.requests',
+    'keel.signatures',
     # Third party
     'rest_framework',
     'rest_framework.authtoken',
@@ -431,6 +432,14 @@ from keel.core.fleet import FLEET as KEEL_FLEET_PRODUCTS  # noqa: E402,F401
 KEEL_API_URL = os.environ.get('KEEL_API_URL', 'https://keel.docklabs.ai')
 KEEL_API_KEY = os.environ.get('KEEL_API_KEY', '')
 HELM_FEED_API_KEY = os.environ.get('HELM_FEED_API_KEY', '')
+
+# Manifest cross-product signing handoff — the keel.signatures scaffolding
+# lives alongside harbor's existing bespoke signatures app. Both are
+# expected for the near term (see keel/CLAUDE.md "Known Deviations"); the
+# per-product services.py dedup is a separate workstream.
+MANIFEST_URL = os.environ.get('MANIFEST_URL', '')
+MANIFEST_API_TOKEN = os.environ.get('MANIFEST_API_TOKEN', '')
+MANIFEST_WEBHOOK_SECRET = os.environ.get('MANIFEST_WEBHOOK_SECRET', '')
 KEEL_AUDIT_LOG_MODEL = 'harbor_core.AuditLog'
 KEEL_NOTIFICATION_MODEL = 'harbor_core.Notification'
 KEEL_NOTIFICATION_PREFERENCE_MODEL = 'harbor_core.NotificationPreference'

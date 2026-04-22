@@ -68,7 +68,7 @@
                         {% sortable_th 'app_status' _("App Status") %}
                         {% sortable_th 'assignment_status' _("Assignment") %}
                         <th>{% trans "Type" %}</th>
-                        {% sortable_th 'assigned_at' _("Assigned") %}
+                        {% sortable_th 'claimed_at' _("Assigned") %}
                         <th>{% trans "Actions" %}</th>
                     </tr>
                 </thead>
@@ -125,7 +125,7 @@
                             {% endif %}
                         </td>
                         <td class="small text-muted">
-                            {{ assignment.assigned_at|date:"M d, Y" }}
+                            {{ assignment.claimed_at|date:"M d, Y" }}
                         </td>
                         <td>
                             <div class="d-flex gap-1">

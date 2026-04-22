@@ -643,7 +643,7 @@
                                 {% else %}
                                     {% blocktrans with name=current_assignment.assigned_by.get_full_name|default:current_assignment.assigned_by.username %}Assigned by {{ name }}{% endblocktrans %}
                                 {% endif %}
-                                &middot; {{ current_assignment.assigned_at|date:"M d" }}
+                                &middot; {{ current_assignment.claimed_at|date:"M d" }}
                             </small>
                         </div>
                     </div>
