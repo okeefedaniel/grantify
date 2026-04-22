@@ -84,8 +84,12 @@ def main():
 
     # Run migrations BEFORE gunicorn — workers access the DB during
     # AppConfig.ready(), so tables (especially keel_accounts) must exist.
+    # MUST be fatal: a failed migration silently followed by gunicorn
+    # startup manifests as "deploy SUCCESS + every page 500s with
+    # UndefinedTable" — exactly the harbor incident on 2026-04-22.
+    # See keel/CLAUDE.md "Startup failures MUST be fatal."
     log("=== Running migrations ===")
-    run(f"{manage_cmd} migrate --noinput")
+    run(f"{manage_cmd} migrate --noinput", fatal=True)
 
     # Ensure django.contrib.sites has the correct Site record (required by allauth)
     log("=== Configuring Site object ===")
