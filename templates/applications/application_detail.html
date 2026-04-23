@@ -300,9 +300,9 @@
                                     <div class="{% if item.is_verified %}text-decoration-line-through text-muted{% endif %}">
                                         <strong>{{ item.label }}</strong>
                                         {% if item.is_required %}
-                                            <span class="pill pill-error bg-opacity-10 text-danger ms-1" style="font-size: 0.65rem;">{% trans"Required" %}</span>
+                                            <span class="pill pill-error ms-1" style="font-size: 0.65rem;">{% trans"Required" %}</span>
                                         {% else %}
-                                            <span class="pill pill-muted bg-opacity-10 text-secondary ms-1" style="font-size: 0.65rem;">{% trans"Optional" %}</span>
+                                            <span class="pill pill-muted ms-1" style="font-size: 0.65rem;">{% trans"Optional" %}</span>
                                         {% endif %}
                                     </div>
                                     {% if item.is_verified and item.verified_by %}
@@ -393,7 +393,7 @@
                                         <div class="small text-muted">{{ doc.description|truncatewords:10 }}</div>
                                     {% endif %}
                                 </td>
-                                <td><span class="pill pill-brass bg-opacity-10">{{ doc.get_document_type_display }}</span></td>
+                                <td><span class="pill pill-brass">{{ doc.get_document_type_display }}</span></td>
                                 <td class="small text-muted">{{ doc.uploaded_by.get_full_name|default:doc.uploaded_by.username }}</td>
                                 <td class="small text-muted">{{ doc.created_at|date:"M d, Y" }}</td>
                                 <td>

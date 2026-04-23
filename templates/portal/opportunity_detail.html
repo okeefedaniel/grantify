@@ -26,12 +26,7 @@
             <span class="pill pill-grant-type me-2">
                 <i class="bi bi-building me-1"></i>{{ opportunity.agency.name }}
             </span>
-            <span class="pill
-                {% if opportunity.status == 'accepting_applications' %}bg-success
-                {% elif opportunity.status == 'posted' %}bg-info
-                {% elif opportunity.status == 'under_review' %}bg-warning text-dark
-                {% elif opportunity.status == 'closed' or opportunity.status == 'cancelled' %}bg-secondary
-                {% else %}bg-primary{% endif %} me-2">
+            <span class="pill {% if opportunity.status == 'accepting_applications' %}pill-success {% elif opportunity.status == 'posted' %}pill-navy {% elif opportunity.status == 'under_review' %}pill-brass {% elif opportunity.status == 'closed' or opportunity.status == 'cancelled' %}pill-muted {% else %}pill-navy{% endif %} me-2">
                 {{ opportunity.get_status_display }}
             </span>
             <span class="pill pill-muted border">

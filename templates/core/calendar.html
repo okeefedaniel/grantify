@@ -50,7 +50,7 @@
                         <span class="small text-danger fw-bold">
                             <i class="bi bi-clock me-1"></i>{% trans "Due:" %} {{ report.due_date }}
                         </span>
-                        <span class="pill pill-error bg-opacity-10 text-danger">
+                        <span class="pill pill-error">
                             {% blocktrans with time=report.due_date|timesince %}{{ time }} overdue{% endblocktrans %}
                         </span>
                     </div>

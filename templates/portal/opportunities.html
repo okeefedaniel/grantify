@@ -126,12 +126,7 @@
                         </span>
                     </td>
                     <td>
-                        <span class="pill
-                            {% if opp.status == 'accepting_applications' %}bg-success
-                            {% elif opp.status == 'posted' %}bg-info
-                            {% elif opp.status == 'under_review' %}bg-warning text-dark
-                            {% elif opp.status == 'closed' or opp.status == 'cancelled' %}bg-secondary
-                            {% else %}bg-primary{% endif %}">
+                        <span class="pill {% if opp.status == 'accepting_applications' %}pill-success {% elif opp.status == 'posted' %}pill-navy {% elif opp.status == 'under_review' %}pill-brass {% elif opp.status == 'closed' or opp.status == 'cancelled' %}pill-muted {% else %}pill-navy{% endif %}">
                             {{ opp.get_status_display }}
                         </span>
                     </td>
@@ -205,12 +200,7 @@
                     <span class="pill pill-grant-type">
                         {{ opp.get_grant_type_display }}
                     </span>
-                    <span class="pill
-                        {% if opp.status == 'accepting_applications' %}bg-success
-                        {% elif opp.status == 'posted' %}bg-info
-                        {% elif opp.status == 'under_review' %}bg-warning text-dark
-                        {% elif opp.status == 'closed' or opp.status == 'cancelled' %}bg-secondary
-                        {% else %}bg-primary{% endif %}">
+                    <span class="pill {% if opp.status == 'accepting_applications' %}pill-success {% elif opp.status == 'posted' %}pill-navy {% elif opp.status == 'under_review' %}pill-brass {% elif opp.status == 'closed' or opp.status == 'cancelled' %}pill-muted {% else %}pill-navy{% endif %}">
                         {{ opp.get_status_display }}
                     </span>
                 </div>
