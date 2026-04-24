@@ -232,8 +232,8 @@ class Command(BaseCommand):
         old_user = User.objects.filter(username='test_applicant_wf').first()
         if old_user:
             from applications.models import (
-                Application, ApplicationComment, ApplicationComplianceItem,
-                ApplicationDocument, ApplicationStatusHistory, StaffDocument,
+                Application, ApplicationAttachment, ApplicationComment,
+                ApplicationComplianceItem, ApplicationStatusHistory,
             )
             from awards.models import Award, AwardAmendment, AwardDocument
             # Delete awards first (depends on application)
@@ -243,8 +243,7 @@ class Command(BaseCommand):
             ApplicationStatusHistory.objects.filter(changed_by=old_user).delete()
             ApplicationComment.objects.filter(author=old_user).delete()
             ApplicationComplianceItem.objects.filter(application__in=old_apps).delete()
-            StaffDocument.objects.filter(application__in=old_apps).delete()
-            ApplicationDocument.objects.filter(application__in=old_apps).delete()
+            ApplicationAttachment.objects.filter(application__in=old_apps).delete()
             ApplicationStatusHistory.objects.filter(application__in=old_apps).delete()
             old_apps.delete()
             Notification.objects.filter(recipient=old_user).delete()

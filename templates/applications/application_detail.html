@@ -176,9 +176,9 @@
                                     <i class="bi bi-file-earmark me-1 text-muted"></i>
                                     {{ doc.title }}
                                 </td>
-                                <td><span class="pill pill-muted">{{ doc.get_document_type_display }}</span></td>
+                                <td><span class="pill pill-muted">{{ doc.doc_category|default:"—"|title }}</span></td>
                                 <td class="small text-muted">{{ doc.uploaded_by.get_full_name|default:doc.uploaded_by.username }}</td>
-                                <td class="small text-muted">{{ doc.created_at|date:"M d, Y" }}</td>
+                                <td class="small text-muted">{{ doc.uploaded_at|date:"M d, Y" }}</td>
                                 <td>
                                     <a href="{{ doc.file.url }}" class="btn btn-sm btn-outline-primary" target="_blank">
                                         <i class="bi bi-download"></i>
@@ -203,7 +203,7 @@
                             <input type="text" name="title" class="form-control form-control-sm" placeholder="{% trans "Document title" %}" required>
                         </div>
                         <div class="col-md-3">
-                            <select name="document_type" class="form-select form-select-sm">
+                            <select name="doc_category" class="form-select form-select-sm">
                                 <option value="narrative">{% trans "Project Narrative" %}</option>
                                 <option value="budget">{% trans "Budget" %}</option>
                                 <option value="budget_justification">{% trans "Budget Justification" %}</option>
@@ -393,9 +393,9 @@
                                         <div class="small text-muted">{{ doc.description|truncatewords:10 }}</div>
                                     {% endif %}
                                 </td>
-                                <td><span class="pill pill-brass">{{ doc.get_document_type_display }}</span></td>
+                                <td><span class="pill pill-brass">{{ doc.doc_category|default:"—"|title }}</span></td>
                                 <td class="small text-muted">{{ doc.uploaded_by.get_full_name|default:doc.uploaded_by.username }}</td>
-                                <td class="small text-muted">{{ doc.created_at|date:"M d, Y" }}</td>
+                                <td class="small text-muted">{{ doc.uploaded_at|date:"M d, Y" }}</td>
                                 <td>
                                     <a href="{{ doc.file.url }}" class="btn btn-sm btn-outline-primary" target="_blank">
                                         <i class="bi bi-download"></i>
@@ -419,7 +419,7 @@
                             <input type="text" name="title" class="form-control form-control-sm" placeholder="{% trans "Document title" %}" required>
                         </div>
                         <div class="col-md-3">
-                            <select name="document_type" class="form-select form-select-sm">
+                            <select name="doc_category" class="form-select form-select-sm">
                                 <option value="verification">{% trans "Verification Document" %}</option>
                                 <option value="background_check">{% trans "Background Check" %}</option>
                                 <option value="due_diligence">{% trans "Due Diligence Memo" %}</option>

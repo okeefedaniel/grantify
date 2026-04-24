@@ -11,7 +11,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from applications.models import Application, ApplicationDocument, ApplicationStatusHistory
+from applications.models import Application, ApplicationAttachment, ApplicationStatusHistory
 from core.models import Agency, Organization
 from grants.models import FundingSource, GrantProgram
 

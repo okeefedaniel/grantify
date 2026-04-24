@@ -3,12 +3,11 @@ from django.contrib import admin
 from .models import (
     Application,
     ApplicationAssignment,
+    ApplicationAttachment,
     ApplicationComment,
     ApplicationComplianceItem,
-    ApplicationDocument,
     ApplicationSection,
     ApplicationStatusHistory,
-    StaffDocument,
 )
 
 
@@ -17,10 +16,12 @@ class ApplicationSectionInline(admin.TabularInline):
     extra = 0
 
 
-class ApplicationDocumentInline(admin.TabularInline):
-    model = ApplicationDocument
+class ApplicationAttachmentInline(admin.TabularInline):
+    model = ApplicationAttachment
     extra = 0
-    readonly_fields = ('created_at',)
+    readonly_fields = ('uploaded_at', 'size_bytes', 'content_type')
+    fields = ('title', 'file', 'visibility', 'doc_category', 'description',
+              'uploaded_by', 'uploaded_at')
 
 
 class ApplicationCommentInline(admin.StackedInline):
@@ -54,7 +55,7 @@ class ApplicationAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
     inlines = [
         ApplicationSectionInline,
-        ApplicationDocumentInline,
+        ApplicationAttachmentInline,
         ApplicationCommentInline,
         ApplicationStatusHistoryInline,
     ]
@@ -85,12 +86,15 @@ class ApplicationSectionAdmin(admin.ModelAdmin):
     search_fields = ('section_name',)
 
 
-@admin.register(ApplicationDocument)
-class ApplicationDocumentAdmin(admin.ModelAdmin):
-    list_display = ('title', 'application', 'document_type', 'uploaded_by', 'created_at')
-    list_filter = ('document_type',)
-    search_fields = ('title', 'description')
-    readonly_fields = ('created_at',)
+@admin.register(ApplicationAttachment)
+class ApplicationAttachmentAdmin(admin.ModelAdmin):
+    list_display = (
+        'title', 'application', 'visibility', 'doc_category', 'source',
+        'uploaded_by', 'uploaded_at',
+    )
+    list_filter = ('visibility', 'source', 'doc_category')
+    search_fields = ('title', 'description', 'filename')
+    readonly_fields = ('uploaded_at', 'size_bytes', 'content_type', 'manifest_packet_uuid')
 
 
 @admin.register(ApplicationComment)
@@ -120,16 +124,6 @@ class ApplicationComplianceItemAdmin(admin.ModelAdmin):
     list_filter = ('is_required', 'is_verified', 'item_type')
     search_fields = ('application__project_title', 'notes')
     readonly_fields = ('verified_at',)
-
-
-@admin.register(StaffDocument)
-class StaffDocumentAdmin(admin.ModelAdmin):
-    list_display = (
-        'application', 'document_type', 'uploaded_by', 'created_at',
-    )
-    list_filter = ('document_type',)
-    search_fields = ('notes', 'application__project_title')
-    readonly_fields = ('created_at',)
 
 
 @admin.register(ApplicationAssignment)

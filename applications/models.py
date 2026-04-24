@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 
 from keel.core.models import (
     AbstractAssignment,
+    AbstractAttachment,
     AbstractInternalNote,
     AbstractStatusHistory,
 )
@@ -135,50 +136,78 @@ class ApplicationSection(models.Model):
         return f"{self.application.project_title} - {self.section_name}"
 
 
-class ApplicationDocument(models.Model):
-    """Supporting documents uploaded with an application."""
+class ApplicationAttachment(AbstractAttachment):
+    """Documents attached to an application, unified across applicant- and
+    staff-facing uploads.
 
-    class DocumentType(models.TextChoices):
-        NARRATIVE = 'narrative', _('Project Narrative')
-        BUDGET = 'budget', _('Budget')
-        BUDGET_JUSTIFICATION = 'budget_justification', _('Budget Justification')
-        LETTERS_OF_SUPPORT = 'letters_of_support', _('Letters of Support')
-        RESUMES = 'resumes', _('Resumes / CVs')
-        ORGANIZATIONAL_CHART = 'organizational_chart', _('Organizational Chart')
-        AUDIT_REPORT = 'audit_report', _('Audit Report')
-        TAX_EXEMPT_LETTER = 'tax_exempt_letter', _('Tax-Exempt Determination Letter')
-        OTHER = 'other', _('Other')
+    Consolidates the pre-0.13 ApplicationDocument (applicant-visible) and
+    StaffDocument (staff-only) models into one. The abstract's
+    ``visibility`` field is the applicant/staff split — EXTERNAL for
+    applicant-uploaded materials, INTERNAL for staff-only docs (legal
+    review, site visit reports, etc.). Also the destination for signed
+    PDFs returning from the Manifest roundtrip
+    (source=MANIFEST_SIGNED).
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    Two product-local additions on top of AbstractAttachment:
+
+    * ``title`` — human-readable label (the abstract has ``description``
+      but harbor's UI treats ``title`` as the primary display field and
+      ``description`` as optional long-form context).
+    * ``doc_category`` — free-text carryover of the old DocumentType
+      enum values ('narrative', 'budget', 'legal_review', etc.). Kept
+      as free-text rather than a TextChoices because the two source
+      enums were disjoint; teams can add TextChoices later if filtering
+      warrants it.
+    """
+
     application = models.ForeignKey(
         Application,
         on_delete=models.CASCADE,
-        related_name='documents',
+        related_name='attachments',
     )
-    title = models.CharField(max_length=255)
-    description = models.TextField(blank=True, default='')
-    file = models.FileField(upload_to='applications/docs/', validators=[validate_document_file])
-    document_type = models.CharField(
-        max_length=25,
-        choices=DocumentType.choices,
-        default=DocumentType.OTHER,
+    title = models.CharField(max_length=255, blank=True)
+    doc_category = models.CharField(
+        max_length=30, blank=True,
+        help_text=_(
+            'Free-text category carried over from the pre-consolidation '
+            'DocumentType enum (narrative / budget / legal_review / etc.). '
+            'Optional — add TextChoices here if strict filtering is needed.'
+        ),
     )
-    uploaded_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT,
-        related_name='uploaded_application_documents',
-    )
-    version_number = models.IntegerField(default=1)
-    is_current = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        ordering = ['document_type', 'title']
-        verbose_name = _('Application Document')
-        verbose_name_plural = _('Application Documents')
+    class Meta(AbstractAttachment.Meta):
+        verbose_name = _('Application Attachment')
+        verbose_name_plural = _('Application Attachments')
 
     def __str__(self):
-        return f"{self.title} ({self.get_document_type_display()})"
+        label = self.title or self.filename or 'Attachment'
+        return f"{label} ({self.get_visibility_display()})"
+
+
+def _app_attachments_external(application):
+    """Backward-compat accessor for ``application.documents``.
+
+    Pre-consolidation: ``application.documents`` was the reverse-FK
+    queryset of ApplicationDocument (applicant-visible). Post-
+    consolidation: returns the same user-facing set via the unified
+    ApplicationAttachment table, filtered to EXTERNAL visibility.
+    Preserves all existing template and view call sites that read
+    ``application.documents``.
+    """
+    return application.attachments.filter(
+        visibility=ApplicationAttachment.Visibility.EXTERNAL,
+    )
+
+
+def _app_attachments_internal(application):
+    """Backward-compat accessor for ``application.staff_documents``."""
+    return application.attachments.filter(
+        visibility=ApplicationAttachment.Visibility.INTERNAL,
+    )
+
+
+Application.add_to_class('documents', property(_app_attachments_external))
+Application.add_to_class('staff_documents', property(_app_attachments_internal))
 
 
 class ApplicationComment(AbstractInternalNote):
@@ -273,54 +302,6 @@ class ApplicationComplianceItem(models.Model):
     def __str__(self):
         status = 'Verified' if self.is_verified else 'Pending'
         return f"{self.label} ({status})"
-
-
-class StaffDocument(models.Model):
-    """Internal staff documents attached to an application.
-
-    These are separate from applicant-uploaded documents and are only
-    visible to agency staff (e.g. verification letters, due-diligence
-    memos, background check results).
-    """
-
-    class DocumentType(models.TextChoices):
-        VERIFICATION = 'verification', _('Verification Document')
-        BACKGROUND_CHECK = 'background_check', _('Background Check')
-        DUE_DILIGENCE = 'due_diligence', _('Due Diligence Memo')
-        REFERENCE_CHECK = 'reference_check', _('Reference Check')
-        SITE_VISIT = 'site_visit', _('Site Visit Report')
-        LEGAL_REVIEW = 'legal_review', _('Legal Review')
-        FINANCIAL_REVIEW = 'financial_review', _('Financial Review')
-        OTHER = 'other', _('Other')
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    application = models.ForeignKey(
-        Application,
-        on_delete=models.CASCADE,
-        related_name='staff_documents',
-    )
-    title = models.CharField(max_length=255)
-    description = models.TextField(blank=True, default='')
-    file = models.FileField(upload_to='applications/staff_docs/', validators=[validate_document_file])
-    document_type = models.CharField(
-        max_length=25,
-        choices=DocumentType.choices,
-        default=DocumentType.OTHER,
-    )
-    uploaded_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT,
-        related_name='uploaded_staff_documents',
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ['document_type', 'title']
-        verbose_name = _('Staff Document')
-        verbose_name_plural = _('Staff Documents')
-
-    def __str__(self):
-        return f"{self.title} ({self.get_document_type_display()})"
 
 
 class ApplicationStatusHistory(AbstractStatusHistory):

@@ -35,9 +35,9 @@ from .forms import (
 from .models import (
     Application,
     ApplicationAssignment,
+    ApplicationAttachment,
     ApplicationComplianceItem,
     ApplicationStatusHistory,
-    StaffDocument,
 )
 
 logger = logging.getLogger(__name__)
@@ -512,6 +512,7 @@ class UploadDocumentView(LoginRequiredMixin, View):
                 document = form.save(commit=False)
                 document.application = application
                 document.uploaded_by = request.user
+                document.visibility = ApplicationAttachment.Visibility.EXTERNAL
                 document.save()
                 messages.success(request, _('Document uploaded successfully.'))
             except Exception as e:
@@ -688,6 +689,7 @@ class UploadStaffDocumentView(AgencyStaffRequiredMixin, View):
                 doc = form.save(commit=False)
                 doc.application = application
                 doc.uploaded_by = request.user
+                doc.visibility = ApplicationAttachment.Visibility.INTERNAL
                 doc.save()
                 messages.success(request, _('Staff document uploaded successfully.'))
             except Exception as e:

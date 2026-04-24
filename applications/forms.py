@@ -4,9 +4,8 @@ from django.utils.translation import gettext_lazy as _lazy
 from .models import (
     Application,
     ApplicationAssignment,
+    ApplicationAttachment,
     ApplicationComment,
-    ApplicationDocument,
-    StaffDocument,
 )
 
 
@@ -43,11 +42,17 @@ class ApplicationForm(forms.ModelForm):
 
 
 class ApplicationDocumentForm(forms.ModelForm):
-    """Form for uploading a supporting document to an application."""
+    """Form for uploading an applicant-visible supporting document.
+
+    Post-consolidation (harbor 0.14.7+), both applicant-visible and
+    staff-only uploads target a unified ``ApplicationAttachment`` table;
+    the form fixes ``visibility=EXTERNAL`` in the view (not here) so
+    the same form shape stays backwards compatible with older templates.
+    """
 
     class Meta:
-        model = ApplicationDocument
-        fields = ['title', 'description', 'file', 'document_type']
+        model = ApplicationAttachment
+        fields = ['title', 'description', 'file', 'doc_category']
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3}),
         }
@@ -69,11 +74,15 @@ class ApplicationCommentForm(forms.ModelForm):
 
 
 class StaffDocumentForm(forms.ModelForm):
-    """Form for uploading an internal staff document to an application."""
+    """Form for uploading a staff-only document to an application.
+
+    Post-consolidation (harbor 0.14.7+), targets the unified
+    ``ApplicationAttachment`` table; the view pins ``visibility=INTERNAL``.
+    """
 
     class Meta:
-        model = StaffDocument
-        fields = ['title', 'description', 'file', 'document_type']
+        model = ApplicationAttachment
+        fields = ['title', 'description', 'file', 'doc_category']
         widgets = {
             'description': forms.Textarea(attrs={'rows': 2}),
         }
