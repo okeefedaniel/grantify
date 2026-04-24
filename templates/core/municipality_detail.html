@@ -106,11 +106,11 @@
                     <td class="text-end fw-semibold">${{ award.award_amount|intcomma }}</td>
                     <td>
                         {% if award.status == 'active' %}
-                            <span class="pill pill-success">{% trans"Active" %}</span>
+                            <span class="pill pill-success">{% trans "Active" %}</span>
                         {% elif award.status == 'executed' %}
-                            <span class="pill pill-navy">{% trans"Executed" %}</span>
+                            <span class="pill pill-navy">{% trans "Executed" %}</span>
                         {% elif award.status == 'completed' %}
-                            <span class="pill pill-muted">{% trans"Completed" %}</span>
+                            <span class="pill pill-muted">{% trans "Completed" %}</span>
                         {% else %}
                             <span class="pill pill-muted">{{ award.get_status_display }}</span>
                         {% endif %}

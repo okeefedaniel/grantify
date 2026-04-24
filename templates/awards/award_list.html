@@ -113,23 +113,23 @@
                     <td class="text-end fw-semibold">${{ award.award_amount|intcomma }}</td>
                     <td>
                         {% if award.status == 'draft' %}
-                            <span class="pill pill-muted">{% trans"Draft" %}</span>
+                            <span class="pill pill-muted">{% trans "Draft" %}</span>
                         {% elif award.status == 'pending_approval' %}
-                            <span class="pill pill-brass">{% trans"Pending Approval" %}</span>
+                            <span class="pill pill-brass">{% trans "Pending Approval" %}</span>
                         {% elif award.status == 'approved' %}
-                            <span class="pill pill-navy">{% trans"Approved" %}</span>
+                            <span class="pill pill-navy">{% trans "Approved" %}</span>
                         {% elif award.status == 'executed' %}
-                            <span class="pill pill-navy">{% trans"Executed" %}</span>
+                            <span class="pill pill-navy">{% trans "Executed" %}</span>
                         {% elif award.status == 'active' %}
-                            <span class="pill pill-success">{% trans"Active" %}</span>
+                            <span class="pill pill-success">{% trans "Active" %}</span>
                         {% elif award.status == 'on_hold' %}
-                            <span class="pill pill-brass">{% trans"On Hold" %}</span>
+                            <span class="pill pill-brass">{% trans "On Hold" %}</span>
                         {% elif award.status == 'completed' %}
-                            <span class="pill pill-muted">{% trans"Completed" %}</span>
+                            <span class="pill pill-muted">{% trans "Completed" %}</span>
                         {% elif award.status == 'terminated' %}
-                            <span class="pill pill-error">{% trans"Terminated" %}</span>
+                            <span class="pill pill-error">{% trans "Terminated" %}</span>
                         {% elif award.status == 'cancelled' %}
-                            <span class="pill pill-error">{% trans"Cancelled" %}</span>
+                            <span class="pill pill-error">{% trans "Cancelled" %}</span>
                         {% else %}
                             <span class="pill pill-muted">{{ award.get_status_display }}</span>
                         {% endif %}

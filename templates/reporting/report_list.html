@@ -115,23 +115,23 @@
                     </td>
                     <td>
                         {% if report.status == 'draft' %}
-                            <span class="pill pill-muted">{% trans"Draft" %}</span>
+                            <span class="pill pill-muted">{% trans "Draft" %}</span>
                         {% elif report.status == 'submitted' %}
-                            <span class="pill pill-brass">{% trans"Submitted" %}</span>
+                            <span class="pill pill-brass">{% trans "Submitted" %}</span>
                         {% elif report.status == 'under_review' %}
-                            <span class="pill pill-navy">{% trans"Under Review" %}</span>
+                            <span class="pill pill-navy">{% trans "Under Review" %}</span>
                         {% elif report.status == 'revision_requested' %}
-                            <span class="pill pill-error">{% trans"Revision Requested" %}</span>
+                            <span class="pill pill-error">{% trans "Revision Requested" %}</span>
                         {% elif report.status == 'approved' %}
-                            <span class="pill pill-success">{% trans"Approved" %}</span>
+                            <span class="pill pill-success">{% trans "Approved" %}</span>
                         {% elif report.status == 'rejected' %}
-                            <span class="pill pill-error">{% trans"Rejected" %}</span>
+                            <span class="pill pill-error">{% trans "Rejected" %}</span>
                         {% endif %}
                     </td>
                     <td>
                         {{ report.due_date|date:"M d, Y" }}
                         {% if report.is_overdue %}
-                            <span class="pill pill-error ms-1">{% trans"Overdue" %}</span>
+                            <span class="pill pill-error ms-1">{% trans "Overdue" %}</span>
                         {% endif %}
                     </td>
                     <td>{{ report.submitted_at|date:"M d, Y"|default:"--" }}</td>

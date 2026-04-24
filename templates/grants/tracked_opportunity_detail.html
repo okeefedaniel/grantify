@@ -25,11 +25,11 @@
         <div class="d-flex align-items-center gap-2 flex-wrap">
             <span class="pill pill-{{ tracked.status }}">{{ tracked.get_status_display }}</span>
             {% if tracked.priority == 'high' %}
-            <span class="pill pill-error">{% trans"High Priority" %}</span>
+            <span class="pill pill-error">{% trans "High Priority" %}</span>
             {% elif tracked.priority == 'medium' %}
-            <span class="pill pill-brass">{% trans"Medium Priority" %}</span>
+            <span class="pill pill-brass">{% trans "Medium Priority" %}</span>
             {% else %}
-            <span class="pill pill-muted">{% trans"Low Priority" %}</span>
+            <span class="pill pill-muted">{% trans "Low Priority" %}</span>
             {% endif %}
             {% if tracked.federal_opportunity.opportunity_number %}
             <span class="text-muted small">{{ tracked.federal_opportunity.opportunity_number }}</span>
@@ -139,9 +139,9 @@
                                 </td>
                                 <td>
                                     {% if collab.user %}
-                                    <span class="pill pill-navy">{% trans"Internal" %}</span>
+                                    <span class="pill pill-navy">{% trans "Internal" %}</span>
                                     {% else %}
-                                    <span class="pill pill-muted">{% trans"External" %}</span>
+                                    <span class="pill pill-muted">{% trans "External" %}</span>
                                     {% endif %}
                                 </td>
                                 <td>

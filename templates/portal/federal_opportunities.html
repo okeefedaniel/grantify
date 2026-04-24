@@ -236,7 +236,7 @@
                             {% blocktrans with days=opp.days_until_close %}{{ days }} days left{% endblocktrans %}
                         </span>
                         {% elif opp.close_date %}
-                        <span class="pill pill-muted">{% trans"Deadline passed" %}</span>
+                        <span class="pill pill-muted">{% trans "Deadline passed" %}</span>
                         {% endif %}
                     </div>
                     {% if user.is_authenticated and user.can_manage_federal %}

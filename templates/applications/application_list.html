@@ -113,19 +113,19 @@
             <div class="card-body d-flex flex-column">
                 <div class="d-flex justify-content-between align-items-start mb-2">
                     {% if app.status == "draft" %}
-                        <span class="pill pill-muted">{% trans"Draft" %}</span>
+                        <span class="pill pill-muted">{% trans "Draft" %}</span>
                     {% elif app.status == "submitted" %}
-                        <span class="pill pill-navy">{% trans"Submitted" %}</span>
+                        <span class="pill pill-navy">{% trans "Submitted" %}</span>
                     {% elif app.status == "under_review" %}
-                        <span class="pill pill-navy">{% trans"Under Review" %}</span>
+                        <span class="pill pill-navy">{% trans "Under Review" %}</span>
                     {% elif app.status == "revision_requested" %}
-                        <span class="pill pill-brass">{% trans"Revision Requested" %}</span>
+                        <span class="pill pill-brass">{% trans "Revision Requested" %}</span>
                     {% elif app.status == "approved" %}
-                        <span class="pill pill-success">{% trans"Approved" %}</span>
+                        <span class="pill pill-success">{% trans "Approved" %}</span>
                     {% elif app.status == "denied" %}
-                        <span class="pill pill-error">{% trans"Denied" %}</span>
+                        <span class="pill pill-error">{% trans "Denied" %}</span>
                     {% elif app.status == "withdrawn" %}
-                        <span class="pill pill-muted">{% trans"Withdrawn" %}</span>
+                        <span class="pill pill-muted">{% trans "Withdrawn" %}</span>
                     {% endif %}
                     <code class="text-muted small">{{ app.id|truncatechars:13 }}</code>
                 </div>
@@ -206,19 +206,19 @@
                     </td>
                     <td>
                         {% if app.status == "draft" %}
-                            <span class="pill pill-muted">{% trans"Draft" %}</span>
+                            <span class="pill pill-muted">{% trans "Draft" %}</span>
                         {% elif app.status == "submitted" %}
-                            <span class="pill pill-navy">{% trans"Submitted" %}</span>
+                            <span class="pill pill-navy">{% trans "Submitted" %}</span>
                         {% elif app.status == "under_review" %}
-                            <span class="pill pill-navy">{% trans"Under Review" %}</span>
+                            <span class="pill pill-navy">{% trans "Under Review" %}</span>
                         {% elif app.status == "revision_requested" %}
-                            <span class="pill pill-brass">{% trans"Revision Requested" %}</span>
+                            <span class="pill pill-brass">{% trans "Revision Requested" %}</span>
                         {% elif app.status == "approved" %}
-                            <span class="pill pill-success">{% trans"Approved" %}</span>
+                            <span class="pill pill-success">{% trans "Approved" %}</span>
                         {% elif app.status == "denied" %}
-                            <span class="pill pill-error">{% trans"Denied" %}</span>
+                            <span class="pill pill-error">{% trans "Denied" %}</span>
                         {% elif app.status == "withdrawn" %}
-                            <span class="pill pill-muted">{% trans"Withdrawn" %}</span>
+                            <span class="pill pill-muted">{% trans "Withdrawn" %}</span>
                         {% endif %}
                     </td>
                     <td>
@@ -229,11 +229,11 @@
                             <br>
                             <small class="text-muted">
                                 {% if assignment.status == 'in_progress' %}
-                                    <span class="pill pill-navy" style="font-size: 0.65rem;">{% trans"In Progress" %}</span>
+                                    <span class="pill pill-navy" style="font-size: 0.65rem;">{% trans "In Progress" %}</span>
                                 {% elif assignment.assignment_type == 'claimed' %}
-                                    <span class="pill pill-claimed" style="font-size: 0.65rem;"><i class="bi bi-check-circle-fill me-1"></i>{% trans"Claimed" %}</span>
+                                    <span class="pill pill-claimed" style="font-size: 0.65rem;"><i class="bi bi-check-circle-fill me-1"></i>{% trans "Claimed" %}</span>
                                 {% else %}
-                                    <span class="pill pill-navy" style="font-size: 0.65rem;">{% trans"Assigned" %}</span>
+                                    <span class="pill pill-navy" style="font-size: 0.65rem;">{% trans "Assigned" %}</span>
                                 {% endif %}
                             </small>
                         {% else %}

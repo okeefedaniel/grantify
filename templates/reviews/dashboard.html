@@ -77,13 +77,13 @@
                     <td class="text-muted">{{ assignment.application.grant_program.title|truncatewords:5 }}</td>
                     <td>
                         {% if assignment.status == "assigned" %}
-                            <span class="pill pill-navy">{% trans"Assigned" %}</span>
+                            <span class="pill pill-navy">{% trans "Assigned" %}</span>
                         {% elif assignment.status == "in_progress" %}
-                            <span class="pill pill-brass">{% trans"In Progress" %}</span>
+                            <span class="pill pill-brass">{% trans "In Progress" %}</span>
                         {% elif assignment.status == "completed" %}
-                            <span class="pill pill-success">{% trans"Completed" %}</span>
+                            <span class="pill pill-success">{% trans "Completed" %}</span>
                         {% elif assignment.status == "recused" %}
-                            <span class="pill pill-muted">{% trans"Recused" %}</span>
+                            <span class="pill pill-muted">{% trans "Recused" %}</span>
                         {% endif %}
                     </td>
                     <td class="small text-muted">{{ assignment.assigned_at|date:"M d, Y" }}</td>

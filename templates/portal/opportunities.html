@@ -144,19 +144,19 @@
                     {% if user.is_authenticated %}
                     <td>
                         {% if app_status == 'draft' %}
-                            <span class="pill pill-muted"><i class="bi bi-pencil me-1"></i>{% trans"Draft" %}</span>
+                            <span class="pill pill-muted"><i class="bi bi-pencil me-1"></i>{% trans "Draft" %}</span>
                         {% elif app_status == 'submitted' %}
-                            <span class="pill pill-navy"><i class="bi bi-send me-1"></i>{% trans"Submitted" %}</span>
+                            <span class="pill pill-navy"><i class="bi bi-send me-1"></i>{% trans "Submitted" %}</span>
                         {% elif app_status == 'under_review' %}
-                            <span class="pill pill-navy"><i class="bi bi-hourglass-split me-1"></i>{% trans"Under Review" %}</span>
+                            <span class="pill pill-navy"><i class="bi bi-hourglass-split me-1"></i>{% trans "Under Review" %}</span>
                         {% elif app_status == 'revision_requested' %}
-                            <span class="pill pill-brass"><i class="bi bi-exclamation-triangle me-1"></i>{% trans"Revision Requested" %}</span>
+                            <span class="pill pill-brass"><i class="bi bi-exclamation-triangle me-1"></i>{% trans "Revision Requested" %}</span>
                         {% elif app_status == 'approved' %}
-                            <span class="pill pill-success"><i class="bi bi-check-circle me-1"></i>{% trans"Approved" %}</span>
+                            <span class="pill pill-success"><i class="bi bi-check-circle me-1"></i>{% trans "Approved" %}</span>
                         {% elif app_status == 'denied' %}
-                            <span class="pill pill-error"><i class="bi bi-x-circle me-1"></i>{% trans"Denied" %}</span>
+                            <span class="pill pill-error"><i class="bi bi-x-circle me-1"></i>{% trans "Denied" %}</span>
                         {% elif app_status == 'withdrawn' %}
-                            <span class="pill pill-muted"><i class="bi bi-dash-circle me-1"></i>{% trans"Withdrawn" %}</span>
+                            <span class="pill pill-muted"><i class="bi bi-dash-circle me-1"></i>{% trans "Withdrawn" %}</span>
                         {% else %}
                             <span class="text-muted small">&mdash;</span>
                         {% endif %}
@@ -208,19 +208,19 @@
                 {% if app_status %}
                 <div class="mb-2">
                     {% if app_status == 'draft' %}
-                        <span class="pill pill-muted"><i class="bi bi-pencil me-1"></i>{% trans"My Application: Draft" %}</span>
+                        <span class="pill pill-muted"><i class="bi bi-pencil me-1"></i>{% trans "My Application: Draft" %}</span>
                     {% elif app_status == 'submitted' %}
-                        <span class="pill pill-navy"><i class="bi bi-send me-1"></i>{% trans"My Application: Submitted" %}</span>
+                        <span class="pill pill-navy"><i class="bi bi-send me-1"></i>{% trans "My Application: Submitted" %}</span>
                     {% elif app_status == 'under_review' %}
-                        <span class="pill pill-navy"><i class="bi bi-hourglass-split me-1"></i>{% trans"My Application: Under Review" %}</span>
+                        <span class="pill pill-navy"><i class="bi bi-hourglass-split me-1"></i>{% trans "My Application: Under Review" %}</span>
                     {% elif app_status == 'revision_requested' %}
-                        <span class="pill pill-brass"><i class="bi bi-exclamation-triangle me-1"></i>{% trans"My Application: Revision Requested" %}</span>
+                        <span class="pill pill-brass"><i class="bi bi-exclamation-triangle me-1"></i>{% trans "My Application: Revision Requested" %}</span>
                     {% elif app_status == 'approved' %}
-                        <span class="pill pill-success"><i class="bi bi-check-circle me-1"></i>{% trans"My Application: Approved" %}</span>
+                        <span class="pill pill-success"><i class="bi bi-check-circle me-1"></i>{% trans "My Application: Approved" %}</span>
                     {% elif app_status == 'denied' %}
-                        <span class="pill pill-error"><i class="bi bi-x-circle me-1"></i>{% trans"My Application: Denied" %}</span>
+                        <span class="pill pill-error"><i class="bi bi-x-circle me-1"></i>{% trans "My Application: Denied" %}</span>
                     {% elif app_status == 'withdrawn' %}
-                        <span class="pill pill-muted"><i class="bi bi-dash-circle me-1"></i>{% trans"My Application: Withdrawn" %}</span>
+                        <span class="pill pill-muted"><i class="bi bi-dash-circle me-1"></i>{% trans "My Application: Withdrawn" %}</span>
                     {% endif %}
                 </div>
                 {% endif %}
@@ -267,7 +267,7 @@
                             {% blocktrans with days=opp.days_until_deadline %}{{ days }} days left{% endblocktrans %}
                         </span>
                         {% else %}
-                        <span class="pill pill-muted">{% trans"Deadline passed" %}</span>
+                        <span class="pill pill-muted">{% trans "Deadline passed" %}</span>
                         {% endif %}
                     </div>
                     <div class="d-flex gap-2">

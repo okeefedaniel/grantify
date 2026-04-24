@@ -44,13 +44,13 @@
                     <dt class="col-sm-4">{% trans "Status" %}</dt>
                     <dd class="col-sm-8">
                         {% if amendment.status == 'draft' %}
-                            <span class="pill pill-muted">{% trans"Draft" %}</span>
+                            <span class="pill pill-muted">{% trans "Draft" %}</span>
                         {% elif amendment.status == 'submitted' %}
-                            <span class="pill pill-navy">{% trans"Submitted" %}</span>
+                            <span class="pill pill-navy">{% trans "Submitted" %}</span>
                         {% elif amendment.status == 'approved' %}
-                            <span class="pill pill-success">{% trans"Approved" %}</span>
+                            <span class="pill pill-success">{% trans "Approved" %}</span>
                         {% elif amendment.status == 'denied' %}
-                            <span class="pill pill-error">{% trans"Denied" %}</span>
+                            <span class="pill pill-error">{% trans "Denied" %}</span>
                         {% endif %}
                     </dd>
 

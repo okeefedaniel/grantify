@@ -128,15 +128,15 @@
                     <td>{{ closeout.award.organization.name|truncatewords:4 }}</td>
                     <td>
                         {% if closeout.status == 'not_started' %}
-                            <span class="pill pill-muted">{% trans"Not Started" %}</span>
+                            <span class="pill pill-muted">{% trans "Not Started" %}</span>
                         {% elif closeout.status == 'in_progress' %}
-                            <span class="pill pill-navy">{% trans"In Progress" %}</span>
+                            <span class="pill pill-navy">{% trans "In Progress" %}</span>
                         {% elif closeout.status == 'pending_review' %}
-                            <span class="pill pill-brass">{% trans"Pending Review" %}</span>
+                            <span class="pill pill-brass">{% trans "Pending Review" %}</span>
                         {% elif closeout.status == 'completed' %}
-                            <span class="pill pill-success">{% trans"Completed" %}</span>
+                            <span class="pill pill-success">{% trans "Completed" %}</span>
                         {% elif closeout.status == 'reopened' %}
-                            <span class="pill pill-navy">{% trans"Reopened" %}</span>
+                            <span class="pill pill-navy">{% trans "Reopened" %}</span>
                         {% else %}
                             <span class="pill pill-muted">{{ closeout.get_status_display }}</span>
                         {% endif %}

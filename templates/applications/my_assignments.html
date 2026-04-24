@@ -90,13 +90,13 @@
                         <td>
                             {% with app_status=assignment.application.status %}
                             {% if app_status == "submitted" %}
-                                <span class="pill pill-navy">{% trans"Submitted" %}</span>
+                                <span class="pill pill-navy">{% trans "Submitted" %}</span>
                             {% elif app_status == "under_review" %}
-                                <span class="pill pill-navy">{% trans"Under Review" %}</span>
+                                <span class="pill pill-navy">{% trans "Under Review" %}</span>
                             {% elif app_status == "approved" %}
-                                <span class="pill pill-success">{% trans"Approved" %}</span>
+                                <span class="pill pill-success">{% trans "Approved" %}</span>
                             {% elif app_status == "denied" %}
-                                <span class="pill pill-error">{% trans"Denied" %}</span>
+                                <span class="pill pill-error">{% trans "Denied" %}</span>
                             {% else %}
                                 <span class="pill pill-muted">{{ assignment.application.get_status_display }}</span>
                             {% endif %}
@@ -104,15 +104,15 @@
                         </td>
                         <td>
                             {% if assignment.status == 'assigned' and assignment.assignment_type == 'claimed' %}
-                                <span class="pill pill-claimed"><i class="bi bi-check-circle-fill me-1"></i>{% trans"Claimed" %}</span>
+                                <span class="pill pill-claimed"><i class="bi bi-check-circle-fill me-1"></i>{% trans "Claimed" %}</span>
                             {% elif assignment.status == 'assigned' %}
-                                <span class="pill pill-navy">{% trans"Assigned" %}</span>
+                                <span class="pill pill-navy">{% trans "Assigned" %}</span>
                             {% elif assignment.status == 'in_progress' %}
-                                <span class="pill pill-navy">{% trans"In Progress" %}</span>
+                                <span class="pill pill-navy">{% trans "In Progress" %}</span>
                             {% elif assignment.status == 'completed' %}
-                                <span class="pill pill-success">{% trans"Completed" %}</span>
+                                <span class="pill pill-success">{% trans "Completed" %}</span>
                             {% elif assignment.status == 'reassigned' %}
-                                <span class="pill pill-muted">{% trans"Reassigned" %}</span>
+                                <span class="pill pill-muted">{% trans "Reassigned" %}</span>
                             {% endif %}
                         </td>
                         <td class="small">

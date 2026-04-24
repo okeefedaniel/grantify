@@ -43,7 +43,7 @@
                                 <strong>{% trans "Award:" %}</strong> {{ report.award.award_number }}
                             </p>
                         </div>
-                        <span class="pill pill-error">{% trans"Overdue" %}</span>
+                        <span class="pill pill-error">{% trans "Overdue" %}</span>
                     </div>
                     <hr class="my-2">
                     <div class="d-flex justify-content-between align-items-center">
@@ -98,7 +98,7 @@
                                     {% blocktrans with days=program.days_until_deadline %}<span class="pill pill-navy">{{ days }} days</span>{% endblocktrans %}
                                 {% endif %}
                             {% else %}
-                                <span class="pill pill-muted">{% trans"Passed" %}</span>
+                                <span class="pill pill-muted">{% trans "Passed" %}</span>
                             {% endif %}
                         </td>
                         <td>
@@ -152,9 +152,9 @@
                         </td>
                         <td>
                             {% if report.status == 'draft' %}
-                                <span class="pill pill-muted">{% trans"Draft" %}</span>
+                                <span class="pill pill-muted">{% trans "Draft" %}</span>
                             {% elif report.status == 'revision_requested' %}
-                                <span class="pill pill-brass">{% trans"Revision Requested" %}</span>
+                                <span class="pill pill-brass">{% trans "Revision Requested" %}</span>
                             {% else %}
                                 <span class="pill pill-navy">{{ report.get_status_display }}</span>
                             {% endif %}
@@ -191,7 +191,7 @@
                             <p class="small text-muted mb-1">{{ award.grant_program.title|truncatechars:50 }}</p>
                             <p class="small mb-0"><strong>{% trans "Award #:" %}</strong> {{ award.award_number }}</p>
                         </div>
-                        <span class="pill pill-brass">{% trans"Expiring" %}</span>
+                        <span class="pill pill-brass">{% trans "Expiring" %}</span>
                     </div>
                     <hr class="my-2">
                     <div class="d-flex justify-content-between align-items-center">

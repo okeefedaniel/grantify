@@ -28,13 +28,13 @@
             {% blocktrans with fy=budget.fiscal_year %}Fiscal Year {{ fy }}{% endblocktrans %}
             &middot;
             {% if budget.status == 'draft' %}
-                <span class="pill pill-muted">{% trans"Draft" %}</span>
+                <span class="pill pill-muted">{% trans "Draft" %}</span>
             {% elif budget.status == 'submitted' %}
-                <span class="pill pill-brass">{% trans"Submitted" %}</span>
+                <span class="pill pill-brass">{% trans "Submitted" %}</span>
             {% elif budget.status == 'approved' %}
-                <span class="pill pill-success">{% trans"Approved" %}</span>
+                <span class="pill pill-success">{% trans "Approved" %}</span>
             {% elif budget.status == 'revision_requested' %}
-                <span class="pill pill-error">{% trans"Revision Requested" %}</span>
+                <span class="pill pill-error">{% trans "Revision Requested" %}</span>
             {% endif %}
         </p>
     </div>

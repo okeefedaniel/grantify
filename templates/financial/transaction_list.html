@@ -65,15 +65,15 @@
                     <td>{{ txn.transaction_date|date:"m/d/Y" }}</td>
                     <td>
                         {% if txn.transaction_type == 'obligation' %}
-                            <span class="pill pill-navy">{% trans"Obligation" %}</span>
+                            <span class="pill pill-navy">{% trans "Obligation" %}</span>
                         {% elif txn.transaction_type == 'drawdown' %}
-                            <span class="pill pill-navy">{% trans"Drawdown" %}</span>
+                            <span class="pill pill-navy">{% trans "Drawdown" %}</span>
                         {% elif txn.transaction_type == 'payment' %}
-                            <span class="pill pill-success">{% trans"Payment" %}</span>
+                            <span class="pill pill-success">{% trans "Payment" %}</span>
                         {% elif txn.transaction_type == 'refund' %}
-                            <span class="pill pill-brass">{% trans"Refund" %}</span>
+                            <span class="pill pill-brass">{% trans "Refund" %}</span>
                         {% elif txn.transaction_type == 'adjustment' %}
-                            <span class="pill pill-muted">{% trans"Adjustment" %}</span>
+                            <span class="pill pill-muted">{% trans "Adjustment" %}</span>
                         {% endif %}
                     </td>
                     <td><code class="small">{{ txn.reference_number|default:"--" }}</code></td>

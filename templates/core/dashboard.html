@@ -142,11 +142,11 @@
                                 <td class="text-muted small">{{ assignment.application.grant_program.title|truncatewords:4 }}</td>
                                 <td>
                                     {% if assignment.status == 'assigned' and assignment.assignment_type == 'claimed' %}
-                                        <span class="pill pill-claimed"><i class="bi bi-check-circle-fill me-1"></i>{% trans"Claimed" %}</span>
+                                        <span class="pill pill-claimed"><i class="bi bi-check-circle-fill me-1"></i>{% trans "Claimed" %}</span>
                                     {% elif assignment.status == 'assigned' %}
-                                        <span class="pill pill-navy">{% trans"Assigned" %}</span>
+                                        <span class="pill pill-navy">{% trans "Assigned" %}</span>
                                     {% elif assignment.status == 'in_progress' %}
-                                        <span class="pill pill-navy">{% trans"In Progress" %}</span>
+                                        <span class="pill pill-navy">{% trans "In Progress" %}</span>
                                     {% endif %}
                                 </td>
                                 <td class="small text-muted">{{ assignment.claimed_at|date:"M d" }}</td>
@@ -218,11 +218,11 @@
                                         <br>
                                         <small>
                                             {% if assignment.status == 'in_progress' %}
-                                                <span class="pill pill-navy" style="font-size: 0.65rem;">{% trans"In Progress" %}</span>
+                                                <span class="pill pill-navy" style="font-size: 0.65rem;">{% trans "In Progress" %}</span>
                                             {% elif assignment.assignment_type == 'claimed' %}
-                                                <span class="pill pill-claimed" style="font-size: 0.65rem;"><i class="bi bi-check-circle-fill me-1"></i>{% trans"Claimed" %}</span>
+                                                <span class="pill pill-claimed" style="font-size: 0.65rem;"><i class="bi bi-check-circle-fill me-1"></i>{% trans "Claimed" %}</span>
                                             {% else %}
-                                                <span class="pill pill-navy" style="font-size: 0.65rem;">{% trans"Assigned" %}</span>
+                                                <span class="pill pill-navy" style="font-size: 0.65rem;">{% trans "Assigned" %}</span>
                                             {% endif %}
                                         </small>
                                     {% else %}
@@ -874,11 +874,11 @@
                         <td class="text-muted small">{{ saved.grant_program.agency.name|default:"--" }}</td>
                         <td>
                             {% if saved.interest_level == 'planning_to_apply' %}
-                                <span class="pill pill-success">{% trans"Planning to Apply" %}</span>
+                                <span class="pill pill-success">{% trans "Planning to Apply" %}</span>
                             {% elif saved.interest_level == 'interested' %}
-                                <span class="pill pill-navy">{% trans"Interested" %}</span>
+                                <span class="pill pill-navy">{% trans "Interested" %}</span>
                             {% else %}
-                                <span class="pill pill-muted">{% trans"Watching" %}</span>
+                                <span class="pill pill-muted">{% trans "Watching" %}</span>
                             {% endif %}
                         </td>
                         <td class="small text-muted">{{ saved.created_at|date:"M d, Y" }}</td>
@@ -909,7 +909,7 @@
     <div class="card-header d-flex justify-content-between align-items-center">
         <span>
             <i class="bi bi-stars me-2"></i>{% trans "AI Recommendations" %}
-            {% if new_match_count %}<span class="pill pill-error ms-1">{{ new_match_count }} {% trans"new" %}</span>{% endif %}
+            {% if new_match_count %}<span class="pill pill-error ms-1">{{ new_match_count }} {% trans "new" %}</span>{% endif %}
         </span>
         <div>
             <a href="{% url 'grants:preferences' %}" class="btn btn-sm btn-outline-secondary me-1" title="{% trans 'Edit Preferences' %}">

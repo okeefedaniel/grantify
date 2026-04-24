@@ -66,11 +66,11 @@
             {{ sf425.reporting_period_start|date:"M d, Y" }} {% trans "to" %} {{ sf425.reporting_period_end|date:"M d, Y" }}
             &middot;
             {% if sf425.status == 'draft' %}
-                <span class="pill pill-muted">{% trans"Draft" %}</span>
+                <span class="pill pill-muted">{% trans "Draft" %}</span>
             {% elif sf425.status == 'submitted' %}
-                <span class="pill pill-brass">{% trans"Submitted" %}</span>
+                <span class="pill pill-brass">{% trans "Submitted" %}</span>
             {% elif sf425.status == 'approved' %}
-                <span class="pill pill-success">{% trans"Approved" %}</span>
+                <span class="pill pill-success">{% trans "Approved" %}</span>
             {% endif %}
         </p>
     </div>

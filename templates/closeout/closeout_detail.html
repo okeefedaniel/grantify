@@ -38,15 +38,15 @@
             <div class="col-md-3">
                 <small class="text-muted text-uppercase d-block">{% trans "Status" %}</small>
                 {% if closeout.status == 'not_started' %}
-                    <span class="pill pill-muted">{% trans"Not Started" %}</span>
+                    <span class="pill pill-muted">{% trans "Not Started" %}</span>
                 {% elif closeout.status == 'in_progress' %}
-                    <span class="pill pill-navy">{% trans"In Progress" %}</span>
+                    <span class="pill pill-navy">{% trans "In Progress" %}</span>
                 {% elif closeout.status == 'pending_review' %}
-                    <span class="pill pill-brass">{% trans"Pending Review" %}</span>
+                    <span class="pill pill-brass">{% trans "Pending Review" %}</span>
                 {% elif closeout.status == 'completed' %}
-                    <span class="pill pill-success">{% trans"Completed" %}</span>
+                    <span class="pill pill-success">{% trans "Completed" %}</span>
                 {% elif closeout.status == 'reopened' %}
-                    <span class="pill pill-error">{% trans"Reopened" %}</span>
+                    <span class="pill pill-error">{% trans "Reopened" %}</span>
                 {% endif %}
             </div>
             <div class="col-md-3">
@@ -118,9 +118,9 @@
                         </div>
                         <div class="ms-2 text-nowrap">
                             {% if item.is_required %}
-                                <span class="pill pill-error">{% trans"Required" %}</span>
+                                <span class="pill pill-error">{% trans "Required" %}</span>
                             {% else %}
-                                <span class="pill pill-muted border">{% trans"Optional" %}</span>
+                                <span class="pill pill-muted border">{% trans "Optional" %}</span>
                             {% endif %}
                         </div>
                     </div>
@@ -228,11 +228,11 @@
                         <td>{{ fr.reason|truncatewords:12 }}</td>
                         <td>
                             {% if fr.status == 'pending' %}
-                                <span class="pill pill-brass">{% trans"Pending" %}</span>
+                                <span class="pill pill-brass">{% trans "Pending" %}</span>
                             {% elif fr.status == 'processed' %}
-                                <span class="pill pill-navy">{% trans"Processed" %}</span>
+                                <span class="pill pill-navy">{% trans "Processed" %}</span>
                             {% elif fr.status == 'confirmed' %}
-                                <span class="pill pill-success">{% trans"Confirmed" %}</span>
+                                <span class="pill pill-success">{% trans "Confirmed" %}</span>
                             {% endif %}
                         </td>
                         <td><code class="small">{{ fr.payment_reference|default:"--" }}</code></td>

@@ -26,11 +26,11 @@
         </h1>
         <p class="text-muted mb-0">
             {{ packet.title }} &middot;
-            {% if packet.status == 'completed' %}<span class="pill pill-success">{% trans"Completed" %}</span>
-            {% elif packet.status == 'in_progress' %}<span class="pill pill-navy">{% trans"In Progress" %}</span>
-            {% elif packet.status == 'declined' %}<span class="pill pill-error">{% trans"Declined" %}</span>
-            {% elif packet.status == 'cancelled' %}<span class="pill pill-brass">{% trans"Cancelled" %}</span>
-            {% else %}<span class="pill pill-muted">{% trans"Draft" %}</span>{% endif %}
+            {% if packet.status == 'completed' %}<span class="pill pill-success">{% trans "Completed" %}</span>
+            {% elif packet.status == 'in_progress' %}<span class="pill pill-navy">{% trans "In Progress" %}</span>
+            {% elif packet.status == 'declined' %}<span class="pill pill-error">{% trans "Declined" %}</span>
+            {% elif packet.status == 'cancelled' %}<span class="pill pill-brass">{% trans "Cancelled" %}</span>
+            {% else %}<span class="pill pill-muted">{% trans "Draft" %}</span>{% endif %}
         </p>
     </div>
     <a href="{% url 'signatures:packet-detail' packet.pk %}" class="btn btn-outline-secondary">
@@ -98,19 +98,19 @@
                     </td>
                     <td>
                         {% if entry.action == 'created' %}
-                            <span class="pill pill-navy"><i class="bi bi-plus-circle me-1"></i>{% trans"Created" %}</span>
+                            <span class="pill pill-navy"><i class="bi bi-plus-circle me-1"></i>{% trans "Created" %}</span>
                         {% elif entry.action == 'signed' %}
-                            <span class="pill pill-success"><i class="bi bi-check-circle me-1"></i>{% trans"Signed" %}</span>
+                            <span class="pill pill-success"><i class="bi bi-check-circle me-1"></i>{% trans "Signed" %}</span>
                         {% elif entry.action == 'declined' %}
-                            <span class="pill pill-error"><i class="bi bi-x-circle me-1"></i>{% trans"Declined" %}</span>
+                            <span class="pill pill-error"><i class="bi bi-x-circle me-1"></i>{% trans "Declined" %}</span>
                         {% elif entry.action == 'cancelled' %}
-                            <span class="pill pill-brass"><i class="bi bi-slash-circle me-1"></i>{% trans"Cancelled" %}</span>
+                            <span class="pill pill-brass"><i class="bi bi-slash-circle me-1"></i>{% trans "Cancelled" %}</span>
                         {% elif entry.action == 'completed' %}
-                            <span class="pill pill-success"><i class="bi bi-flag me-1"></i>{% trans"Completed" %}</span>
+                            <span class="pill pill-success"><i class="bi bi-flag me-1"></i>{% trans "Completed" %}</span>
                         {% elif entry.action == 'reminded' %}
-                            <span class="pill pill-muted"><i class="bi bi-bell me-1"></i>{% trans"Reminded" %}</span>
+                            <span class="pill pill-muted"><i class="bi bi-bell me-1"></i>{% trans "Reminded" %}</span>
                         {% elif entry.action == 'viewed' %}
-                            <span class="pill pill-muted border"><i class="bi bi-eye me-1"></i>{% trans"Viewed" %}</span>
+                            <span class="pill pill-muted border"><i class="bi bi-eye me-1"></i>{% trans "Viewed" %}</span>
                         {% else %}
                             <span class="pill pill-muted">{{ entry.action }}</span>
                         {% endif %}

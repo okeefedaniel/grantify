@@ -28,19 +28,19 @@
                     <i class="bi bi-cash-stack me-2"></i>{% blocktrans with num=drawdown.request_number %}Drawdown Request {{ num }}{% endblocktrans %}
                 </h4>
                 {% if drawdown.status == 'draft' %}
-                    <span class="pill pill-muted">{% trans"Draft" %}</span>
+                    <span class="pill pill-muted">{% trans "Draft" %}</span>
                 {% elif drawdown.status == 'submitted' %}
-                    <span class="pill pill-brass">{% trans"Submitted" %}</span>
+                    <span class="pill pill-brass">{% trans "Submitted" %}</span>
                 {% elif drawdown.status == 'under_review' %}
-                    <span class="pill pill-navy">{% trans"Under Review" %}</span>
+                    <span class="pill pill-navy">{% trans "Under Review" %}</span>
                 {% elif drawdown.status == 'approved' %}
-                    <span class="pill pill-success">{% trans"Approved" %}</span>
+                    <span class="pill pill-success">{% trans "Approved" %}</span>
                 {% elif drawdown.status == 'paid' %}
-                    <span class="pill pill-navy">{% trans"Paid" %}</span>
+                    <span class="pill pill-navy">{% trans "Paid" %}</span>
                 {% elif drawdown.status == 'denied' %}
-                    <span class="pill pill-error">{% trans"Denied" %}</span>
+                    <span class="pill pill-error">{% trans "Denied" %}</span>
                 {% elif drawdown.status == 'returned' %}
-                    <span class="pill pill-brass">{% trans"Returned" %}</span>
+                    <span class="pill pill-brass">{% trans "Returned" %}</span>
                 {% endif %}
             </div>
             <div class="card-body">
