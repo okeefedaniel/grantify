@@ -545,7 +545,10 @@
             <div class="d-flex gap-2">
                 {% if award.status == 'approved' and user.can_manage_grants %}
                 <a href="{% url 'awards:signature_request' award.pk %}" class="btn btn-sm btn-success">
-                    <i class="bi bi-pen me-1"></i>{% trans "Request Signature (DocuSign)" %}
+                    <i class="bi bi-pen me-1"></i>{% trans "Send for Signature (Manifest)" %}
+                </a>
+                <a href="{% url 'awards:signature-local' award.pk %}" class="btn btn-sm btn-outline-success" title="{% trans 'Upload a locally-signed PDF (bypasses Manifest)' %}">
+                    <i class="bi bi-upload me-1"></i>{% trans "Upload Signed" %}
                 </a>
                 {% if signature_flow %}
                 <a href="{% url 'signatures:packet-initiate' signature_flow.pk %}" class="btn btn-sm btn-outline-success">

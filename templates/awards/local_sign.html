@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Upload Signed Award Agreement" %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <nav aria-label="breadcrumb" class="mb-3">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'awards:list' %}">{% trans "Awards" %}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'awards:detail' award.pk %}">{{ award.award_number }}</a></li>
+        <li class="breadcrumb-item active">{% trans "Upload Signed Agreement" %}</li>
+      </ol>
+    </nav>
+    <div class="card">
+      <div class="card-header">
+        <i class="bi bi-patch-check me-2"></i>{% trans "Upload Signed Award Agreement" %}
+      </div>
+      <div class="card-body">
+        <p class="text-muted small">
+          {% blocktrans trimmed %}
+          Use this option when Manifest is not configured, or when the
+          agreement was signed offline. The signed PDF is filed on the
+          award and the status advances to Executed — matching the
+          Manifest roundtrip outcome.
+          {% endblocktrans %}
+        </p>
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="mb-3">
+            {{ form.signed_pdf.label_tag }}
+            {{ form.signed_pdf }}
+            {% if form.signed_pdf.help_text %}
+            <div class="form-text">{{ form.signed_pdf.help_text }}</div>
+            {% endif %}
+            {% for err in form.signed_pdf.errors %}
+            <div class="invalid-feedback d-block">{{ err }}</div>
+            {% endfor %}
+          </div>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-upload me-1"></i>{% trans "File Signed Agreement" %}
+            </button>
+            <a href="{% url 'awards:detail' award.pk %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

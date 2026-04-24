@@ -185,3 +185,19 @@ class SignatureRequestForm(forms.Form):
                 css_class='mt-4',
             ),
         )
+
+
+class AwardLocalSignForm(forms.Form):
+    """Upload a locally-signed award agreement when Manifest isn't deployed."""
+
+    signed_pdf = forms.FileField(
+        label=_lazy('Signed award agreement PDF'),
+        help_text=_lazy('Upload the signed award agreement.'),
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': '.pdf'}),
+    )
+
+    def clean_signed_pdf(self):
+        f = self.cleaned_data['signed_pdf']
+        if not f.name.lower().endswith('.pdf'):
+            raise forms.ValidationError(_lazy('Only PDF files are accepted.'))
+        return f

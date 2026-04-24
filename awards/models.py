@@ -4,6 +4,8 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from keel.core.models import AbstractAttachment
+
 from core.validators import validate_document_file
 
 
@@ -203,6 +205,27 @@ class AwardDocument(models.Model):
 
     def __str__(self):
         return f"{self.award.award_number} - {self.title}"
+
+
+class AwardAttachment(AbstractAttachment):
+    """Generic attachment collection on an Award.
+
+    Destination for signed PDFs returning from the Manifest roundtrip
+    (source=MANIFEST_SIGNED, manifest_packet_uuid filled in). The
+    historical AwardDocument model remains in place for typed
+    correspondence/report uploads (agreement, amendment, correspondence,
+    report); consolidating AwardDocument into this abstract mirrors the
+    applications ApplicationDocument/StaffDocument → ApplicationAttachment
+    pattern and is a separate follow-up.
+    """
+
+    award = models.ForeignKey(
+        Award, on_delete=models.CASCADE, related_name='attachments',
+    )
+
+    class Meta(AbstractAttachment.Meta):
+        verbose_name = _('Award Attachment')
+        verbose_name_plural = _('Award Attachments')
 
 
 # ---------------------------------------------------------------------------

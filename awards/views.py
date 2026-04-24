@@ -24,20 +24,30 @@ from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
 from applications.models import Application
 from core.audit import log_audit
-from core.docusign import DocuSignService
+from core.docusign import DocuSignService  # noqa: F401 — retained for legacy DocuSignWebhookView
 from core.export import CSVExportMixin
 from core.filters import AwardFilter
 from core.mixins import AgencyObjectMixin, AgencyStaffRequiredMixin, GrantManagerRequiredMixin, SortableListMixin
 from core.models import Agency, AuditLog
 from django.contrib.auth import get_user_model; User = get_user_model()
+from django.urls import reverse
 from core.notifications import (
     notify_amendment_created,
     notify_award_created,
     notify_signature_completed,
     notify_signature_requested,
 )
+from keel.signatures.client import (
+    is_available as manifest_is_available,
+    local_sign,
+    send_to_manifest,
+)
+from keel.signatures.models import ManifestHandoff
 
-from .forms import AwardAmendmentForm, AwardDocumentForm, AwardForm, SignatureRequestForm
+from .forms import (
+    AwardAmendmentForm, AwardDocumentForm, AwardForm,
+    AwardLocalSignForm, SignatureRequestForm,
+)
 from .models import Award, AwardAmendment, AwardDocument, SignatureRequest
 
 logger = logging.getLogger(__name__)
@@ -502,7 +512,20 @@ class AwardAmendmentDenyView(AgencyStaffRequiredMixin, View):
 # Signature Request  (DocuSign e-Signature)
 # ---------------------------------------------------------------------------
 class SignatureRequestView(LoginRequiredMixin, View):
-    """Send an award agreement for e-signature via DocuSign."""
+    """Send an award agreement to Manifest for e-signature.
+
+    Post-0.14: this view routes signing through
+    ``keel.signatures.client.send_to_manifest`` instead of the bespoke
+    DocuSign client. The DocuSign path (``core.docusign.DocuSignService``,
+    ``DocuSignWebhookView``, ``SignatureRequest`` model) remains in the
+    codebase as dead code, kept for rollback; the new flow creates a
+    ``ManifestHandoff`` row and the ``awards.packet_approved`` receiver
+    (awards/signals.py) attaches the signed PDF to the award as an
+    ``AwardAttachment`` and transitions ``Award.status`` to ``EXECUTED``.
+
+    Standalone-mode fallback: when Manifest isn't configured, the UI
+    routes users to ``AwardLocalSignView`` to upload a locally-signed PDF.
+    """
 
     http_method_names = ['get', 'post']
 
@@ -515,6 +538,7 @@ class SignatureRequestView(LoginRequiredMixin, View):
         return render(request, 'awards/signature_request.html', {
             'award': award,
             'form': form,
+            'manifest_available': manifest_is_available(),
         })
 
     def post(self, request, pk):
@@ -525,6 +549,7 @@ class SignatureRequestView(LoginRequiredMixin, View):
             return render(request, 'awards/signature_request.html', {
                 'award': award,
                 'form': form,
+                'manifest_available': manifest_is_available(),
             })
 
         signer_name = form.cleaned_data['signer_name']
@@ -532,54 +557,118 @@ class SignatureRequestView(LoginRequiredMixin, View):
         cc_email = form.cleaned_data.get('cc_email') or None
         notes = form.cleaned_data.get('notes', '')
 
-        try:
-            ds_service = DocuSignService()
-            envelope_id = ds_service.create_envelope(
-                award=award,
-                signer_name=signer_name,
-                signer_email=signer_email,
-                cc_email=cc_email,
-            )
-        except Exception:
-            logger.exception(
-                'DocuSign envelope creation failed for award %s', award.pk,
-            )
+        if not manifest_is_available():
             messages.error(
                 request,
-                _('Failed to send the document for signature. Please try again later.'),
+                _('Manifest is not configured. Use "Upload signed agreement" instead.'),
             )
-            return redirect('awards:detail', pk=award.pk)
+            return redirect('awards:signature-local', pk=award.pk)
 
-        sig_request = SignatureRequest.objects.create(
-            award=award,
-            envelope_id=envelope_id,
-            status=SignatureRequest.Status.SENT,
-            signer_name=signer_name,
-            signer_email=signer_email,
-            sent_by=request.user,
-            notes=notes,
+        signers = [{'email': signer_email, 'name': signer_name}]
+        if cc_email:
+            signers.append({'email': cc_email, 'name': 'CC', 'role': 'cc'})
+
+        handoff = send_to_manifest(
+            source_obj=award,
+            packet_label=f'Award Agreement — {award.award_number}',
+            signers=signers,
+            attachment_model='awards.AwardAttachment',
+            attachment_fk_name='award',
+            on_approved_status=Award.Status.EXECUTED,
+            created_by=request.user,
+            callback_url=request.build_absolute_uri(
+                reverse('keel_signatures:webhook'),
+            ),
         )
 
         log_audit(
             user=request.user,
             action=AuditLog.Action.CREATE,
-            entity_type='SignatureRequest',
-            entity_id=str(sig_request.pk),
+            entity_type='ManifestHandoff',
+            entity_id=str(handoff.pk),
             description=(
-                f'Signature request sent for award "{award}" '
-                f'to {signer_name} ({signer_email}).'
+                f'Award agreement sent to Manifest for signing: '
+                f'"{award}" → {signer_name} ({signer_email}).'
+                + (f' Notes: {notes}' if notes else '')
             ),
             ip_address=getattr(request, 'audit_ip', None),
         )
 
+        # Preserve the legacy SignatureRequest record so existing
+        # templates, notification helpers, and award_detail history
+        # queries keep working during the cutover window. The
+        # envelope_id slot now carries the Manifest packet UUID.
+        sig_request = SignatureRequest.objects.create(
+            award=award,
+            envelope_id=handoff.manifest_packet_uuid or str(handoff.pk),
+            status=(
+                SignatureRequest.Status.SENT
+                if handoff.status == ManifestHandoff.Status.SENT
+                else SignatureRequest.Status.VOIDED
+            ),
+            signer_name=signer_name,
+            signer_email=signer_email,
+            sent_by=request.user,
+            notes=notes,
+        )
         notify_signature_requested(award, sig_request)
 
+        if handoff.status == ManifestHandoff.Status.SENT:
+            messages.success(
+                request,
+                _('Award agreement sent to %(name)s (%(email)s) via Manifest.') % {
+                    'name': signer_name,
+                    'email': signer_email,
+                },
+            )
+        else:
+            messages.error(
+                request,
+                _('Could not reach Manifest: %(err)s. The attempt is logged.') % {
+                    'err': handoff.error_message or handoff.get_status_display(),
+                },
+            )
+        return redirect('awards:detail', pk=award.pk)
+
+
+class AwardLocalSignView(LoginRequiredMixin, View):
+    """Upload a locally-signed award agreement when Manifest isn't deployed.
+
+    Records a ``ManifestHandoff`` with status=LOCAL_SIGNED and fires the
+    same ``packet_approved`` signal the real Manifest roundtrip does,
+    so the award transitions to ``EXECUTED`` and the signed PDF is
+    filed identically.
+    """
+
+    http_method_names = ['get', 'post']
+
+    def get(self, request, pk):
+        award = get_object_or_404(Award, pk=pk)
+        return render(request, 'awards/local_sign.html', {
+            'award': award,
+            'form': AwardLocalSignForm(),
+        })
+
+    def post(self, request, pk):
+        award = get_object_or_404(Award, pk=pk)
+        form = AwardLocalSignForm(request.POST, request.FILES)
+        if not form.is_valid():
+            return render(request, 'awards/local_sign.html', {
+                'award': award,
+                'form': form,
+            })
+        local_sign(
+            source_obj=award,
+            signed_pdf=form.cleaned_data['signed_pdf'],
+            attachment_model='awards.AwardAttachment',
+            attachment_fk_name='award',
+            on_approved_status=Award.Status.EXECUTED,
+            packet_label=f'Award Agreement (local) — {award.award_number}',
+            created_by=request.user,
+        )
         messages.success(
             request,
-            _('Award agreement sent to %(name)s (%(email)s) for signature.') % {
-                'name': signer_name,
-                'email': signer_email,
-            },
+            _('Signed award agreement recorded. Award moved to Executed.'),
         )
         return redirect('awards:detail', pk=award.pk)
 

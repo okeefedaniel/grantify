@@ -46,12 +46,25 @@ urlpatterns = [
         bulk_views.BulkAwardExportView.as_view(),
         name='bulk-export',
     ),
-    # DocuSign e-Signature
+    # Manifest e-Signature (post-0.14 roundtrip via keel.signatures).
+    # The `signature_request` URL name is preserved so existing
+    # templates and notification helpers keep resolving; the view now
+    # routes through keel.signatures.client.send_to_manifest.
     path(
         '<uuid:pk>/signature/request/',
         views.SignatureRequestView.as_view(),
         name='signature_request',
     ),
+    path(
+        '<uuid:pk>/signature/local/',
+        views.AwardLocalSignView.as_view(),
+        name='signature-local',
+    ),
+    # Legacy DocuSign callback — retained for rollback; the running
+    # flow no longer populates SignatureRequest via this path, but
+    # any in-flight DocuSign envelopes created before the cutover can
+    # still complete here. Remove in a follow-up once no legacy
+    # envelopes remain.
     path(
         'docusign/callback/',
         views.DocuSignWebhookView.as_view(),
