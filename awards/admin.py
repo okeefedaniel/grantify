@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Award, AwardAmendment, AwardDocument
+from .models import Award, AwardAmendment, AwardAttachment
 
 
 class AwardAmendmentInline(admin.TabularInline):
@@ -9,10 +9,12 @@ class AwardAmendmentInline(admin.TabularInline):
     readonly_fields = ['created_at']
 
 
-class AwardDocumentInline(admin.TabularInline):
-    model = AwardDocument
+class AwardAttachmentInline(admin.TabularInline):
+    model = AwardAttachment
     extra = 0
-    readonly_fields = ['created_at']
+    readonly_fields = ('uploaded_at', 'size_bytes', 'content_type')
+    fields = ('title', 'file', 'doc_category', 'source', 'visibility',
+              'description', 'uploaded_by', 'uploaded_at')
 
 
 @admin.register(Award)
@@ -24,7 +26,7 @@ class AwardAdmin(admin.ModelAdmin):
     list_filter = ['status', 'agency', 'requires_match', 'created_at']
     search_fields = ['award_number', 'title', 'organization__name']
     readonly_fields = ['created_at', 'updated_at']
-    inlines = [AwardAmendmentInline, AwardDocumentInline]
+    inlines = [AwardAmendmentInline, AwardAttachmentInline]
     date_hierarchy = 'created_at'
 
 
@@ -39,9 +41,14 @@ class AwardAmendmentAdmin(admin.ModelAdmin):
     readonly_fields = ['created_at']
 
 
-@admin.register(AwardDocument)
-class AwardDocumentAdmin(admin.ModelAdmin):
-    list_display = ['award', 'title', 'document_type', 'uploaded_by', 'created_at']
-    list_filter = ['document_type', 'created_at']
-    search_fields = ['title', 'award__award_number']
-    readonly_fields = ['created_at']
+@admin.register(AwardAttachment)
+class AwardAttachmentAdmin(admin.ModelAdmin):
+    list_display = (
+        'award', 'title', 'doc_category', 'source', 'visibility',
+        'uploaded_by', 'uploaded_at',
+    )
+    list_filter = ('source', 'doc_category', 'visibility')
+    search_fields = ('title', 'description', 'filename', 'award__award_number')
+    readonly_fields = (
+        'uploaded_at', 'size_bytes', 'content_type', 'manifest_packet_uuid',
+    )

@@ -235,7 +235,7 @@ class Command(BaseCommand):
                 Application, ApplicationAttachment, ApplicationComment,
                 ApplicationComplianceItem, ApplicationStatusHistory,
             )
-            from awards.models import Award, AwardAmendment, AwardDocument
+            from awards.models import Award, AwardAmendment, AwardAttachment
             # Delete awards first (depends on application)
             old_apps = Application.objects.filter(applicant=old_user)
             for a in old_apps:

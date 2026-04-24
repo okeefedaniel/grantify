@@ -211,7 +211,7 @@ class CoreConfig(AppConfig):
         # Awards
         register_audited_model('awards.Award', 'Award')
         register_audited_model('awards.AwardAmendment', 'Award Amendment')
-        register_audited_model('awards.AwardDocument', 'Award Document')
+        register_audited_model('awards.AwardAttachment', 'Award Attachment')
         register_audited_model('awards.Budget', 'Budget')
         register_audited_model('awards.BudgetLineItem', 'Budget Line Item')
         # Financial

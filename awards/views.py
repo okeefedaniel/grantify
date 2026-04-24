@@ -48,7 +48,7 @@ from .forms import (
     AwardAmendmentForm, AwardDocumentForm, AwardForm,
     AwardLocalSignForm, SignatureRequestForm,
 )
-from .models import Award, AwardAmendment, AwardDocument, SignatureRequest
+from .models import Award, AwardAmendment, AwardAttachment, SignatureRequest
 
 logger = logging.getLogger(__name__)
 
@@ -423,9 +423,9 @@ class AwardAmendmentDetailView(AgencyStaffRequiredMixin, DetailView):
 # Award Document Upload
 # ---------------------------------------------------------------------------
 class AwardDocumentUploadView(AgencyStaffRequiredMixin, CreateView):
-    """Upload a document to an award."""
+    """Upload a document to an award (agreement, amendment, correspondence, etc.)."""
 
-    model = AwardDocument
+    model = AwardAttachment
     form_class = AwardDocumentForm
     template_name = 'awards/document_upload_form.html'
 
@@ -436,6 +436,7 @@ class AwardDocumentUploadView(AgencyStaffRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.award = self.award
         form.instance.uploaded_by = self.request.user
+        form.instance.source = AwardAttachment.Source.UPLOAD
         messages.success(self.request, _('Document uploaded successfully.'))
         return super().form_valid(form)
 

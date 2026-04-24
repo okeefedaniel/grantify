@@ -3,7 +3,7 @@ from crispy_forms.layout import Column, Div, Field, Fieldset, Layout, Row, Submi
 from django import forms
 from django.utils.translation import gettext_lazy as _lazy
 
-from .models import Award, AwardAmendment, AwardDocument, SignatureRequest
+from .models import Award, AwardAmendment, AwardAttachment, SignatureRequest
 
 
 class AwardForm(forms.ModelForm):
@@ -77,15 +77,17 @@ class AwardForm(forms.ModelForm):
 class AwardDocumentForm(forms.ModelForm):
     """Form for uploading award documents.
 
-    The ``award`` and ``uploaded_by`` fields are set in the view.
+    Post-consolidation (harbor 0.15+) this targets ``AwardAttachment``
+    (which absorbs the legacy ``AwardDocument`` table). The view sets
+    ``award``, ``uploaded_by``, and ``source`` on save.
     """
 
     class Meta:
-        model = AwardDocument
+        model = AwardAttachment
         fields = [
             'title',
             'description',
-            'document_type',
+            'doc_category',
             'file',
         ]
         widgets = {

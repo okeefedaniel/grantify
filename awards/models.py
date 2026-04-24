@@ -166,66 +166,56 @@ class AwardAmendment(models.Model):
 # ---------------------------------------------------------------------------
 # AwardDocument
 # ---------------------------------------------------------------------------
-class AwardDocument(models.Model):
-    """Document attached to an award."""
-
-    class DocumentType(models.TextChoices):
-        AGREEMENT = 'agreement', _('Agreement')
-        AMENDMENT = 'amendment', _('Amendment')
-        CORRESPONDENCE = 'correspondence', _('Correspondence')
-        REPORT = 'report', _('Report')
-        OTHER = 'other', _('Other')
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    award = models.ForeignKey(
-        Award,
-        on_delete=models.CASCADE,
-        related_name='documents',
-    )
-    title = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
-    file = models.FileField(upload_to='awards/docs/', validators=[validate_document_file])
-    document_type = models.CharField(
-        max_length=20,
-        choices=DocumentType.choices,
-    )
-    uploaded_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='uploaded_award_documents',
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ['-created_at']
-        verbose_name = _('Award Document')
-        verbose_name_plural = _('Award Documents')
-
-    def __str__(self):
-        return f"{self.award.award_number} - {self.title}"
-
-
 class AwardAttachment(AbstractAttachment):
-    """Generic attachment collection on an Award.
+    """Unified attachment collection on an Award.
 
-    Destination for signed PDFs returning from the Manifest roundtrip
-    (source=MANIFEST_SIGNED, manifest_packet_uuid filled in). The
-    historical AwardDocument model remains in place for typed
-    correspondence/report uploads (agreement, amendment, correspondence,
-    report); consolidating AwardDocument into this abstract mirrors the
-    applications ApplicationDocument/StaffDocument → ApplicationAttachment
-    pattern and is a separate follow-up.
+    Consolidates the historical AwardDocument (typed agreement /
+    amendment / correspondence / report uploads) and the Manifest-signed
+    PDF destination into a single table. ``source`` distinguishes
+    manually-uploaded documents from signed PDFs returning from the
+    Manifest roundtrip (``source=MANIFEST_SIGNED`` with
+    ``manifest_packet_uuid`` populated).
+
+    Two product-local additions on top of AbstractAttachment (mirroring
+    ApplicationAttachment):
+
+    * ``title`` — primary display label.
+    * ``doc_category`` — free-text carryover of the pre-consolidation
+      AwardDocument.DocumentType enum values ('agreement', 'amendment',
+      'correspondence', 'report', 'other').
     """
 
     award = models.ForeignKey(
         Award, on_delete=models.CASCADE, related_name='attachments',
     )
+    title = models.CharField(max_length=255, blank=True)
+    doc_category = models.CharField(
+        max_length=30, blank=True,
+        help_text=_(
+            'Free-text category carried over from the pre-consolidation '
+            'DocumentType enum (agreement / amendment / correspondence / '
+            'report / other).'
+        ),
+    )
 
     class Meta(AbstractAttachment.Meta):
         verbose_name = _('Award Attachment')
         verbose_name_plural = _('Award Attachments')
+
+
+def _award_documents_accessor(award):
+    """Backward-compat accessor for ``award.documents``.
+
+    Pre-consolidation this was the reverse-FK queryset of AwardDocument.
+    Post-consolidation returns the same user-facing set via the unified
+    AwardAttachment table — all attachments including Manifest-signed
+    PDFs. Filtering by source='upload' would hide signed docs; templates
+    historically showed both, so we return everything.
+    """
+    return award.attachments.all()
+
+
+Award.add_to_class('documents', property(_award_documents_accessor))
 
 
 # ---------------------------------------------------------------------------
