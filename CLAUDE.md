@@ -1,1 +1,1 @@
-../keel/CLAUDE.md
+@../keel/CLAUDE.md

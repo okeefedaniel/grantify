@@ -668,9 +668,9 @@ The interactive map displays grant distribution across state municipalities:
 3. Use the sidebar filters to narrow by agency or program.
 4. Hover over a municipality to see award counts and total funding.
 
-### 9.4 Django Admin
+### 9.4 Admin
 
-System administrators with staff privileges can access the Django admin interface at `/admin/` for direct database management. Use this for:
+System administrators with staff privileges can access the admin interface at `/admin/` for direct database management. Use this for:
 - Bulk data operations
 - Troubleshooting data issues
 - Managing agencies and funding sources
