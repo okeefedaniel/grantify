@@ -26,6 +26,14 @@ urlpatterns = [
     path('health/', health_check, name='health_check'),
     path('admin/', admin.site.urls),
     path('', include('portal.urls')),
+    # Canonical login lives at /accounts/login/. The legacy /auth/login/
+    # path is preserved as a 301 to keep old bookmarks and inbound links
+    # working. Pattern is mounted BEFORE the auth/ include so it wins
+    # the resolver match. (ISSUE-019)
+    path(
+        'auth/login/',
+        RedirectView.as_view(url='/accounts/login/', permanent=True),
+    ),
     path('auth/', include('core.urls')),
     # Override allauth's bare LoginView at /accounts/login/ with the shared
     # keel LoginForm so the input fields render with Bootstrap styling.
