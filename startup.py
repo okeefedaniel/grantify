@@ -91,6 +91,14 @@ def main():
     log("=== Running migrations ===")
     run(f"{manage_cmd} migrate --noinput", fatal=True)
 
+    # Seed the canonical bootstrap superuser so SSO can link incoming
+    # Keel OIDC claims to a local user. Without this, fresh deploys
+    # 403/render the "signup closed" page on the first SSO callback
+    # because the OIDC adapter has nothing to connect the social
+    # account to. Idempotent — re-running is a no-op.
+    log("=== Ensuring dokadmin user ===")
+    run(f"{manage_cmd} ensure_dokadmin")
+
     # Ensure django.contrib.sites has the correct Site record (required by allauth)
     log("=== Configuring Site object ===")
     try:
