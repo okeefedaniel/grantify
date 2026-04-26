@@ -14,3 +14,11 @@ SignatureRole model access that don't share cleanly. The keel-hosted
 services.py imports compat from the absolute path ``signatures.compat``.
 """
 from keel.signatures.services import *  # noqa: F401, F403
+
+# Private helpers are not pulled in by `import *`; re-export so tests
+# (and any caller) can patch them at signatures.services.<name>.
+from keel.signatures.services import (  # noqa: F401
+    _notify_signer_active,
+    _notify_packet_completed,
+    _notify_packet_declined,
+)

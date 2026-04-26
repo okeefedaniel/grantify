@@ -18,7 +18,7 @@ def run(cmd, fatal=False):
     """Run a command, streaming output. Returns True on success."""
     log(f"Running: {cmd}")
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B602 — internal boot script with hardcoded commands, no user input
             cmd, shell=True,
             stdout=sys.stdout, stderr=sys.stderr,
         )
@@ -131,7 +131,7 @@ def main():
         f"--timeout 120"
     )
     log(f"=== Starting gunicorn on port {port} ===")
-    gunicorn_proc = subprocess.Popen(
+    gunicorn_proc = subprocess.Popen(  # nosec B602 — internal boot script with hardcoded commands, no user input
         gunicorn_cmd, shell=True,
         stdout=sys.stdout, stderr=sys.stderr,
     )
