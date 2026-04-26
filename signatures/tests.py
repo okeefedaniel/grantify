@@ -150,7 +150,7 @@ class SigningPacketModelTest(TestCase):
         self.assertEqual(str(packet), 'Test Packet (Draft)')
         self.assertEqual(packet.status, 'draft')
 
-    @patch('signatures.services._notify_signer_active')
+    @patch('keel.signatures.services._notify_signer_active')
     def test_packet_progress(self, mock_notify):
         signer_assignments = {
             s.pk: self.signers[i] for i, s in enumerate(self.steps)
@@ -165,7 +165,7 @@ class SigningPacketModelTest(TestCase):
         self.assertEqual(total, 3)
         self.assertEqual(signed, 0)
 
-    @patch('signatures.services._notify_signer_active')
+    @patch('keel.signatures.services._notify_signer_active')
     def test_current_step(self, mock_notify):
         signer_assignments = {
             s.pk: self.signers[i] for i, s in enumerate(self.steps)
@@ -212,7 +212,7 @@ class ServiceInitiatePacketTest(TestCase):
             for i in range(3)
         ]
 
-    @patch('signatures.services._notify_signer_active')
+    @patch('keel.signatures.services._notify_signer_active')
     def test_initiate_packet(self, mock_notify):
         signer_assignments = {
             s.pk: self.signers[i] for i, s in enumerate(self.steps)
@@ -256,8 +256,8 @@ class ServiceCompleteStepTest(TestCase):
         self.signer1 = _user('signer1', 'program_officer', self.agency)
         self.signer2 = _user('signer2', 'program_officer', self.agency)
 
-    @patch('signatures.services._notify_signer_active')
-    @patch('signatures.services._notify_packet_completed')
+    @patch('keel.signatures.services._notify_signer_active')
+    @patch('keel.signatures.services._notify_packet_completed')
     @patch('signatures.services.generate_signed_pdf')
     def test_complete_step_advances(self, mock_pdf, mock_completed, mock_active):
         signer_assignments = {
@@ -285,8 +285,8 @@ class ServiceCompleteStepTest(TestCase):
         packet.refresh_from_db()
         self.assertEqual(packet.status, SigningPacket.Status.IN_PROGRESS)
 
-    @patch('signatures.services._notify_signer_active')
-    @patch('signatures.services._notify_packet_completed')
+    @patch('keel.signatures.services._notify_signer_active')
+    @patch('keel.signatures.services._notify_packet_completed')
     @patch('signatures.services.generate_signed_pdf')
     def test_complete_all_steps_completes_packet(self, mock_pdf, mock_completed, mock_active):
         signer_assignments = {
@@ -320,8 +320,8 @@ class ServiceDeclineStepTest(TestCase):
         self.signer1 = _user('signer1', 'program_officer', self.agency)
         self.signer2 = _user('signer2', 'program_officer', self.agency)
 
-    @patch('signatures.services._notify_signer_active')
-    @patch('signatures.services._notify_packet_declined')
+    @patch('keel.signatures.services._notify_signer_active')
+    @patch('keel.signatures.services._notify_packet_declined')
     def test_decline_step(self, mock_declined, mock_active):
         signer_assignments = {
             self.steps[0].pk: self.signer1,
@@ -354,7 +354,7 @@ class ServiceCancelPacketTest(TestCase):
         self.signer1 = _user('signer1', 'program_officer', self.agency)
         self.signer2 = _user('signer2', 'program_officer', self.agency)
 
-    @patch('signatures.services._notify_signer_active')
+    @patch('keel.signatures.services._notify_signer_active')
     def test_cancel_packet(self, mock_active):
         signer_assignments = {
             self.steps[0].pk: self.signer1,
@@ -565,7 +565,7 @@ class SigningViewTest(TestCase):
         self.other_user = _user('other', 'fiscal_officer', self.agency)
         self.flow, self.steps = _create_flow_with_steps(self.admin, step_count=1)
 
-    @patch('signatures.services._notify_signer_active')
+    @patch('keel.signatures.services._notify_signer_active')
     def _create_active_packet(self, mock_notify):
         return services.initiate_packet(
             flow=self.flow,
@@ -588,8 +588,8 @@ class SigningViewTest(TestCase):
         resp = self.client.get(reverse('signatures:sign', kwargs={'step_id': step.pk}))
         self.assertEqual(resp.status_code, 302)
 
-    @patch('signatures.services._notify_signer_active')
-    @patch('signatures.services._notify_packet_completed')
+    @patch('keel.signatures.services._notify_signer_active')
+    @patch('keel.signatures.services._notify_packet_completed')
     @patch('signatures.services.generate_signed_pdf')
     def test_sign_complete_typed(self, mock_pdf, mock_completed, mock_active):
         packet = self._create_active_packet()
@@ -606,8 +606,8 @@ class SigningViewTest(TestCase):
         step.refresh_from_db()
         self.assertEqual(step.status, SigningStep.Status.SIGNED)
 
-    @patch('signatures.services._notify_signer_active')
-    @patch('signatures.services._notify_packet_declined')
+    @patch('keel.signatures.services._notify_signer_active')
+    @patch('keel.signatures.services._notify_packet_declined')
     def test_sign_decline(self, mock_declined, mock_active):
         packet = self._create_active_packet()
         step = packet.steps.first()
@@ -644,7 +644,7 @@ class PacketViewTest(TestCase):
         resp = self.client.get(reverse('signatures:packet-list'))
         self.assertEqual(resp.status_code, 200)
 
-    @patch('signatures.services._notify_signer_active')
+    @patch('keel.signatures.services._notify_signer_active')
     def test_packet_detail(self, mock_notify):
         signer = _user('signer', 'program_officer', self.agency)
         packet = services.initiate_packet(
@@ -655,7 +655,7 @@ class PacketViewTest(TestCase):
         resp = self.client.get(reverse('signatures:packet-detail', kwargs={'pk': packet.pk}))
         self.assertEqual(resp.status_code, 200)
 
-    @patch('signatures.services._notify_signer_active')
+    @patch('keel.signatures.services._notify_signer_active')
     def test_packet_cancel(self, mock_notify):
         signer = _user('signer', 'program_officer', self.agency)
         packet = services.initiate_packet(
@@ -671,7 +671,7 @@ class PacketViewTest(TestCase):
         packet.refresh_from_db()
         self.assertEqual(packet.status, SigningPacket.Status.CANCELLED)
 
-    @patch('signatures.services._notify_signer_active')
+    @patch('keel.signatures.services._notify_signer_active')
     def test_packet_status_api(self, mock_notify):
         signer = _user('signer', 'program_officer', self.agency)
         packet = services.initiate_packet(
