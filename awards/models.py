@@ -15,6 +15,25 @@ from core.validators import validate_document_file
 class Award(models.Model):
     """Grant award issued to a recipient after application approval."""
 
+    class FundSource(models.TextChoices):
+        """Federal/state fund-source taxonomy.
+
+        MUST stay value-aligned with helm.tasks.models.Project.FundSource —
+        Helm's `_fund_source_rollup` joins by string value. When this enum
+        changes, mirror the change in Helm or the join breaks silently.
+        """
+        ARPA = 'arpa', _('ARPA — American Rescue Plan Act')
+        IIJA = 'iija', _('IIJA — Infrastructure Investment and Jobs Act')
+        IRA = 'ira', _('IRA — Inflation Reduction Act')
+        BEAD = 'bead', _('BEAD — Broadband Equity, Access, and Deployment')
+        SLCGP = 'slcgp', _('SLCGP — State and Local Cybersecurity Grant')
+        CDBG = 'cdbg', _('CDBG — Community Development Block Grant')
+        GO_BOND = 'go_bond', _('General Obligation Bond')
+        REVENUE_BOND = 'revenue_bond', _('Revenue Bond')
+        STATE_MATCH = 'state_match', _('State Match')
+        LOCAL_MATCH = 'local_match', _('Local Match')
+        GENERAL_FUND = 'general_fund', _('General Fund')
+
     class Status(models.TextChoices):
         DRAFT = 'draft', _('Draft')
         PENDING_APPROVAL = 'pending_approval', _('Pending Approval')
@@ -62,6 +81,16 @@ class Award(models.Model):
         db_index=True,
     )
     award_amount = models.DecimalField(max_digits=15, decimal_places=2)
+    fund_source = models.CharField(
+        max_length=20,
+        choices=FundSource.choices,
+        blank=True,
+        db_index=True,
+        help_text=_(
+            'Federal/state fund source. Used by Helm to join Harbor drawdown '
+            'data into its CIP fund-source rollup. Leave blank when not applicable.'
+        ),
+    )
     award_date = models.DateField(null=True, blank=True)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True, db_index=True)

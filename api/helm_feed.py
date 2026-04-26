@@ -7,6 +7,7 @@ products should follow this pattern.
 from datetime import timedelta
 
 from django.conf import settings
+from django.db import models
 from django.db.models import Count, Q, Sum
 from django.utils import timezone
 
@@ -233,6 +234,12 @@ def harbor_helm_feed(request):
             'period': 'month',
         }
 
+    # ── Fund-source breakdown ────────────────────────────────────
+    # Per-fund-source aggregate of award value and drawdown activity.
+    # Helm joins this in `_fund_source_rollup` to surface
+    # committed-vs-drawn for each federal fund.
+    fund_source_breakdown = _fund_source_breakdown(active_awards)
+
     return {
         'product': 'harbor',
         'product_label': 'Harbor',
@@ -241,4 +248,81 @@ def harbor_helm_feed(request):
         'action_items': action_items,
         'alerts': alerts,
         'sparklines': sparklines,
+        'fund_source_breakdown': fund_source_breakdown,
     }
+
+
+def _fund_source_breakdown(active_awards_qs):
+    """Aggregate award + drawdown activity bucketed by fund source.
+
+    Returns a dict keyed by fund-source code (matching the FundSource
+    enum). Awards with `fund_source=''` are grouped under `unspecified`
+    so a Helm join sees them rather than silently dropping rows.
+
+    Each entry: {
+        award_count: int,
+        award_value_cents: int,
+        drawn_cents: int,    # paid drawdowns
+        paid_cents: int,     # PAYMENT transactions
+        refunded_cents: int, # REFUND transactions
+    }
+    """
+    from collections import defaultdict
+    from decimal import Decimal
+
+    from financial.models import DrawdownRequest, Transaction
+
+    out = defaultdict(lambda: {
+        'award_count': 0,
+        'award_value_cents': 0,
+        'drawn_cents': 0,
+        'paid_cents': 0,
+        'refunded_cents': 0,
+    })
+
+    # Award value buckets — by fund_source ('' → 'unspecified').
+    award_rows = (
+        active_awards_qs
+        .values('fund_source')
+        .annotate(count=Count('id'), total=Sum('award_amount'))
+    )
+    for row in award_rows:
+        key = row['fund_source'] or 'unspecified'
+        entry = out[key]
+        entry['award_count'] += row['count']
+        entry['award_value_cents'] += int((row['total'] or Decimal(0)) * 100)
+
+    # Drawdown amounts (paid only, all-time) — join through Award.fund_source.
+    drawdown_rows = (
+        DrawdownRequest.objects
+        .filter(status='paid')
+        .values(fund_key=models.F('award__fund_source'))
+        .annotate(total=Sum('amount'))
+    )
+    for row in drawdown_rows:
+        key = row['fund_key'] or 'unspecified'
+        out[key]['drawn_cents'] += int((row['total'] or Decimal(0)) * 100)
+
+    # Transaction-level rollup (PAYMENT + REFUND) — finer-grained money
+    # movement than DrawdownRequest. Helm gets both for cross-checking.
+    txn_rows = (
+        Transaction.objects
+        .filter(transaction_type__in=[
+            Transaction.TransactionType.PAYMENT,
+            Transaction.TransactionType.REFUND,
+        ])
+        .values(
+            fund_key=models.F('award__fund_source'),
+            ttype=models.F('transaction_type'),
+        )
+        .annotate(total=Sum('amount'))
+    )
+    for row in txn_rows:
+        key = row['fund_key'] or 'unspecified'
+        cents = int((row['total'] or Decimal(0)) * 100)
+        if row['ttype'] == Transaction.TransactionType.PAYMENT:
+            out[key]['paid_cents'] += cents
+        elif row['ttype'] == Transaction.TransactionType.REFUND:
+            out[key]['refunded_cents'] += cents
+
+    return dict(out)
