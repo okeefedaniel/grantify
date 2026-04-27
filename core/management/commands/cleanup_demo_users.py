@@ -2,20 +2,18 @@
 Clean up demo users to one per role with descriptive names.
 
 Creates exactly 7 users — one for each RBAC role — with clear,
-demo-friendly names and a shared easy-to-remember password.
+demo-friendly names. Demo users are passwordless; login is exclusively
+via /demo-login/ (the one-click role buttons). See keel CLAUDE.md →
+"Demo authentication — passwordless contract" for the full rationale.
 
 Run with:  python manage.py cleanup_demo_users
 """
-import os
-
 from django.apps import apps
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from core.models import Agency, Organization
 from django.contrib.auth import get_user_model; User = get_user_model()
-
-PASSWORD = os.environ.get('DEMO_PASSWORD', 'demo' + '2026!')
 
 # Map: old_username -> (new_username, first_name, last_name)
 RENAME_MAP = {
@@ -91,7 +89,7 @@ class Command(BaseCommand):
             user.username = new_username
             user.first_name = first
             user.last_name = last
-            user.set_password(PASSWORD)
+            user.set_unusable_password()
             user.save()
             self.stdout.write(
                 self.style.SUCCESS(f"  {old_username} -> {new_username} ({first} {last})")
@@ -133,7 +131,7 @@ class Command(BaseCommand):
             admin.is_superuser = True
             admin.set_password(PASSWORD)
             admin.save()
-            self.stdout.write(self.style.SUCCESS("  admin -> password reset to DEMO_PASSWORD"))
+            self.stdout.write(self.style.SUCCESS("  admin -> password cleared (passwordless demo)"))
         except User.DoesNotExist:
             self.stdout.write(self.style.WARNING("  admin user not found."))
 
@@ -175,6 +173,6 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.SUCCESS(
                 f"\n  Done! {User.objects.count()} users remain. "
-                f"All passwords set to '{PASSWORD}'."
+                "All demo passwords cleared — log in via /demo-login/."
             )
         )

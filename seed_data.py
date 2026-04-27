@@ -141,9 +141,9 @@ for name, otype, zipcode in orgs_data:
     )
     orgs[name] = o
 
-DEMO_PASSWORD = os.environ.get('DEMO_PASSWORD', 'demo' + '2026!')
-
 # ── Users (one per role) ─────────────────
+# Demo users are passwordless — login is exclusively via /demo-login/.
+# See keel CLAUDE.md → "Demo authentication — passwordless contract".
 print("Creating users...")
 
 def make_user(username, first, last, role, email, agency=None, org=None, is_staff=False):
@@ -157,7 +157,7 @@ def make_user(username, first, last, role, email, agency=None, org=None, is_staf
         ),
     )
     if created:
-        u.set_password(DEMO_PASSWORD)
+        u.set_unusable_password()
         u.save()
     # Ensure ProductAccess for Harbor role
     ProductAccess.objects.get_or_create(
@@ -192,8 +192,10 @@ admin_user = make_user(
 if not User.objects.filter(username='admin').exists():
     su = User.objects.create_superuser(
         username='admin', email='superadmin@dok.gov',
-        password=DEMO_PASSWORD, first_name='Super', last_name='Admin',
+        password=None, first_name='Super', last_name='Admin',
     )
+    su.set_unusable_password()
+    su.save()
     ProductAccess.objects.get_or_create(
         user=su, product='harbor',
         defaults={'role': 'system_admin', 'is_active': True},

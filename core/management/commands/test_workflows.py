@@ -22,7 +22,6 @@ from django.test import Client
 
 User = get_user_model()
 
-DEMO_PASSWORD = os.environ.get('DEMO_PASSWORD', 'demo' + '2026!')
 TEST_PASSWORD = os.environ.get('TEST_PASSWORD', 'Str0ng' + 'P@ssw0rd!')
 
 
@@ -171,9 +170,11 @@ class Command(BaseCommand):
             if not admin_user:
                 admin_user = User.objects.create_superuser(
                     username='admin', email='admin@dok.gov',
-                    password=DEMO_PASSWORD, role='system_admin',
+                    password=None, role='system_admin',
                     first_name='System', last_name='Admin',
                 )
+                admin_user.set_unusable_password()
+                admin_user.save()
             program = GrantProgram.objects.create(
                 agency=agency,
                 title='Test Grant Program',
@@ -454,7 +455,13 @@ class Command(BaseCommand):
         # ==============================================================
         T.section('STAFF WORKFLOW - Login')
         staff_client = Client()
-        staff_login = staff_client.login(username='admin', password=DEMO_PASSWORD)
+        # Demo users are passwordless (keel >= 0.20.1); use force_login.
+        try:
+            admin_user = User.objects.get(username='admin')
+            staff_client.force_login(admin_user)
+            staff_login = True
+        except User.DoesNotExist:
+            staff_login = False
         T.check(staff_login, 'Staff (admin) can log in')
 
         # 1. Visit dashboard

@@ -1,11 +1,14 @@
 """
 Management command to seed the database with demo data.
 
+Demo users are passwordless — login is exclusively via /demo-login/ (the
+one-click role buttons). See keel CLAUDE.md → "Demo authentication —
+passwordless contract" for the full rationale.
+
 Usage:
     python manage.py seed_demo           # Seed data + create admin
     python manage.py seed_demo --reset   # Wipe all data first, then seed
 """
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -13,8 +16,6 @@ from pathlib import Path
 from django.core.management.base import BaseCommand
 
 from django.contrib.auth import get_user_model; User = get_user_model()
-
-DEMO_PASSWORD = os.environ.get('DEMO_PASSWORD', 'demo' + '2026!')
 
 
 class Command(BaseCommand):
@@ -36,15 +37,17 @@ class Command(BaseCommand):
         # Create superuser if it doesn't exist
         if not User.objects.filter(username='admin').exists():
             self.stdout.write('Creating admin superuser...')
-            User.objects.create_superuser(
+            su = User.objects.create_superuser(
                 username='admin',
                 email='admin@dok.gov',
-                password=DEMO_PASSWORD,
+                password=None,
                 first_name='System',
                 last_name='Admin',
                 role='system_admin',
             )
-            self.stdout.write(self.style.SUCCESS('  admin user created'))
+            su.set_unusable_password()
+            su.save()
+            self.stdout.write(self.style.SUCCESS('  admin user created (passwordless demo)'))
         else:
             self.stdout.write('Admin user already exists, skipping.')
 
@@ -94,8 +97,7 @@ class Command(BaseCommand):
                         item.save()
 
             self.stdout.write(self.style.SUCCESS('\nDemo data seeded successfully!'))
-            self.stdout.write('  Credentials: admin / <DEMO_' + 'PASSWORD>')
-            self.stdout.write('  Demo users use DEMO_PASSWORD env var')
+            self.stdout.write('  Sign in at /demo-login/ — one-click role buttons (no password).')
         else:
             self.stdout.write(
                 self.style.ERROR(f'Seed script not found at {seed_script}')
