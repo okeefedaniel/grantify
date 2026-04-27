@@ -101,6 +101,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'keel.accounts.middleware.AutoOIDCLoginMiddleware',
     'keel.accounts.middleware.ProductAccessMiddleware',
+    'keel.accounts.middleware.SessionFreshnessMiddleware',
     'core.middleware.HarborProfileMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
