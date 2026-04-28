@@ -129,7 +129,7 @@ class Command(BaseCommand):
             admin.role = "system_admin"
             admin.is_staff = True
             admin.is_superuser = True
-            admin.set_password(PASSWORD)
+            admin.set_unusable_password()
             admin.save()
             self.stdout.write(self.style.SUCCESS("  admin -> password cleared (passwordless demo)"))
         except User.DoesNotExist:
@@ -153,15 +153,15 @@ class Command(BaseCommand):
             agency = Agency.objects.filter(abbreviation="OBM").first()
             if agency:
                 auditor.agency = agency
-            auditor.set_password(PASSWORD)
+            auditor.set_unusable_password()
             auditor.save()
             self.stdout.write(self.style.SUCCESS("  Created auditor (System Auditor)"))
         else:
             auditor.first_name = "System"
             auditor.last_name = "Auditor"
-            auditor.set_password(PASSWORD)
+            auditor.set_unusable_password()
             auditor.save()
-            self.stdout.write("  auditor already exists, updated password.")
+            self.stdout.write("  auditor already exists, password cleared (passwordless demo).")
 
         # ── Summary ──────────────────────────────────────────────
         self.stdout.write(self.style.MIGRATE_HEADING("\n  Final user list:"))
