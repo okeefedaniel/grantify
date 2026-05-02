@@ -41,3 +41,7 @@ Thumbs.db
 
 # Claude
 .claude/
+
+# Local SQLite dev database
+dev.db
+dev.db-journal
