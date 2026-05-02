@@ -60,6 +60,7 @@ urlpatterns = [
     path('closeout/', include('closeout.urls')),
     path('signatures/', include('signatures.urls')),
     path('notifications/', include('keel.notifications.urls')),
+    path('settings/', include('keel.settings.urls')),
     path('api/', include('api.urls')),
     path('i18n/', include('django.conf.urls.i18n')),
     path('search/', search_view, name='search'),
