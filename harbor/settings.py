@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'keel.notifications',
     'keel.requests',
     'keel.signatures',
+    'keel.settings',
     # Third party
     'rest_framework',
     'rest_framework.authtoken',
