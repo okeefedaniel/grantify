@@ -2,6 +2,7 @@
 
 import functools
 import hashlib
+import hmac
 import time
 
 from django.core.cache import cache
@@ -50,11 +51,20 @@ def rate_limit(max_requests=10, window=60, key_func=None):
             if key_func:
                 ident = key_func(request)
             else:
-                forwarded = request.META.get('HTTP_X_FORWARDED_FOR', '')
-                ip = forwarded.split(',')[0].strip() if forwarded else request.META.get('REMOTE_ADDR', '0.0.0.0')
-                ident = ip
+                # Use keel.security.middleware.get_client_ip — it honors
+                # KEEL_TRUSTED_PROXY_COUNT so an attacker cannot spoof
+                # X-Forwarded-For to evade rate limits. Falls back to
+                # REMOTE_ADDR when keel is not importable.
+                try:
+                    from keel.security.middleware import get_client_ip
+                    ident = get_client_ip(request) or '0.0.0.0'
+                except Exception:
+                    ident = request.META.get('REMOTE_ADDR', '0.0.0.0')
 
-            hashed = hashlib.md5(ident.encode()).hexdigest()[:12]
+            # Use SHA-256 (md5 raises in FIPS-only environments and is flagged
+            # by bandit B324). usedforsecurity=False would also work but isn't
+            # supported on older Pythons; SHA-256 is the safe default.
+            hashed = hashlib.sha256(ident.encode()).hexdigest()[:12]
             cache_key = f'ratelimit:{view_func.__name__}:{hashed}'
 
             history = cache.get(cache_key, [])
