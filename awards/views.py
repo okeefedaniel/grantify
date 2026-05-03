@@ -3,7 +3,11 @@ import hashlib
 import hmac
 import logging
 import uuid
-import xml.etree.ElementTree as ET
+# defusedxml hardens the parser against billion-laughs / external-entity
+# attacks. The DocuSign webhook is HMAC-gated, so reachability requires the
+# secret, but defense-in-depth: an attacker who learns the secret should not
+# be able to OOM the worker by posting an exponential-entity payload.
+import defusedxml.ElementTree as ET
 from datetime import date
 from decimal import Decimal
 

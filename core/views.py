@@ -1121,41 +1121,11 @@ class MunicipalityDetailView(LoginRequiredMixin, SortableListMixin, ListView):
         return context
 
 
-# ---------------------------------------------------------------------------
-# Demo Quick Login (DEMO_MODE)
-# ---------------------------------------------------------------------------
-class DemoLoginView(View):
-    """POST-only view that logs in a demo user by username.
-
-    Only available when ``DEMO_MODE`` is ``True`` (defaults to the value of
-    ``DEBUG``).  Looks up the user by username and logs them in directly.
-    """
-
-    http_method_names = ['post']
-
-    @rate_limit(max_requests=10, window=60)
-    def post(self, request):
-        if not getattr(settings, 'DEMO_MODE', False):
-            from django.http import HttpResponseForbidden
-            return HttpResponseForbidden('Demo login is only available in demo mode.')
-
-        username = request.POST.get('username', '').strip()
-        if not username:
-            messages.error(request, _('No username provided.'))
-            return redirect('portal:demo')
-
-        User = get_user_model()
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            messages.error(request, _('Could not log in as "%(username)s".') % {'username': username})
-            return redirect('portal:demo')
-
-        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-        messages.success(
-            request,
-            _('Logged in as %(name)s (%(role)s).')
-            % {'name': user.get_full_name() or user.username,
-               'role': getattr(user, 'role', 'applicant')},
-        )
-        return redirect('dashboard')
+# Demo Quick Login was removed in the 2026-05-03 CSO sweep — the canonical
+# implementation lives at keel.core.demo.demo_login_view (mounted at
+# /demo-login/) which enforces the DEMO_ROLES allowlist, rate limits, and
+# is_active check. The local copy here had drifted: it accepted any
+# username (no role allowlist) and would have logged in dokadmin or any
+# other privileged user when DEMO_MODE was on. It was never wired into
+# any URL, but leaving it in the module is a footgun. See keel CLAUDE.md
+# → "Demo authentication — passwordless contract" for the full rationale.
