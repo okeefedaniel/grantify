@@ -133,8 +133,19 @@ class ReportSubmitView(LoginRequiredMixin, View):
 
     http_method_names = ['post']
 
+    def _get_scoped_report(self, request, pk):
+        user = request.user
+        qs = Report.objects.select_related('award')
+        if user.is_superuser or getattr(user, 'role', '') == 'system_admin':
+            pass
+        elif getattr(user, 'is_agency_staff', False) and getattr(user, 'agency', None):
+            qs = qs.filter(award__agency=user.agency)
+        else:
+            qs = qs.filter(award__recipient=user)
+        return get_object_or_404(qs, pk=pk)
+
     def post(self, request, pk):
-        report = get_object_or_404(Report, pk=pk)
+        report = self._get_scoped_report(request, pk)
 
         if report.status not in (Report.Status.DRAFT, Report.Status.REVISION_REQUESTED):
             return JsonResponse(
@@ -244,7 +255,12 @@ class ReportReviewView(AgencyStaffRequiredMixin, View):
     http_method_names = ['post']
 
     def post(self, request, pk):
-        report = get_object_or_404(Report, pk=pk)
+        user = request.user
+        qs = Report.objects.select_related('award')
+        if not (user.is_superuser or getattr(user, 'role', '') == 'system_admin'):
+            if getattr(user, 'agency', None):
+                qs = qs.filter(award__agency=user.agency)
+        report = get_object_or_404(qs, pk=pk)
 
         if report.status not in (Report.Status.SUBMITTED, Report.Status.UNDER_REVIEW):
             messages.error(request, _('This report cannot be reviewed in its current state.'))
@@ -298,7 +314,12 @@ class SF425SubmitView(AgencyStaffRequiredMixin, View):
     http_method_names = ['post']
 
     def post(self, request, pk):
-        sf425 = get_object_or_404(SF425Report, pk=pk)
+        user = request.user
+        qs = SF425Report.objects.select_related('award')
+        if not (user.is_superuser or getattr(user, 'role', '') == 'system_admin'):
+            if getattr(user, 'agency', None):
+                qs = qs.filter(award__agency=user.agency)
+        sf425 = get_object_or_404(qs, pk=pk)
 
         if sf425.status != SF425Report.Status.DRAFT:
             messages.error(request, _('Only draft SF-425 reports can be submitted.'))
@@ -321,7 +342,12 @@ class SF425ApproveView(GrantManagerRequiredMixin, View):
     http_method_names = ['post']
 
     def post(self, request, pk):
-        sf425 = get_object_or_404(SF425Report, pk=pk)
+        user = request.user
+        qs = SF425Report.objects.select_related('award')
+        if not (user.is_superuser or getattr(user, 'role', '') == 'system_admin'):
+            if getattr(user, 'agency', None):
+                qs = qs.filter(award__agency=user.agency)
+        sf425 = get_object_or_404(qs, pk=pk)
 
         if sf425.status != SF425Report.Status.SUBMITTED:
             messages.error(request, _('Only submitted SF-425 reports can be approved.'))
