@@ -202,4 +202,11 @@ class AwardLocalSignForm(forms.Form):
         f = self.cleaned_data['signed_pdf']
         if not f.name.lower().endswith('.pdf'):
             raise forms.ValidationError(_lazy('Only PDF files are accepted.'))
+        max_bytes = 20 * 1024 * 1024  # 20 MB
+        if f.size and f.size > max_bytes:
+            raise forms.ValidationError(_lazy('File exceeds the 20 MB size limit.'))
+        head = f.read(5)
+        f.seek(0)
+        if head[:4] != b'%PDF':
+            raise forms.ValidationError(_lazy('Uploaded file is not a valid PDF document.'))
         return f

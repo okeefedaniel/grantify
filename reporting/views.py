@@ -134,7 +134,15 @@ class ReportSubmitView(LoginRequiredMixin, View):
     http_method_names = ['post']
 
     def post(self, request, pk):
-        report = get_object_or_404(Report, pk=pk)
+        user = request.user
+        base_qs = Report.objects.select_related('award')
+        if user.is_superuser or user.role == 'system_admin':
+            qs = base_qs
+        elif getattr(user, 'is_agency_staff', False) and getattr(user, 'agency', None):
+            qs = base_qs.filter(award__agency=user.agency)
+        else:
+            qs = base_qs.filter(award__recipient=user)
+        report = get_object_or_404(qs, pk=pk)
 
         if report.status not in (Report.Status.DRAFT, Report.Status.REVISION_REQUESTED):
             return JsonResponse(
@@ -218,9 +226,15 @@ class ReportUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'reporting/report_form.html'
 
     def get_queryset(self):
-        return Report.objects.filter(
+        user = self.request.user
+        qs = Report.objects.filter(
             status__in=(Report.Status.DRAFT, Report.Status.REVISION_REQUESTED),
         ).select_related('award')
+        if user.is_superuser or user.role == 'system_admin':
+            return qs
+        if getattr(user, 'is_agency_staff', False) and getattr(user, 'agency', None):
+            return qs.filter(award__agency=user.agency)
+        return qs.filter(award__recipient=user)
 
     def form_valid(self, form):
         messages.success(self.request, _('Report updated successfully.'))
