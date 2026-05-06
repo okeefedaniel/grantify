@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 {% load humanize %}
+{% load activity_tags %}
 
 {% block title %}{{ application.project_title }}{% endblock %}
 
@@ -512,6 +513,12 @@
 
     <!-- Right Column (4 cols) -->
     <div class="col-lg-4">
+
+        {# keel.activity per-record feed -- assignment claims, comments,
+           attachments, compliance items, and (once Track B lands) status
+           transitions + Manifest signing roundtrips. Internal staff comments
+           are visibility=staff so applicant-side viewers don't see them. #}
+        {% activity_panel application limit=15 title="Activity" %}
 
         <!-- Actions Card -->
         <div class="card mb-4">
