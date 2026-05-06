@@ -9,6 +9,7 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from . import views
+from .helm_activity import harbor_helm_activity
 from .helm_feed import harbor_helm_feed
 from .helm_inbox import harbor_helm_feed_inbox
 
@@ -31,4 +32,5 @@ urlpatterns = [
     # Helm executive dashboard feed
     path('v1/helm-feed/', harbor_helm_feed, name='helm-feed'),
     path('v1/helm-feed/inbox/', harbor_helm_feed_inbox, name='helm-feed-inbox'),
+    path('v1/helm-feed/activity/', harbor_helm_activity, name='helm-feed-activity'),
 ] + router.urls
