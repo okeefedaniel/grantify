@@ -61,18 +61,22 @@ def _get_compliance(audit):
         return None
 
 
+# IMPORTANT: metadata_fn returns the metadata DICT ONLY (no model instances).
+# The keel.activity registry stores the return value as the Activity.metadata
+# JSONField, so any model instance in the returned dict will fail JSON encoding
+# at insert time. The denormalized application FK on the Activity row is
+# populated by Activity.save() (in activity_models.py) from the target GFK
+# when target IS an Application -- no need to pass it through metadata_fn.
+
 def _assignment_added_kwargs(audit):
     assignment = _get_assignment(audit)
     if assignment is None:
         return None
     return {
-        'application': assignment.application,
-        'metadata': {
-            'assignment_id': str(assignment.pk),
-            'assigned_to': str(assignment.assigned_to_id) if assignment.assigned_to_id else '',
-            'status': getattr(assignment, 'status', ''),
-            'assignment_type': getattr(assignment, 'assignment_type', ''),
-        },
+        'assignment_id': str(assignment.pk),
+        'assigned_to': str(assignment.assigned_to_id) if assignment.assigned_to_id else '',
+        'status': getattr(assignment, 'status', ''),
+        'assignment_type': getattr(assignment, 'assignment_type', ''),
     }
 
 
@@ -81,12 +85,9 @@ def _comment_posted_kwargs(audit):
     if comment is None:
         return None
     return {
-        'application': comment.application,
-        'metadata': {
-            'comment_id': str(comment.pk),
-            'is_internal': bool(getattr(comment, 'is_internal', False)),
-            'content_excerpt': str(getattr(comment, 'content', ''))[:80],
-        },
+        'comment_id': str(comment.pk),
+        'is_internal': bool(getattr(comment, 'is_internal', False)),
+        'content_excerpt': str(getattr(comment, 'content', ''))[:80],
     }
 
 
@@ -95,13 +96,10 @@ def _attachment_uploaded_kwargs(audit):
     if attachment is None:
         return None
     return {
-        'application': attachment.application,
-        'metadata': {
-            'attachment_id': str(attachment.pk),
-            'filename': str(getattr(attachment, 'file', '')).split('/')[-1] or '(file)',
-            'visibility': getattr(attachment, 'visibility', ''),
-            'document_type': getattr(attachment, 'document_type', ''),
-        },
+        'attachment_id': str(attachment.pk),
+        'filename': str(getattr(attachment, 'file', '')).split('/')[-1] or '(file)',
+        'visibility': getattr(attachment, 'visibility', ''),
+        'document_type': getattr(attachment, 'document_type', ''),
     }
 
 
@@ -110,12 +108,9 @@ def _compliance_added_kwargs(audit):
     if item is None:
         return None
     return {
-        'application': item.application,
-        'metadata': {
-            'item_id': str(item.pk),
-            'requirement_type': getattr(item, 'requirement_type', ''),
-            'status': getattr(item, 'status', ''),
-        },
+        'item_id': str(item.pk),
+        'requirement_type': getattr(item, 'requirement_type', ''),
+        'status': getattr(item, 'status', ''),
     }
 
 
