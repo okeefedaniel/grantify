@@ -135,7 +135,7 @@ def register_all() -> None:
         verb='collab.removed',
         visibility='collaborators',
         target_fn=lambda audit: _resolve_application_from_changes(audit),
-        source_label_fn=lambda audit: f'{_actor_name(audit)} released an assignment',
+        source_label_fn=lambda audit: f'released an assignment',
         metadata_fn=lambda audit: {
             'status': (audit.changes or {}).get('status', ''),
         },
@@ -149,7 +149,7 @@ def register_all() -> None:
         target_fn=lambda audit: getattr(_get_comment(audit), 'application', None),
         action_fn=_get_comment,
         deep_link_fn=lambda audit: _safe_get_url(getattr(_get_comment(audit), 'application', None)),
-        source_label_fn=lambda audit: f'{_actor_name(audit)} posted a comment',
+        source_label_fn=lambda audit: f'posted a comment',
         metadata_fn=_comment_posted_kwargs,
     ))
 
@@ -161,7 +161,7 @@ def register_all() -> None:
         target_fn=lambda audit: getattr(_get_attachment(audit), 'application', None),
         action_fn=_get_attachment,
         deep_link_fn=lambda audit: _safe_get_url(getattr(_get_attachment(audit), 'application', None)),
-        source_label_fn=lambda audit: f'{_actor_name(audit)} uploaded a file',
+        source_label_fn=lambda audit: f'uploaded a file',
         metadata_fn=_attachment_uploaded_kwargs,
     ))
 
@@ -173,7 +173,7 @@ def register_all() -> None:
         target_fn=lambda audit: getattr(_get_compliance(audit), 'application', None),
         action_fn=_get_compliance,
         deep_link_fn=lambda audit: _safe_get_url(getattr(_get_compliance(audit), 'application', None)),
-        source_label_fn=lambda audit: f'{_actor_name(audit)} added a compliance item',
+        source_label_fn=lambda audit: f'added a compliance item',
         metadata_fn=_compliance_added_kwargs,
     ))
 
@@ -191,12 +191,12 @@ def _actor_name(audit) -> str:
 def _assignment_added_label(audit) -> str:
     assignment = _get_assignment(audit)
     if assignment is None:
-        return f'{_actor_name(audit)} claimed an application'
+        return f'claimed an application'
     if assignment.assigned_to_id and assignment.assigned_to:
         invitee = assignment.assigned_to.get_full_name() or assignment.assigned_to.username
     else:
         invitee = 'someone'
-    return f'{_actor_name(audit)} assigned {invitee} to process this application'
+    return f'assigned {invitee} to process this application'
 
 
 def _comment_visibility(audit):
