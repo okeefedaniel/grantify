@@ -349,9 +349,12 @@ class ApplicationDetailView(LoginRequiredMixin, DetailView):
             from core.models import GRANT_MANAGER_ROLES
             context['can_assign'] = getattr(self.request.user, 'role', '') in GRANT_MANAGER_ROLES
 
-            # Communications panel (staff only) — lazy-creates mailbox on first view
-            context['comms_mailbox'] = application.comms_mailbox
-            context['comms_threads'] = application.comms_threads
+            # Communications panel (staff only) — lazy-creates mailbox on first view.
+            # Application doesn't currently extend CommsMailboxMixin and harbor
+            # doesn't install keel.comms, so guard the access. Pre-existing bug
+            # caught by /qa on 2026-05-06 (was a 500 on every staff detail view).
+            context['comms_mailbox'] = getattr(application, 'comms_mailbox', None)
+            context['comms_threads'] = getattr(application, 'comms_threads', None)
 
         return context
 
