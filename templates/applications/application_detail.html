@@ -514,10 +514,7 @@
     <!-- Right Column (4 cols) -->
     <div class="col-lg-4">
 
-        {# keel.activity per-record feed -- assignment claims, comments,
-           attachments, compliance items, and (once Track B lands) status
-           transitions + Manifest signing roundtrips. Internal staff comments
-           are visibility=staff so applicant-side viewers don't see them. #}
+        {# keel.activity per-record feed -- visible per Activity.visible_to. #}
         {% activity_panel application limit=15 title="Activity" %}
 
         <!-- Actions Card -->
