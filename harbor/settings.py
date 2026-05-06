@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'keel.requests',
     'keel.signatures',
     'keel.settings',
+    'keel.activity',  # Phase 1A Week 5 / Phase 1C — fifth product peer (Harbor)
     # Third party
     'rest_framework',
     'rest_framework.authtoken',
@@ -448,6 +449,18 @@ KEEL_AUDIT_LOG_MODEL = 'harbor_core.AuditLog'
 KEEL_NOTIFICATION_MODEL = 'harbor_core.Notification'
 KEEL_NOTIFICATION_PREFERENCE_MODEL = 'harbor_core.NotificationPreference'
 KEEL_NOTIFICATION_LOG_MODEL = 'harbor_core.NotificationLog'
+
+# keel.activity — Phase 1A Week 5 / Phase 1C
+# Concrete Activity + Watcher live in applications/activity_models.py with
+# a denormalized `application` FK for fast detail-page reads. Track A
+# promotion rules (ApplicationAssignment / ApplicationComment /
+# ApplicationAttachment / ApplicationComplianceItem) register from
+# ApplicationsConfig.ready(). Track B verbs (workflow.transitioned,
+# signing.*) emit explicitly via record_activity() from harbor's services.
+KEEL_ACTIVITY_MODEL = 'applications.Activity'
+KEEL_WATCHER_MODEL = 'applications.Watcher'
+KEEL_PRODUCT_BASE_URL = os.environ.get('KEEL_PRODUCT_BASE_URL', 'https://harbor.docklabs.ai')
+KEEL_FEED_USER_TOKEN_SECRET = os.environ.get('KEEL_FEED_USER_TOKEN_SECRET', '')
 
 KEEL_CSP_POLICY = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self' https://keel.docklabs.ai https://demo-keel.docklabs.ai"  # Start permissive, tighten later
 KEEL_FILE_SCANNING_ENABLED = not DEBUG

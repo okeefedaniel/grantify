@@ -201,7 +201,13 @@ class CoreConfig(AppConfig):
         # Applications
         register_audited_model('applications.Application', 'Application')
         register_audited_model('applications.ApplicationAssignment', 'Application Assignment')
-        register_audited_model('applications.ApplicationDocument', 'Application Document')
+        # NOTE: 'applications.ApplicationDocument' was a stale entry that pre-dated
+        # the AbstractAttachment migration; the actual model is named
+        # ApplicationAttachment. Without this fix, audit rows weren't firing on
+        # attachment creates and Track A activity promotions would silently miss
+        # 'diligence.attachment_uploaded' verbs.
+        register_audited_model('applications.ApplicationAttachment', 'Application Attachment')
+        register_audited_model('applications.ApplicationComment', 'Application Comment')
         register_audited_model('applications.ApplicationComplianceItem', 'Compliance Item')
         # Reviews
         register_audited_model('reviews.ReviewAssignment', 'Review Assignment')

@@ -359,3 +359,10 @@ class ApplicationAssignment(AbstractAssignment):
             f"{self.assigned_to} \u2192 {self.application} "
             f"({self.get_status_display()})"
         )
+
+
+# ---------------------------------------------------------------------------
+# keel.activity concrete models -- re-exported for Django app discovery.
+# Definitions in activity_models.py to keep this file from growing further.
+# ---------------------------------------------------------------------------
+from .activity_models import Activity, Watcher  # noqa: E402, F401
