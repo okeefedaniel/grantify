@@ -45,3 +45,4 @@ Thumbs.db
 # Local SQLite dev database
 dev.db
 dev.db-journal
+.gstack/
