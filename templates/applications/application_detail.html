@@ -3,6 +3,7 @@
 {% load crispy_forms_tags %}
 {% load humanize %}
 {% load activity_tags %}
+{% load follow_tags %}
 
 {% block title %}{{ application.project_title }}{% endblock %}
 
@@ -31,7 +32,8 @@
             {% trans "Application ID:" %} <code>{{ application.id }}</code>
         </p>
     </div>
-    <div>
+    <div class="d-flex align-items-center gap-2">
+        {% follow_button application %}
         {% if application.status == "draft" %}
             <span class="pill pill-muted px-3 py-2">{% trans "Draft" %}</span>
         {% elif application.status == "submitted" %}
