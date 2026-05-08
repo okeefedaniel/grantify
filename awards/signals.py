@@ -88,6 +88,23 @@ def on_packet_approved(sender, handoff, source_obj, signed_pdf, **kwargs):
                 source_obj.pk, target, handoff.pk,
             )
 
+    # Record activity for the suite-wide stream.
+    try:
+        from keel.activity.services import record_activity
+        record_activity(
+            actor=handoff.created_by,
+            verb='signing.completed',
+            target=source_obj,
+            visibility='internal_staff',
+            source_label='completed signing of award agreement',
+            metadata={'manifest_packet_uuid': str(handoff.manifest_packet_uuid or '')},
+        )
+    except Exception:
+        logger.exception(
+            'Failed to record signing.completed activity for award %s handoff %s',
+            source_obj.pk, handoff.pk,
+        )
+
     # Reconcile the legacy SignatureRequest row so award_detail
     # templates + signature_status endpoints still show completion.
     # Match by manifest_packet_uuid stored in envelope_id at send time.

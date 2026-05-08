@@ -22,6 +22,7 @@ from core.notifications import (
     notify_application_status_changed,
     notify_application_submitted,
 )
+from keel.activity.services import record_activity
 from grants.models import GrantProgram
 
 from .forms import (
@@ -411,6 +412,17 @@ class ApplicationSubmitView(LoginRequiredMixin, View):
             ip_address=getattr(request, 'audit_ip', None),
         )
 
+        record_activity(
+            actor=request.user,
+            verb='workflow.submitted',
+            target=application,
+            visibility='collaborators',
+            deep_link=request.build_absolute_uri(application.get_absolute_url()),
+            source_label='submitted an application',
+            metadata={'grant_program': str(application.grant_program_id or ''),
+                      'old_status': old_status},
+        )
+
         return redirect('applications:detail', pk=application.pk)
 
 
@@ -456,6 +468,16 @@ class ApplicationWithdrawView(LoginRequiredMixin, View):
             description=f'Application "{application}" withdrawn.',
             changes={'old_status': old_status, 'new_status': Application.Status.WITHDRAWN},
             ip_address=getattr(request, 'audit_ip', None),
+        )
+
+        record_activity(
+            actor=request.user,
+            verb='workflow.withdrawn',
+            target=application,
+            visibility='collaborators',
+            deep_link=request.build_absolute_uri(application.get_absolute_url()),
+            source_label='withdrew an application',
+            metadata={'old_status': old_status},
         )
 
         return redirect('applications:detail', pk=application.pk)
@@ -612,6 +634,16 @@ class ApplicationStatusChangeView(AgencyStaffRequiredMixin, View):
             description=f'Application "{application}" status changed from {old_status} to {new_status}.',
             changes={'old_status': old_status, 'new_status': new_status, 'comment': comment_text},
             ip_address=getattr(request, 'audit_ip', None),
+        )
+
+        record_activity(
+            actor=request.user,
+            verb='workflow.transitioned',
+            target=application,
+            visibility='internal_staff',
+            deep_link=request.build_absolute_uri(application.get_absolute_url()),
+            source_label=f'moved application to {status_display.lower()}',
+            metadata={'old_status': old_status, 'new_status': new_status},
         )
 
         return redirect('applications:detail', pk=application.pk)
