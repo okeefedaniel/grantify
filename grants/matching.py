@@ -133,13 +133,19 @@ def _build_system_prompt(user):
         )
 
 
-def score_opportunity(preference, opportunity):
+def score_opportunity(preference, opportunity, *, request=None):
     """Call the Claude API to score an opportunity against user preferences.
 
     Returns a dict ``{'score': int, 'explanation': str}`` or ``None`` on
     failure.  Scores range from 0 (no relevance) to 100 (perfect match).
+
+    Routes through the three-layer AI access check
+    (``user_can_use_ai``) so calls bill to the user's own Anthropic
+    key. Falls back to deployment-wide ``ANTHROPIC_API_KEY`` only when
+    the gate doesn't resolve a client (legacy / management command
+    path).
     """
-    from keel.core.ai import get_client, call_claude
+    from keel.core.ai import call_claude, get_client, get_client_for_user
 
     pref_context = build_preference_context(preference)
     opp_summary = build_opportunity_summary(opportunity)
@@ -158,7 +164,9 @@ def score_opportunity(preference, opportunity):
     )
 
     try:
-        client = get_client()
+        client = get_client_for_user(preference.user, 'harbor', request=request)
+        if client is None:
+            client = get_client()
         if client is None:
             return None
         text = call_claude(
