@@ -115,7 +115,7 @@ def main():
 
     # Collect static files (no DB needed, but required for WhiteNoise)
     log("=== Collecting static files ===")
-    run(f"{manage_cmd} collectstatic --noinput")
+    run(f"{manage_cmd} collectstatic --noinput", fatal=True)
 
     # Start gunicorn
     if port == 'NOT SET':

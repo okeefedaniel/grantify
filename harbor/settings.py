@@ -135,14 +135,18 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'harbor.wsgi.application'
 
-# Database - SQLite for dev, PostgreSQL for production
+# Database — DATABASE_URL required (SQLite fallback decommissioned keel 0.24.3)
 import dj_database_url
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
-        conn_max_age=600,
+_db_url = os.environ.get('DATABASE_URL', '').strip()
+if not _db_url:
+    from django.core.exceptions import ImproperlyConfigured
+    raise ImproperlyConfigured(
+        'DATABASE_URL is required. '
+        'Run: createdb harbor_dev && export DATABASE_URL=postgres://localhost:5432/harbor_dev'
     )
+DATABASES = {
+    'default': dj_database_url.parse(_db_url, conn_max_age=600)
 }
 
 AUTH_USER_MODEL = 'keel_accounts.KeelUser'
@@ -262,7 +266,7 @@ LOGGING = {
 # ---------------------------------------------------------------------------
 
 # Session configuration
-SESSION_COOKIE_AGE = 60 * 60 * 24 * 30  # 30 days (pre-gov-launch; tighten before go-live)
+SESSION_COOKIE_AGE = 60 * 60  # 1 hour — government compliance requirement
 SESSION_SAVE_EVERY_REQUEST = True  # Reset session expiry on each request
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
