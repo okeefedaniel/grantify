@@ -489,10 +489,14 @@ class BudgetVsActualView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        award = get_object_or_404(
-            Award.objects.select_related('grant_program', 'agency', 'organization'),
-            pk=self.kwargs['award_id'],
-        )
+        user = self.request.user
+        qs = Award.objects.select_related('grant_program', 'agency', 'organization')
+        if not (user.is_superuser or user.role == 'system_admin'):
+            if user.is_agency_staff and user.agency:
+                qs = qs.filter(agency=user.agency)
+            else:
+                qs = qs.filter(recipient=user)
+        award = get_object_or_404(qs, pk=self.kwargs['award_id'])
         context['award'] = award
 
         # Aggregate budget line items by category across all approved budgets
