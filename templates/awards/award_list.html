@@ -81,7 +81,7 @@
 <!-- Awards Table -->
 <div class="card border-0 shadow-sm">
     <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+        <table class="table table-hover table-clickable align-middle mb-0">
             <thead class="table-light">
                 <tr>
                     {% sortable_th 'award_number' _("Award Number") %}
@@ -97,7 +97,7 @@
             </thead>
             <tbody>
                 {% for award in awards %}
-                <tr>
+                <tr data-href="{% url 'awards:detail' award.pk %}">
                     <td>
                         <a href="{% url 'awards:detail' award.pk %}" class="fw-semibold text-decoration-none">
                             {{ award.award_number }}

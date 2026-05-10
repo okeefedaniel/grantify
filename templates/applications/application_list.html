@@ -174,7 +174,7 @@
 <!-- ===================== LIST VIEW (default) ===================== -->
 <div class="card">
     <div class="table-responsive">
-        <table class="table table-hover mb-0">
+        <table class="table table-hover table-clickable mb-0">
             <thead class="table-light">
                 <tr>
                     <th>{% trans "Application ID" %}</th>
@@ -191,7 +191,7 @@
             <tbody>
                 {% for app in applications %}
                 {% with assignment=assignments_by_app|dict_get:app.pk %}
-                <tr>
+                <tr data-href="{% url 'applications:detail' app.pk %}">
                     <td>
                         <code class="text-muted">{{ app.id|truncatechars:13 }}</code>
                     </td>
