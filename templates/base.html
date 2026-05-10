@@ -14,7 +14,7 @@
 {# === Sidebar Customization === #}
 
 {% block sidebar_brand_icon %}bi-bank2{% endblock %}
-{% block sidebar_brand_name %}Harbor{% endblock %}
+{% block sidebar_brand_name %}{{ SITE_NAME|default:"Harbor" }}{% endblock %}
 {% block sidebar_brand_href %}{% if user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'portal:home' %}{% endif %}{% endblock %}
 
 {% block sidebar_quick_new %}

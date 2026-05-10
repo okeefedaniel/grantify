@@ -6,7 +6,7 @@
 
 {# --- Public layout blocks (only used when not authenticated) --- #}
 {% block sidebar_brand_icon %}bi-bank2{% endblock %}
-{% block sidebar_brand_name %}Harbor{% endblock %}
+{% block sidebar_brand_name %}{{ SITE_NAME|default:"Harbor" }}{% endblock %}
 {% block public_home_url %}{% url 'portal:home' %}{% endblock %}
 {% block login_url %}{% url 'core:login' %}{% endblock %}
 {% block dashboard_url %}{% url 'dashboard' %}{% endblock %}
