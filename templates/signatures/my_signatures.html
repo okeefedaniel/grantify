@@ -37,7 +37,7 @@
         </h5>
     </div>
     <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+        <table class="table table-hover table-clickable align-middle mb-0">
             <thead class="table-light">
                 <tr>
                     <th>{% trans "Packet" %}</th>
@@ -50,7 +50,7 @@
             </thead>
             <tbody>
                 {% for step in pending_steps %}
-                <tr>
+                <tr data-href="{% url 'signatures:packet-detail' step.packet.pk %}">
                     <td>
                         <a href="{% url 'signatures:packet-detail' step.packet.pk %}" class="fw-semibold text-decoration-none">
                             {{ step.packet.title }}

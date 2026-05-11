@@ -54,7 +54,7 @@
 <div class="card">
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover table-clickable mb-0">
                 <thead>
                     <tr>
                         {% sortable_th 'program' _("Program") %}
@@ -68,7 +68,7 @@
                 </thead>
                 <tbody>
                     {% for saved in saved_programs %}
-                    <tr>
+                    <tr data-href="{% url 'portal:opportunity-detail' saved.grant_program.pk %}">
                         <td>
                             <a href="{% url 'portal:opportunity-detail' saved.grant_program.pk %}" class="text-decoration-none fw-bold">
                                 {{ saved.grant_program.title|truncatewords:10 }}

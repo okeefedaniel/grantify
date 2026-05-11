@@ -33,7 +33,7 @@
 
 <div class="card shadow-sm mb-4">
     <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+        <table class="table table-hover table-clickable align-middle mb-0">
             <thead class="table-light">
                 <tr>
                     <th>{% trans "Name" %}</th>
@@ -46,7 +46,7 @@
             </thead>
             <tbody>
                 {% for flow in flows %}
-                <tr>
+                <tr data-href="{% url 'signatures:flow-detail' flow.pk %}">
                     <td>
                         <a href="{% url 'signatures:flow-detail' flow.pk %}" class="fw-semibold text-decoration-none">
                             <i class="bi bi-diagram-3 me-1 text-muted"></i>{{ flow.name }}

@@ -68,7 +68,7 @@
 <div class="card">
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover table-clickable mb-0">
                 <thead>
                     <tr>
                         {% sortable_th 'title' 'Title' %}
@@ -82,7 +82,7 @@
                 </thead>
                 <tbody>
                     {% for program in programs %}
-                    <tr>
+                    <tr data-href="{% url 'grants:program-detail' program.pk %}">
                         <td>
                             <a href="{% url 'grants:program-detail' program.pk %}" class="text-decoration-none fw-bold">
                                 {{ program.title|truncatewords:10 }}

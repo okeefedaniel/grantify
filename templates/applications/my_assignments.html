@@ -59,7 +59,7 @@
 <div class="card">
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover table-clickable mb-0">
                 <thead>
                     <tr>
                         {% sortable_th 'application' _("Application") %}
@@ -74,7 +74,7 @@
                 </thead>
                 <tbody>
                     {% for assignment in assignments %}
-                    <tr>
+                    <tr data-href="{% url 'applications:detail' assignment.application.pk %}">
                         <td>
                             <a href="{% url 'applications:detail' assignment.application.pk %}" class="text-decoration-none fw-bold">
                                 {{ assignment.application.project_title|truncatewords:8 }}

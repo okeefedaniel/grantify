@@ -37,7 +37,7 @@
 <div class="card">
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover table-clickable mb-0">
                 <thead>
                     <tr>
                         <th>{% trans "Organization" %}</th>
@@ -50,7 +50,7 @@
                 </thead>
                 <tbody>
                     {% for claim in claims %}
-                    <tr>
+                    <tr data-href="{% url 'core:organization-claim-review' claim.pk %}">
                         <td>
                             <strong>{{ claim.organization.name }}</strong>
                             <br><small class="text-muted">{{ claim.organization.get_org_type_display }}</small>

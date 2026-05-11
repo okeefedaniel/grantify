@@ -87,7 +87,7 @@
 <!-- Reports Table -->
 <div class="card border-0 shadow-sm">
     <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+        <table class="table table-hover table-clickable align-middle mb-0">
             <thead class="table-light">
                 <tr>
                     {% sortable_th 'report_type' _("Report Type") %}
@@ -101,7 +101,7 @@
             </thead>
             <tbody>
                 {% for report in reports %}
-                <tr>
+                <tr data-href="{% url 'awards:detail' report.award.pk %}">
                     <td class="fw-semibold">{{ report.get_report_type_display }}</td>
                     <td>
                         <a href="{% url 'awards:detail' report.award.pk %}" class="text-decoration-none">

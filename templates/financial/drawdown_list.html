@@ -75,7 +75,7 @@
 <!-- Drawdowns Table -->
 <div class="card border-0 shadow-sm">
     <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+        <table class="table table-hover table-clickable align-middle mb-0">
             <thead class="table-light">
                 <tr>
                     {% sortable_th 'request_number' _("Request #") %}
@@ -89,7 +89,7 @@
             </thead>
             <tbody>
                 {% for dd in drawdowns %}
-                <tr>
+                <tr data-href="{% url 'financial:drawdown-detail' dd.pk %}">
                     <td>
                         <a href="{% url 'financial:drawdown-detail' dd.pk %}" class="fw-semibold text-decoration-none">
                             {{ dd.request_number }}

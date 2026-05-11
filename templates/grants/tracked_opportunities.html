@@ -64,7 +64,7 @@
 <div class="card">
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover table-clickable mb-0">
                 <thead>
                     <tr>
                         {% sortable_th 'opportunity' _("Opportunity") %}
@@ -78,7 +78,7 @@
                 </thead>
                 <tbody>
                     {% for item in tracked_opportunities %}
-                    <tr>
+                    <tr data-href="{% url 'grants:tracked-detail' item.pk %}">
                         <td>
                             <a href="{% url 'grants:tracked-detail' item.pk %}" class="text-decoration-none fw-bold">
                                 {{ item.federal_opportunity.title|truncatewords:10 }}
