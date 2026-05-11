@@ -202,4 +202,6 @@ class AwardLocalSignForm(forms.Form):
         f = self.cleaned_data['signed_pdf']
         if not f.name.lower().endswith('.pdf'):
             raise forms.ValidationError(_lazy('Only PDF files are accepted.'))
+        from core.validators import FileSecurityValidator
+        FileSecurityValidator()(f)
         return f
