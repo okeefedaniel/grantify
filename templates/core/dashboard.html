@@ -169,8 +169,41 @@
             </div>
         </div>
 
-        {# Recent Applications Card #}
-        <div class="card mt-4">
+    </div>
+
+    {# Right column: Recent Awards #}
+    <div class="col-lg-4">
+        {# Active Awards Summary #}
+        {% if active_awards %}
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-trophy me-2"></i>{% trans "Recent Active Awards" %}
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for award in active_awards|slice:":5" %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <strong class="small">{{ award.title|truncatewords:5 }}</strong>
+                                <br>
+                                <small class="text-muted">{{ award.organization.name }}</small>
+                            </div>
+                            <span class="text-success fw-bold small">${{ award.award_amount|intcomma }}</span>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{# Recent Applications Card — full width #}
+<div class="row g-4 mt-4">
+    <div class="col-12">
+        <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-file-earmark-text me-2"></i>{% trans "Recent Applications" %}</span>
                 <a href="{% url 'applications:list' %}" class="btn btn-sm btn-outline-primary">{% trans "View All" %}</a>
@@ -178,7 +211,7 @@
             <div class="card-body p-0">
                 {% if pending_applications %}
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0">
+                    <table class="table table-hover table-clickable mb-0">
                         <thead>
                             <tr>
                                 <th>{% trans "ID" %}</th>
@@ -193,7 +226,7 @@
                         <tbody>
                             {% for app in pending_applications %}
                             {% with assignment=assignments_by_app|dict_get:app.pk %}
-                            <tr>
+                            <tr data-href="{% url 'applications:detail' app.pk %}">
                                 <td class="text-muted small">{{ app.id|truncatechars:8 }}</td>
                                 <td>
                                     <strong>{{ app.project_title|truncatewords:8 }}</strong>
@@ -270,34 +303,6 @@
                 {% endif %}
             </div>
         </div>
-    </div>
-
-    {# Right column: Recent Awards #}
-    <div class="col-lg-4">
-        {# Active Awards Summary #}
-        {% if active_awards %}
-        <div class="card mt-4">
-            <div class="card-header">
-                <i class="bi bi-trophy me-2"></i>{% trans "Recent Active Awards" %}
-            </div>
-            <div class="card-body p-0">
-                <ul class="list-group list-group-flush">
-                    {% for award in active_awards|slice:":5" %}
-                    <li class="list-group-item">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <strong class="small">{{ award.title|truncatewords:5 }}</strong>
-                                <br>
-                                <small class="text-muted">{{ award.organization.name }}</small>
-                            </div>
-                            <span class="text-success fw-bold small">${{ award.award_amount|intcomma }}</span>
-                        </div>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-        {% endif %}
     </div>
 </div>
 
