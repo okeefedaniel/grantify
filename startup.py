@@ -170,6 +170,15 @@ def main():
     if os.environ.get('SEED_ON_DEPLOY', '').lower() in ('true', '1', 'yes'):
         run(f"{manage_cmd} shell < seed_data.py")
     run(f"{manage_cmd} match_opportunities")
+
+    # On demo deploys, personalize the seeded review / assignment / notification
+    # rows for the cross-suite walkthrough persona (`agency_admin`) so Helm's
+    # "Awaiting Me" column lights up with Harbor content. Idempotent — re-runs
+    # are no-ops once everything is already assigned to the persona.
+    if os.environ.get('DEMO_MODE', '').lower() in ('true', '1', 'yes'):
+        log("=== Seeding demo inbox for agency_admin ===")
+        run(f"{manage_cmd} seed_demo_inbox")
+
     log("=== Background tasks complete ===")
 
     log("=== Startup complete, waiting for gunicorn ===")
