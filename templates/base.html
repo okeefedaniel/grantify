@@ -34,161 +34,139 @@
 {% endblock %}
 
 {% block sidebar_tree %}
+{# Flat sidebar — section labels stand in for the old expandable
+   parents (Funding ▾ / Awards ▾ / Federal Funding ▾). Yeoman-style:
+   small-caps section header per logical area, flat clickable items
+   under each, no chevrons. See the 2026-05-11 suite design audit
+   (Harbor section). #}
+
+{# --- Funding --- #}
 <div class="sb-section">
-  <div class="sb-section-label">{% trans "Workspace" %}</div>
-
-  {# --- Funding --- #}
-  <a class="sb-item" onclick="dlToggleTree('funding-tree')">
-    <span class="sb-toggle open" id="funding-toggle"><i class="bi bi-caret-right-fill"></i></span>
-    <span class="sb-icon"><i class="bi bi-megaphone"></i></span>
-    <span class="sb-item-label">{% trans "Funding" %}</span>
+  <div class="sb-section-label">{% trans "Funding" %}</div>
+  <a class="sb-item" href="{% url 'portal:opportunities' %}">
+    <span class="sb-icon"><i class="bi bi-building"></i></span>
+    <span class="sb-item-label">{% trans "State Opportunities" %}</span>
   </a>
-  <div class="sb-children" id="funding-tree" style="max-height:200px">
-    <a class="sb-item" href="{% url 'portal:opportunities' %}">
-      <span class="sb-icon" style="font-size:10px">&bull;</span>
-      <span class="sb-item-label">{% trans "State Opportunities" %}</span>
-    </a>
-    <a class="sb-item" href="{% url 'portal:federal-opportunities' %}">
-      <span class="sb-icon" style="font-size:10px">&bull;</span>
-      <span class="sb-item-label">{% trans "Federal Opportunities" %}</span>
-    </a>
-  </div>
-
+  <a class="sb-item" href="{% url 'portal:federal-opportunities' %}">
+    <span class="sb-icon"><i class="bi bi-globe-americas"></i></span>
+    <span class="sb-item-label">{% trans "Federal Opportunities" %}</span>
+  </a>
   {% if user.is_authenticated %}
-
-  {# --- Applications --- #}
-  {% if user.can_manage_grants %}
-  <a class="sb-item" href="{% url 'applications:list' %}">
-    <span class="sb-toggle" style="visibility:hidden"><i class="bi bi-caret-right-fill"></i></span>
-    <span class="sb-icon"><i class="bi bi-file-earmark-text"></i></span>
-    <span class="sb-item-label">{% trans "Applications" %}</span>
-  </a>
-  {% elif user.role == 'applicant' %}
-  <a class="sb-item" href="{% url 'applications:my-applications' %}">
-    <span class="sb-toggle" style="visibility:hidden"><i class="bi bi-caret-right-fill"></i></span>
-    <span class="sb-icon"><i class="bi bi-file-earmark-text"></i></span>
-    <span class="sb-item-label">{% trans "My Applications" %}</span>
-  </a>
+    {% if user.can_manage_grants %}
+    <a class="sb-item" href="{% url 'applications:list' %}">
+      <span class="sb-icon"><i class="bi bi-file-earmark-text"></i></span>
+      <span class="sb-item-label">{% trans "Applications" %}</span>
+    </a>
+    {% elif user.role == 'applicant' %}
+    <a class="sb-item" href="{% url 'applications:my-applications' %}">
+      <span class="sb-icon"><i class="bi bi-file-earmark-text"></i></span>
+      <span class="sb-item-label">{% trans "My Applications" %}</span>
+    </a>
+    {% endif %}
+    {% if user.role == 'applicant' and has_ai_access %}
+    <a class="sb-item" href="{% url 'grants:recommendations' %}">
+      <span class="sb-icon"><i class="bi bi-stars"></i></span>
+      <span class="sb-item-label">{% trans "AI Matches" %}</span>
+    </a>
+    {% endif %}
   {% endif %}
+</div>
 
-  {# --- Awards --- #}
-  {% if user.can_manage_grants %}
-  <a class="sb-item" onclick="dlToggleTree('awards-tree')">
-    <span class="sb-toggle open" id="awards-toggle"><i class="bi bi-caret-right-fill"></i></span>
+{% if user.is_authenticated %}
+
+{# --- Awards --- #}
+{% if user.can_manage_grants %}
+<div class="sb-section">
+  <div class="sb-section-label">{% trans "Awards" %}</div>
+  <a class="sb-item" href="{% url 'awards:list' %}">
     <span class="sb-icon"><i class="bi bi-trophy"></i></span>
-    <span class="sb-item-label">{% trans "Awards" %}</span>
+    <span class="sb-item-label">{% trans "All Awards" %}</span>
   </a>
-  <div class="sb-children" id="awards-tree" style="max-height:200px">
-    <a class="sb-item" href="{% url 'awards:list' %}">
-      <span class="sb-icon" style="font-size:10px">&bull;</span>
-      <span class="sb-item-label">{% trans "All Awards" %}</span>
-    </a>
-    <a class="sb-item" href="{% url 'signatures:packet-list' %}">
-      <span class="sb-icon" style="font-size:10px">&bull;</span>
-      <span class="sb-item-label">{% trans "Signing Packets" %}</span>
-    </a>
-    <a class="sb-item" href="{% url 'financial:drawdown-list' %}">
-      <span class="sb-icon" style="font-size:10px">&bull;</span>
-      <span class="sb-item-label">{% trans "Cash Requests" %}</span>
-    </a>
-    <a class="sb-item" href="{% url 'closeout:list' %}">
-      <span class="sb-icon" style="font-size:10px">&bull;</span>
-      <span class="sb-item-label">{% trans "Closeouts" %}</span>
-    </a>
-  </div>
-  {% elif user.role == 'applicant' %}
+  <a class="sb-item" href="{% url 'signatures:packet-list' %}">
+    <span class="sb-icon"><i class="bi bi-envelope-paper"></i></span>
+    <span class="sb-item-label">{% trans "Signing Packets" %}</span>
+  </a>
+  <a class="sb-item" href="{% url 'financial:drawdown-list' %}">
+    <span class="sb-icon"><i class="bi bi-cash-coin"></i></span>
+    <span class="sb-item-label">{% trans "Cash Requests" %}</span>
+  </a>
+  <a class="sb-item" href="{% url 'closeout:list' %}">
+    <span class="sb-icon"><i class="bi bi-flag"></i></span>
+    <span class="sb-item-label">{% trans "Closeouts" %}</span>
+  </a>
+</div>
+{% elif user.role == 'applicant' %}
+<div class="sb-section">
+  <div class="sb-section-label">{% trans "Awards" %}</div>
   <a class="sb-item" href="{% url 'awards:my-awards' %}">
-    <span class="sb-toggle" style="visibility:hidden"><i class="bi bi-caret-right-fill"></i></span>
     <span class="sb-icon"><i class="bi bi-trophy"></i></span>
     <span class="sb-item-label">{% trans "My Awards" %}</span>
   </a>
-  {% endif %}
+</div>
+{% endif %}
 
-  {# --- Grant Programs --- #}
+{# --- Programs --- #}
+{% if user.can_manage_grants or user.role == 'program_officer' or user.role == 'agency_admin' or user.role == 'system_admin' or user.is_agency_staff %}
+<div class="sb-section">
+  <div class="sb-section-label">{% trans "Programs" %}</div>
   {% if user.can_manage_grants %}
   <a class="sb-item" href="{% url 'grants:program-list' %}">
-    <span class="sb-toggle" style="visibility:hidden"><i class="bi bi-caret-right-fill"></i></span>
     <span class="sb-icon"><i class="bi bi-folder"></i></span>
     <span class="sb-item-label">{% trans "Grant Programs" %}</span>
   </a>
-  {% endif %}
-
-  {# --- Reports --- #}
-  {% if user.can_manage_grants %}
   <a class="sb-item" href="{% url 'reporting:list' %}">
-    <span class="sb-toggle" style="visibility:hidden"><i class="bi bi-caret-right-fill"></i></span>
     <span class="sb-icon"><i class="bi bi-bar-chart-line"></i></span>
     <span class="sb-item-label">{% trans "Reports" %}</span>
   </a>
   {% endif %}
-
-  {# --- Claims --- #}
   {% if user.role == 'program_officer' or user.role == 'agency_admin' or user.role == 'system_admin' %}
   <a class="sb-item" href="{% url 'core:organization-claims' %}">
-    <span class="sb-toggle" style="visibility:hidden"><i class="bi bi-caret-right-fill"></i></span>
     <span class="sb-icon"><i class="bi bi-building-check"></i></span>
     <span class="sb-item-label">{% trans "Claims" %}</span>
   </a>
   {% endif %}
-
-  {# --- Federal / AI --- #}
-  {% if user.can_manage_federal %}
-  <a class="sb-item" onclick="dlToggleTree('federal-tree')">
-    <span class="sb-toggle" id="federal-toggle"><i class="bi bi-caret-right-fill"></i></span>
-    <span class="sb-icon"><i class="bi bi-globe"></i></span>
-    <span class="sb-item-label">{% trans "Federal Funding" %}</span>
-  </a>
-  <div class="sb-children collapsed" id="federal-tree">
-    <a class="sb-item" href="{% url 'grants:tracked-list' %}">
-      <span class="sb-icon" style="font-size:10px">&bull;</span>
-      <span class="sb-item-label">{% trans "Tracked Opportunities" %}</span>
-    </a>
-    {% if has_ai_access %}
-    <a class="sb-item" href="{% url 'grants:recommendations' %}">
-      <span class="sb-icon" style="font-size:10px">&bull;</span>
-      <span class="sb-item-label">{% trans "AI Recommendations" %}</span>
-    </a>
-    <a class="sb-item" href="{% url 'grants:preferences' %}">
-      <span class="sb-icon" style="font-size:10px">&bull;</span>
-      <span class="sb-item-label">{% trans "Matching Preferences" %}</span>
-    </a>
-    {% endif %}
-  </div>
-  {% endif %}
-
-  {# --- AI Match for applicants --- #}
-  {% if user.role == 'applicant' and has_ai_access %}
-  <a class="sb-item" href="{% url 'grants:recommendations' %}">
-    <span class="sb-toggle" style="visibility:hidden"><i class="bi bi-caret-right-fill"></i></span>
-    <span class="sb-icon"><i class="bi bi-stars"></i></span>
-    <span class="sb-item-label">{% trans "AI Matches" %}</span>
-  </a>
-  {% endif %}
-
-  {# --- Calendar --- #}
   {% if user.is_agency_staff or user.role == 'system_admin' or user.role == 'applicant' %}
   <a class="sb-item" href="{% url 'core:calendar' %}">
-    <span class="sb-toggle" style="visibility:hidden"><i class="bi bi-caret-right-fill"></i></span>
     <span class="sb-icon"><i class="bi bi-calendar-event"></i></span>
     <span class="sb-item-label">{% trans "Calendar" %}</span>
   </a>
   {% endif %}
-
-  {% endif %}{# end is_authenticated #}
 </div>
+{% endif %}
+
+{# --- Federal (only when the federal-funding intake is enabled) --- #}
+{% if user.can_manage_federal %}
+<div class="sb-section">
+  <div class="sb-section-label">{% trans "Federal" %}</div>
+  <a class="sb-item" href="{% url 'grants:tracked-list' %}">
+    <span class="sb-icon"><i class="bi bi-bookmark-star"></i></span>
+    <span class="sb-item-label">{% trans "Tracked Opportunities" %}</span>
+  </a>
+  {% if has_ai_access %}
+  <a class="sb-item" href="{% url 'grants:recommendations' %}">
+    <span class="sb-icon"><i class="bi bi-stars"></i></span>
+    <span class="sb-item-label">{% trans "AI Recommendations" %}</span>
+  </a>
+  <a class="sb-item" href="{% url 'grants:preferences' %}">
+    <span class="sb-icon"><i class="bi bi-sliders"></i></span>
+    <span class="sb-item-label">{% trans "Matching Preferences" %}</span>
+  </a>
+  {% endif %}
+</div>
+{% endif %}
+
+{% endif %}{# end is_authenticated #}
 
 {# --- Map & Analytics (system_admin only) --- #}
 {% if user.role == 'system_admin' %}
 <div class="sb-section">
   <div class="sb-section-label">{% trans "Insights" %}</div>
   <a class="sb-item" href="{% url 'core:analytics' %}">
-    <span class="sb-toggle" style="visibility:hidden"><i class="bi bi-caret-right-fill"></i></span>
-    <span class="sb-icon"><i class="bi bi-graph-up"></i></span>
+<span class="sb-icon"><i class="bi bi-graph-up"></i></span>
     <span class="sb-item-label">{% trans "Analytics" %}</span>
   </a>
   <a class="sb-item" href="{% url 'core:map_view' %}">
-    <span class="sb-toggle" style="visibility:hidden"><i class="bi bi-caret-right-fill"></i></span>
-    <span class="sb-icon"><i class="bi bi-geo-alt"></i></span>
+<span class="sb-icon"><i class="bi bi-geo-alt"></i></span>
     <span class="sb-item-label">{% trans "Map View" %}</span>
   </a>
 </div>
@@ -200,14 +178,12 @@
 <div class="sb-section">
   <div class="sb-section-label">{% trans "Admin" %}</div>
   <a class="sb-item" href="{% url 'core:user-list' %}">
-    <span class="sb-toggle" style="visibility:hidden"><i class="bi bi-caret-right-fill"></i></span>
-    <span class="sb-icon"><i class="bi bi-people"></i></span>
+<span class="sb-icon"><i class="bi bi-people"></i></span>
     <span class="sb-item-label">{% trans "Users & Roles" %}</span>
   </a>
   {% if user.is_staff %}
   <a class="sb-item" href="{% url 'admin:index' %}">
-    <span class="sb-toggle" style="visibility:hidden"><i class="bi bi-caret-right-fill"></i></span>
-    <span class="sb-icon"><i class="bi bi-gear"></i></span>
+<span class="sb-icon"><i class="bi bi-gear"></i></span>
     <span class="sb-item-label">{% trans "Admin" %}</span>
   </a>
   {% endif %}
