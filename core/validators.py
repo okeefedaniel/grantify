@@ -1,7 +1,7 @@
-from django.core.validators import FileExtensionValidator
 from keel.security.scanning import FileSecurityValidator
 
-# FileSecurityValidator checks extension whitelist (from settings), size, and malware.
-# Image validator uses Django's built-in for the extension subset.
+# FileSecurityValidator checks KEEL_ALLOWED_UPLOAD_EXTENSIONS, KEEL_MAX_UPLOAD_SIZE,
+# and runs ClamAV when KEEL_FILE_SCANNING_ENABLED is set.  Use for all uploads so
+# image fields get the same size cap and AV scan as document fields.
 validate_document_file = FileSecurityValidator()
-validate_image_file = FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'])
+validate_image_file = FileSecurityValidator()
