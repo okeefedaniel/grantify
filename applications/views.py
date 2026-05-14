@@ -281,8 +281,14 @@ class ApplicationDetailView(LoginRequiredMixin, DetailView):
 
         context['documents'] = application.documents.all()
 
-        # Filter internal comments for non-staff users
-        comments = application.comments.select_related('author')
+        # Filter internal comments for non-staff users. prefetch_related
+        # on the mentions M2M avoids N+1 when the template renders the
+        # "mentioned" badges (keel.mentions wiring — see keel/mentions/README.md).
+        comments = (
+            application.comments
+            .select_related('author')
+            .prefetch_related('mentions')
+        )
         if not self.request.user.is_agency_staff:
             comments = comments.filter(is_internal=False)
         context['comments'] = comments
@@ -505,6 +511,11 @@ class AddCommentView(LoginRequiredMixin, View):
                 comment.is_internal = False
 
             comment.save()
+            # Required because we used commit=False above. Django's normal
+            # save_m2m flow doesn't fire without this, which also means
+            # the MentionFormMixin._save_m2m hook (keel.mentions, >= 0.41.0)
+            # doesn't run and @-mentions in the content never dispatch.
+            form.save_m2m()
             messages.success(request, _('Comment added.'))
         else:
             messages.error(request, _('There was an error adding your comment.'))

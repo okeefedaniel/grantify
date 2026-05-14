@@ -1,6 +1,8 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _lazy
 
+from keel.mentions import MentionableTextarea, MentionFormMixin
+
 from .models import (
     Application,
     ApplicationAssignment,
@@ -58,19 +60,32 @@ class ApplicationDocumentForm(forms.ModelForm):
         }
 
 
-class ApplicationCommentForm(forms.ModelForm):
+class ApplicationCommentForm(MentionFormMixin, forms.ModelForm):
     """Form for adding a comment to an application.
 
     The ``is_internal`` field is only rendered for staff users; templates
     should conditionally show it based on the user's role.
+
+    Inherits ``MentionFormMixin`` so ``@username`` and ``@beacon:<slug>``
+    in the content field auto-resolve to KeelUser / Beacon-contact
+    recipients on save (keel >= 0.41.0).
     """
 
     class Meta:
         model = ApplicationComment
         fields = ['content', 'is_internal']
         widgets = {
-            'content': forms.Textarea(attrs={'rows': 4}),
+            'content': MentionableTextarea(attrs={'rows': 4}),
         }
+
+    def get_mention_source(self):
+        """Parent record for the mention's source_url + source_label.
+
+        The mention dispatcher uses this to (a) link the in-app/email
+        notification back to the application and (b) populate the
+        Beacon ContactNote excerpt with the application title.
+        """
+        return self.instance.application
 
 
 class StaffDocumentForm(forms.ModelForm):

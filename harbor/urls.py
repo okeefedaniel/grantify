@@ -67,6 +67,7 @@ urlpatterns = [
     path('search/', search_view, name='search'),
     path('keel/requests/', include('keel.requests.urls')),
     path('keel/signatures/', include('keel.signatures.urls')),
+    path('keel/mentions/', include('keel.mentions.urls')),
     path('keel/', include('keel.core.foia_urls')),
     path('keel/', include('keel.accounts.urls')),
 ]
