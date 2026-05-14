@@ -291,3 +291,49 @@ class ApplicationDetailViewTests(TestCase):
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.context['application'], self.app)
+
+
+# ---------------------------------------------------------------------------
+# Mention wiring (keel.mentions integration)
+# ---------------------------------------------------------------------------
+class ApplicationCommentFormMentionWiringTests(TestCase):
+    """Pin the keel.mentions integration on ApplicationCommentForm.
+
+    These tests don't exercise the full mention dispatch flow (covered by
+    the keel.mentions test suite). They pin the wiring so a future
+    refactor that drops the mixin, the widget, or the get_mention_source
+    hook fails loudly here instead of silently shipping a no-op form.
+    """
+
+    def test_form_inherits_mention_form_mixin(self):
+        from keel.mentions import MentionFormMixin
+        from applications.forms import ApplicationCommentForm
+        self.assertTrue(
+            issubclass(ApplicationCommentForm, MentionFormMixin),
+            'ApplicationCommentForm must inherit MentionFormMixin so '
+            '@-mentions in content dispatch on save (keel >= 0.42.0).',
+        )
+
+    def test_content_widget_is_mentionable_textarea(self):
+        from keel.mentions import MentionableTextarea
+        from applications.forms import ApplicationCommentForm
+        widget = ApplicationCommentForm.base_fields['content'].widget
+        self.assertIsInstance(
+            widget, MentionableTextarea,
+            'content field must use MentionableTextarea so the picker '
+            'JS finds the data-mentions-search-url attribute.',
+        )
+
+    def test_get_mention_source_returns_application(self):
+        from applications.forms import ApplicationCommentForm
+        from applications.models import ApplicationComment
+
+        # Build a form bound to an in-memory comment instance pointing at
+        # an Application object — no DB writes needed, just attribute resolution.
+        comment = ApplicationComment(application=Application())
+        form = ApplicationCommentForm(instance=comment)
+        self.assertIs(
+            form.get_mention_source(), comment.application,
+            'get_mention_source must return the parent Application so '
+            'mention source_url / source_label are populated correctly.',
+        )

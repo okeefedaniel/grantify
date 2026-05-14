@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'keel.signatures',
     'keel.settings',
     'keel.activity',  # Phase 1A Week 5 / Phase 1C — fifth product peer (Harbor)
+    'keel.mentions',  # @-mentions on application comments (keel >= 0.42.0)
     # Third party
     'rest_framework',
     'rest_framework.authtoken',
