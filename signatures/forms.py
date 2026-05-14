@@ -205,6 +205,13 @@ class SigningForm(forms.Form):
         required=False,
     )
 
+    def clean_signature_image(self):
+        f = self.cleaned_data.get('signature_image')
+        if f:
+            from keel.security.scanning import FileSecurityValidator
+            FileSecurityValidator()(f)
+        return f
+
     def clean(self):
         cleaned_data = super().clean()
         sig_type = cleaned_data.get('signature_type')
