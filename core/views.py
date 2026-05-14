@@ -144,49 +144,6 @@ class OrganizationUpdateView(LoginRequiredMixin, UpdateView):
 
 
 # ---------------------------------------------------------------------------
-# Notifications
-# ---------------------------------------------------------------------------
-class NotificationListView(LoginRequiredMixin, ListView):
-    """List in-app notifications for the current user."""
-
-    model = Notification
-    template_name = 'core/notifications.html'
-    context_object_name = 'notifications'
-    paginate_by = 25
-
-    def get_queryset(self):
-        return Notification.objects.filter(
-            recipient=self.request.user,
-        ).order_by('-created_at')
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx['unread_notifications_count'] = Notification.objects.filter(
-            recipient=self.request.user, is_read=False,
-        ).count()
-        return ctx
-
-
-@login_required
-def mark_notification_read(request, pk):
-    """AJAX endpoint to mark a single notification as read."""
-    if request.method != 'POST':
-        return JsonResponse({'error': _('POST required')}, status=405)
-
-    notification = get_object_or_404(
-        Notification,
-        pk=pk,
-        recipient=request.user,
-    )
-    if not notification.is_read:
-        notification.is_read = True
-        notification.read_at = timezone.now()
-        notification.save(update_fields=['is_read', 'read_at'])
-
-    return JsonResponse({'status': 'ok'})
-
-
-# ---------------------------------------------------------------------------
 # User Management (System Admin only)
 # ---------------------------------------------------------------------------
 class UserListView(LoginRequiredMixin, SortableListMixin, ListView):

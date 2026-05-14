@@ -82,9 +82,4 @@ urlpatterns = [
         views.MunicipalityDetailView.as_view(),
         name='municipality_detail',
     ),
-    path(
-        'notifications/',
-        views.NotificationListView.as_view(),
-        name='notifications',
-    ),
 ]
