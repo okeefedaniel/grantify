@@ -68,7 +68,7 @@ class ApplicationCommentForm(MentionFormMixin, forms.ModelForm):
 
     Inherits ``MentionFormMixin`` so ``@username`` and ``@beacon:<slug>``
     in the content field auto-resolve to KeelUser / Beacon-contact
-    recipients on save (keel >= 0.41.0).
+    recipients on save (keel >= 0.42.0).
     """
 
     class Meta:

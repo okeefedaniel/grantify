@@ -311,7 +311,7 @@ class ApplicationCommentFormMentionWiringTests(TestCase):
         self.assertTrue(
             issubclass(ApplicationCommentForm, MentionFormMixin),
             'ApplicationCommentForm must inherit MentionFormMixin so '
-            '@-mentions in content dispatch on save (keel >= 0.41.0).',
+            '@-mentions in content dispatch on save (keel >= 0.42.0).',
         )
 
     def test_content_widget_is_mentionable_textarea(self):
