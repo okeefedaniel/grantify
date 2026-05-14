@@ -1,0 +1,87 @@
+name: Cron
+
+# Fires Harbor's scheduled management commands. Each job uses the Railway CLI
+# to SSH into the running web container and exec the command there, so it
+# shares the production env (DATABASE_URL, BEACON_INTAKE_URL, etc.) and the
+# prod DB connection without exposing either to the GitHub runner.
+#
+# Mirrors the suite-wide pattern in keel/CLAUDE.md §Scheduling. Reference
+# implementations: helm/.github/workflows/cron.yml (smallest) and
+# lookout/.github/workflows/cron.yml (9 jobs, full menagerie).
+#
+# Wired commands:
+#   - retry_failed_mention_deliveries  every 6h at :15  —
+#     keel.mentions.management.commands.retry_failed_mention_deliveries
+#     Retries cross-product Beacon contact-mention writes that failed at
+#     dispatch time. Safe to run repeatedly; no-op when no failed rows.
+#     See keel >= 0.43.0.
+#
+# Required GitHub secret:
+#   RAILWAY_TOKEN — a Railway *project* token (Settings → Tokens) scoped to
+#   the harbor project, production environment. Project tokens automatically
+#   target their bound project/env, so no --project / --environment flag is
+#   needed in CI.
+#
+# Observability: every run writes a CommandRun row visible at /scheduling/.
+# A silent cron is itself a canary — /api/v1/metrics/ exposes
+# `flags.cron_silent_24h` which flips true if no CommandRun rows land in 24h.
+
+on:
+  schedule:
+    - cron: '15 */6 * * *'   # retry_failed_mention_deliveries — every 6h at :15 UTC
+  workflow_dispatch:
+    inputs:
+      command:
+        description: 'Which command to run'
+        required: true
+        default: retry_failed_mention_deliveries
+        type: choice
+        options:
+          - retry_failed_mention_deliveries
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    steps:
+      - name: Pick command from cron schedule
+        id: pick
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "cmd=${{ github.event.inputs.command }}" >> "$GITHUB_OUTPUT"
+          else
+            # Only one scheduled command for now — keep an explicit fallthrough.
+            echo "cmd=retry_failed_mention_deliveries --limit 50" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install Railway CLI
+        # Pinned to v4.36.1 — v4.44.0+ ships a broken `railway ssh` that
+        # returns Unauthorized for valid project tokens. `railway variables`
+        # and `railway status` work on the same version with the same token,
+        # so the regression is scoped to ssh. `install.sh` always grabs
+        # latest, so we bypass it and pull the x86_64 tarball directly.
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.railway/bin"
+          curl -fsSL -o /tmp/railway.tgz \
+            https://github.com/railwayapp/cli/releases/download/v4.36.1/railway-v4.36.1-x86_64-unknown-linux-gnu.tar.gz
+          tar -xzf /tmp/railway.tgz -C "$HOME/.railway/bin"
+          chmod +x "$HOME/.railway/bin/railway"
+          echo "$HOME/.railway/bin" >> "$GITHUB_PATH"
+
+      - name: Generate ephemeral SSH key for railway ssh
+        # `railway ssh` requires an SSH keypair under ~/.ssh; the GH Actions
+        # runner ships without one, which would make every cron run fail with
+        # "No SSH keys found in ~/.ssh/" — flipping flags.cron_silent_24h
+        # to true and tripping the canary. Generate a throwaway ed25519 key
+        # per run for the control-plane handshake.
+        run: |
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          ssh-keygen -t ed25519 -N '' -f "$HOME/.ssh/id_ed25519" -q
+
+      - name: Run management command in production container
+        run: |
+          railway ssh --service harbor \
+            "cd /app && /opt/venv/bin/python manage.py ${{ steps.pick.outputs.cmd }}"
