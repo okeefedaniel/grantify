@@ -17,10 +17,17 @@ name: Cron
 #     See keel >= 0.43.0.
 #
 # Required GitHub secret:
-#   RAILWAY_TOKEN — a Railway *project* token (Settings → Tokens) scoped to
-#   the harbor project, production environment. Project tokens automatically
-#   target their bound project/env, so no --project / --environment flag is
-#   needed in CI.
+#   RAILWAY_API_TOKEN — a Railway account-level API token (Account → Tokens).
+#   One token works across every project under your Railway account; each
+#   step below passes explicit --project + --environment UUIDs so
+#   `railway ssh` knows which project to bind to.
+#
+#   (Alternative: a project-scoped token via Project → Settings → Tokens,
+#   bound to harbor + production. That auto-binds, so you'd drop the
+#   --project / --environment flags below and rename the env var to
+#   RAILWAY_TOKEN. Helm uses that older project-token shape; harbor uses
+#   the account-token shape since that's what Railway's current UI
+#   surfaces on this account.)
 #
 # Observability: every run writes a CommandRun row visible at /scheduling/.
 # A silent cron is itself a canary — /api/v1/metrics/ exposes
@@ -43,7 +50,7 @@ jobs:
   run:
     runs-on: ubuntu-latest
     env:
-      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
     steps:
       - name: Pick command from cron schedule
         id: pick
@@ -82,6 +89,12 @@ jobs:
           ssh-keygen -t ed25519 -N '' -f "$HOME/.ssh/id_ed25519" -q
 
       - name: Run management command in production container
+        # --project + --environment UUIDs are required because RAILWAY_API_TOKEN
+        # is account-scoped (covers every project under the account); project-
+        # scoped tokens auto-bind and would let you drop these two flags.
         run: |
-          railway ssh --service harbor \
+          railway ssh \
+            --project af66e769-caf4-4395-b476-c4966e9192c1 \
+            --environment 42c48a96-8845-4bda-99f4-c84d44b6d2ef \
+            --service harbor \
             "cd /app && /opt/venv/bin/python manage.py ${{ steps.pick.outputs.cmd }}"
