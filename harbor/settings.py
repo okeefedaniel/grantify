@@ -450,6 +450,13 @@ HELM_FEED_API_KEY = os.environ.get('HELM_FEED_API_KEY', '')
 MANIFEST_URL = os.environ.get('MANIFEST_URL', '')
 MANIFEST_API_TOKEN = os.environ.get('MANIFEST_API_TOKEN', '')
 MANIFEST_WEBHOOK_SECRET = os.environ.get('MANIFEST_WEBHOOK_SECRET', '')
+
+# Beacon cross-product intake — consumed by keel.mentions.beacon when an
+# application comment contains an `@beacon:<contact-slug>` token.
+# Unset values gracefully disable the cross-product call (picker shows
+# zero Beacon contacts; no POST to /api/v1/intake/contact-mentions/).
+BEACON_INTAKE_URL = os.environ.get('BEACON_INTAKE_URL', '')
+BEACON_INTAKE_API_KEY = os.environ.get('BEACON_INTAKE_API_KEY', '')
 KEEL_AUDIT_LOG_MODEL = 'harbor_core.AuditLog'
 KEEL_NOTIFICATION_MODEL = 'harbor_core.Notification'
 KEEL_NOTIFICATION_PREFERENCE_MODEL = 'harbor_core.NotificationPreference'
