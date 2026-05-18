@@ -63,4 +63,17 @@ urlpatterns = [
         bulk_views.BulkApplicationStatusChangeView.as_view(),
         name='bulk-status-change',
     ),
+
+    # Wave 6: collaborator endpoints sized for shared keel/components partials.
+    # Distinct from the reviewer-assignment endpoints above per Codex finding #9.
+    path(
+        '<uuid:pk>/collaborators/invite/',
+        views.InviteApplicationCollaboratorView.as_view(),
+        name='collaborator-invite',
+    ),
+    path(
+        '<uuid:pk>/collaborators/remove/',
+        views.RemoveApplicationCollaboratorView.as_view(),
+        name='collaborator-remove',
+    ),
 ]

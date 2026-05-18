@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from keel.core.models import (
     AbstractAssignment,
     AbstractAttachment,
+    AbstractCollaborator,
     AbstractInternalNote,
     AbstractStatusHistory,
 )
@@ -359,6 +360,51 @@ class ApplicationAssignment(AbstractAssignment):
             f"{self.assigned_to} \u2192 {self.application} "
             f"({self.get_status_display()})"
         )
+
+
+class ApplicationCollaborator(AbstractCollaborator):
+    """A collaborator on an application \u2014 the principal-driver /
+    relationship-manager surface for the application's life cycle.
+
+    Wave 6 / Codex finding #9 \u2014 DELIBERATELY DISTINCT from
+    ``ApplicationAssignment`` (the reviewer / rubric-scoring assignment).
+    Both can exist on the same application: a ``Collaborator(role=LEAD)``
+    is the relationship driver who shepherds the application from intake
+    through award; an ``Assignment`` is a reviewer-of-record who carries
+    the scoring + recommendation accountability. In regulated grant
+    review, those are not the same role and conflating them muddies the
+    audit story. Do not backfill assignments into collaborators or
+    vice-versa.
+
+    Role mapping for Harbor:
+        LEAD        \u2014 principal driver / agency relationship manager
+        CONTRIBUTOR \u2014 staff co-shepherding the application
+        REVIEWER    \u2014 read-and-comment access (NOT a scoring reviewer;
+                      that's ``ApplicationAssignment``)
+        OBSERVER    \u2014 sees the application without acting on it
+    """
+
+    application = models.ForeignKey(
+        'Application',
+        on_delete=models.CASCADE,
+        related_name='collaborators',
+    )
+
+    class Meta(AbstractCollaborator.Meta):
+        constraints = [
+            models.UniqueConstraint(
+                fields=['application', 'user'],
+                condition=models.Q(user__isnull=False),
+                name='unique_application_collaborator_user',
+            ),
+            models.UniqueConstraint(
+                fields=['application', 'email'],
+                condition=models.Q(user__isnull=True) & ~models.Q(email=''),
+                name='unique_application_collaborator_email',
+            ),
+        ]
+        verbose_name = _('Application Collaborator')
+        verbose_name_plural = _('Application Collaborators')
 
 
 # ---------------------------------------------------------------------------

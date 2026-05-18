@@ -37,6 +37,7 @@ from .models import (
     Application,
     ApplicationAssignment,
     ApplicationAttachment,
+    ApplicationCollaborator,
     ApplicationComplianceItem,
     ApplicationStatusHistory,
 )
@@ -299,6 +300,19 @@ class ApplicationDetailView(LoginRequiredMixin, DetailView):
 
         context['comment_form'] = ApplicationCommentForm()
         context['document_form'] = ApplicationDocumentForm()
+
+        # Wave 6: context for the shared collaboration_panel.html orchestrator.
+        # active_assignment passed as None — Harbor's ApplicationAssignment
+        # models reviewer accountability (per Codex finding #9), not the
+        # principal-driver / relationship-manager surface the panel's
+        # "Lead:" label expects. The panel collapsed-summary will skip the
+        # Lead prefix and read "N members" when collaborators exist; the
+        # claim_row banner stays hidden because claim_action is not passed
+        # (claim semantics belong to ApplicationAssignment, not Collaborator).
+        context['collaborators_for_panel'] = application.collaborators.filter(
+            is_active=True,
+        ).select_related('user', 'invited_by')
+        context['attachments_for_panel'] = context.get('documents')
 
         # Due-diligence context (staff only)
         if self.request.user.is_agency_staff:
@@ -973,3 +987,85 @@ class MyAssignmentsView(AgencyStaffRequiredMixin, SortableListMixin, ListView):
             status__in=['assigned', 'in_progress'],
         ).count()
         return context
+
+
+# ---------------------------------------------------------------------------
+# Wave 6: ApplicationCollaborator endpoints sized for shared keel/components
+# partials. Deliberately distinct from ApplicationAssignment (reviewer
+# accountability) per Codex finding #9 — collaborators are the principal
+# driver / relationship-management surface, reviewers stay where they are.
+# ---------------------------------------------------------------------------
+
+
+from django.views import View
+
+
+class InviteApplicationCollaboratorView(AgencyStaffRequiredMixin, LoginRequiredMixin, View):
+    """POST identifier (username/email) + role; creates an ApplicationCollaborator."""
+
+    http_method_names = ['post']
+
+    def post(self, request, pk):
+        application = get_object_or_404(Application, pk=pk)
+        identifier = request.POST.get('identifier', '').strip()
+        role = request.POST.get('role', ApplicationCollaborator.Role.CONTRIBUTOR)
+        if role not in dict(ApplicationCollaborator.Role.choices):
+            role = ApplicationCollaborator.Role.CONTRIBUTOR
+        if not identifier:
+            messages.error(request, 'Provide a username or email.')
+            return redirect('applications:detail', pk=pk)
+
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        if '@' in identifier:
+            user_match = User.objects.filter(email__iexact=identifier).first()
+        else:
+            user_match = User.objects.filter(username__iexact=identifier).first()
+
+        try:
+            if user_match is not None:
+                collab, created = ApplicationCollaborator.objects.get_or_create(
+                    application=application, user=user_match,
+                    defaults={'role': role, 'invited_by': request.user, 'is_active': True},
+                )
+            else:
+                collab, created = ApplicationCollaborator.objects.get_or_create(
+                    application=application, email=identifier, user__isnull=True,
+                    defaults={
+                        'role': role, 'name': identifier,
+                        'invited_by': request.user, 'is_active': True,
+                    },
+                )
+            if not created:
+                collab.role = role
+                collab.is_active = True
+                collab.save(update_fields=['role', 'is_active'])
+        except Exception as e:
+            messages.error(request, f'Could not invite collaborator: {e}')
+            return redirect('applications:detail', pk=pk)
+
+        messages.success(
+            request,
+            f'Invited {identifier} as {dict(ApplicationCollaborator.Role.choices)[role]}.',
+        )
+        return redirect('applications:detail', pk=pk)
+
+
+class RemoveApplicationCollaboratorView(AgencyStaffRequiredMixin, LoginRequiredMixin, View):
+    """POST collaborator_id in body; soft-removes via is_active=False."""
+
+    http_method_names = ['post']
+
+    def post(self, request, pk):
+        application = get_object_or_404(Application, pk=pk)
+        collab_id = request.POST.get('collaborator_id', '')
+        if not collab_id:
+            messages.error(request, 'collaborator_id required')
+            return redirect('applications:detail', pk=pk)
+        collab = get_object_or_404(
+            ApplicationCollaborator, pk=collab_id, application=application,
+        )
+        collab.is_active = False
+        collab.save(update_fields=['is_active'])
+        messages.success(request, 'Collaborator removed.')
+        return redirect('applications:detail', pk=pk)

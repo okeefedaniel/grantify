@@ -808,58 +808,13 @@
             </div>
         </div>
 
-        <!-- Status & Timeline Card -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0"><i class="bi bi-clock-history me-2"></i>{% trans "Status Timeline" %}</h5>
-            </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <strong>{% trans "Current Status:" %}</strong>
-                    {% if application.status == "draft" %}
-                        <span class="pill pill-muted">{% trans "Draft" %}</span>
-                    {% elif application.status == "submitted" %}
-                        <span class="pill pill-navy">{% trans "Submitted" %}</span>
-                    {% elif application.status == "under_review" %}
-                        <span class="pill pill-navy">{% trans "Under Review" %}</span>
-                    {% elif application.status == "revision_requested" %}
-                        <span class="pill pill-brass">{% trans "Revision Requested" %}</span>
-                    {% elif application.status == "approved" %}
-                        <span class="pill pill-success">{% trans "Approved" %}</span>
-                    {% elif application.status == "denied" %}
-                        <span class="pill pill-error">{% trans "Denied" %}</span>
-                    {% elif application.status == "withdrawn" %}
-                        <span class="pill pill-muted">{% trans "Withdrawn" %}</span>
-                    {% endif %}
-                </div>
+        {# Wave 6: shared collaboration panel, collapsed-by-default — grant application details + compliance checklist dominate the leading content. available_transitions=None skips workflow_transitions because the existing status-change form handles them. active_assignment=None because Harbor's ApplicationAssignment models reviewer accountability (Codex finding #9), not the principal-driver/relationship-manager surface the panel's Lead: label expects. claim_action omitted because claim semantics belong to the reviewer workflow, not the collaborator surface. #}
+        {% url 'applications:collaborator-invite' application.pk as invite_url %}
+        {% url 'applications:collaborator-remove' application.pk as remove_url %}
+        {% url 'applications:add-comment' application.pk as note_url %}
+        {% include "keel/components/collaboration_panel.html" with entity=application entity_label="application" active_assignment=None is_archived=False collaborators=collaborators_for_panel notes=comments attachments=attachments_for_panel available_transitions=None invite_action=invite_url remove_action=remove_url note_form_action=note_url show_internal=request.user.is_agency_staff collapsed=True %}
 
-                {% if application.status_history.all %}
-                <div class="timeline">
-                    {% for entry in application.status_history.all %}
-                    <div class="d-flex mb-3">
-                        <div class="flex-shrink-0 me-2">
-                            <div class="bg-primary rounded-circle" style="width: 10px; height: 10px; margin-top: 6px;"></div>
-                        </div>
-                        <div class="flex-grow-1">
-                            <div class="small">
-                                <strong>{{ entry.get_new_status_display }}</strong>
-                                <span class="text-muted d-block">{{ entry.timestamp|date:"M d, Y g:i A" }}</span>
-                                {% blocktrans with name=entry.changed_by.get_full_name|default:entry.changed_by.username %}<span class="text-muted d-block">by {{ name }}</span>{% endblocktrans %}
-                                {% if entry.comment %}
-                                    <p class="small text-muted mb-0 mt-1">{{ entry.comment }}</p>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <p class="text-muted small mb-0">
-                    {% blocktrans with time=application.created_at|naturaltime %}Created {{ time }}{% endblocktrans %}
-                </p>
-                {% endif %}
-            </div>
-        </div>
+        {# Wave 6 / Codex finding: dropped the duplicate Status Timeline card. The {% activity_panel %} in the right rail (above) is the single source of truth for status transitions + collaboration events (notes / collaborators / attachments / Manifest handoffs all flow through keel.activity). Current-status pill is duplicated in the page header at lines 37+. #}
 
         <!-- Grant Program Info Card -->
         <div class="card mb-4">
