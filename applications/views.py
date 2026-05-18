@@ -21,6 +21,7 @@ from django.views.generic import CreateView, DetailView, ListView, UpdateView
 from core.notifications import (
     notify_application_status_changed,
     notify_application_submitted,
+    notify_collaborator_added,
 )
 from keel.activity.services import record_activity
 from grants.models import GrantProgram
@@ -402,17 +403,14 @@ class ApplicationSubmitView(LoginRequiredMixin, View):
             return redirect('applications:detail', pk=application.pk)
 
         old_status = application.status
-        application.status = Application.Status.SUBMITTED
-        application.submitted_at = timezone.now()
-        application.save(update_fields=['status', 'submitted_at', 'updated_at'])
-
-        ApplicationStatusHistory.objects.create(
-            application=application,
-            old_status=old_status,
-            new_status=Application.Status.SUBMITTED,
-            changed_by=request.user,
-            comment=_('Application submitted by applicant.'),
+        # WorkflowModelMixin handles status write + ApplicationStatusHistory in one call.
+        application.transition(
+            Application.Status.SUBMITTED,
+            user=request.user,
+            comment=str(_('Application submitted by applicant.')),
         )
+        application.submitted_at = timezone.now()
+        application.save(update_fields=['submitted_at', 'updated_at'])
 
         # Seed compliance checklist
         ensure_compliance_items(application)
@@ -467,15 +465,11 @@ class ApplicationWithdrawView(LoginRequiredMixin, View):
             return redirect('applications:detail', pk=application.pk)
 
         old_status = application.status
-        application.status = Application.Status.WITHDRAWN
-        application.save(update_fields=['status', 'updated_at'])
-
-        ApplicationStatusHistory.objects.create(
-            application=application,
-            old_status=old_status,
-            new_status=Application.Status.WITHDRAWN,
-            changed_by=request.user,
-            comment=_('Application withdrawn by applicant.'),
+        # WorkflowModelMixin handles status write + ApplicationStatusHistory in one call.
+        application.transition(
+            Application.Status.WITHDRAWN,
+            user=request.user,
+            comment=str(_('Application withdrawn by applicant.')),
         )
 
         messages.success(request, _('Your application has been withdrawn.'))
@@ -627,15 +621,9 @@ class ApplicationStatusChangeView(AgencyStaffRequiredMixin, View):
                 return redirect('applications:detail', pk=application.pk)
 
         old_status = application.status
-        application.status = new_status
-        application.save(update_fields=['status', 'updated_at'])
-
-        ApplicationStatusHistory.objects.create(
-            application=application,
-            old_status=old_status,
-            new_status=new_status,
-            changed_by=request.user,
-            comment=comment_text,
+        # WorkflowModelMixin handles status write + ApplicationStatusHistory in one call.
+        application.transition(
+            new_status, user=request.user, comment=comment_text,
         )
 
         # Notify applicant about the status change
@@ -1043,6 +1031,11 @@ class InviteApplicationCollaboratorView(AgencyStaffRequiredMixin, LoginRequiredM
         except Exception as e:
             messages.error(request, f'Could not invite collaborator: {e}')
             return redirect('applications:detail', pk=pk)
+
+        # Wave 6b: notify the invitee (in-app + email) when they have a
+        # KeelUser account. New invites only — re-roles do not re-notify.
+        if created:
+            notify_collaborator_added(collab)
 
         messages.success(
             request,

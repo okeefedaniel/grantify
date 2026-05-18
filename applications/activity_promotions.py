@@ -61,6 +61,17 @@ def _get_compliance(audit):
         return None
 
 
+def _get_collaborator(audit):
+    Collaborator = apps.get_model('applications', 'ApplicationCollaborator')
+    try:
+        return (
+            Collaborator.objects.select_related('application', 'user', 'invited_by')
+            .get(pk=audit.entity_id)
+        )
+    except (Collaborator.DoesNotExist, ValueError):
+        return None
+
+
 # IMPORTANT: metadata_fn returns the metadata DICT ONLY (no model instances).
 # The keel.activity registry stores the return value as the Activity.metadata
 # JSONField, so any model instance in the returned dict will fail JSON encoding
@@ -112,6 +123,37 @@ def _compliance_added_kwargs(audit):
         'requirement_type': getattr(item, 'requirement_type', ''),
         'status': getattr(item, 'status', ''),
     }
+
+
+def _collaborator_added_kwargs(audit):
+    collab = _get_collaborator(audit)
+    if collab is None:
+        return None
+    invitee = ''
+    if collab.user_id and collab.user:
+        invitee = collab.user.get_full_name() or collab.user.username
+    elif collab.email:
+        invitee = collab.email
+    return {
+        'collaborator_id': str(collab.pk),
+        'invitee': invitee,
+        'role': getattr(collab, 'role', ''),
+        'is_active': bool(getattr(collab, 'is_active', True)),
+    }
+
+
+def _collaborator_added_label(audit) -> str:
+    collab = _get_collaborator(audit)
+    if collab is None:
+        return 'invited a collaborator'
+    if collab.user_id and collab.user:
+        invitee = collab.user.get_full_name() or collab.user.username
+    elif collab.email:
+        invitee = collab.email
+    else:
+        invitee = 'someone'
+    role = getattr(collab, 'get_role_display', lambda: '')() or 'collaborator'
+    return f'invited {invitee} as {role}'
 
 
 def register_all() -> None:
@@ -177,7 +219,22 @@ def register_all() -> None:
         metadata_fn=_compliance_added_kwargs,
     ))
 
-    logger.debug('keel.activity: harbor applications promotion rules registered (5 Track A rules)')
+    # ApplicationCollaborator — distinct from ApplicationAssignment per Codex
+    # finding #9: reviewer accountability (assignment) vs. principal driver
+    # invitation (collaborator). Wave 6b adds the collaborator promotion.
+    PromotionRegistry.register(PromotionRule(
+        entity_type='Application Collaborator',
+        action='create',
+        verb='collab.invited',
+        visibility='collaborators',
+        target_fn=lambda audit: getattr(_get_collaborator(audit), 'application', None),
+        action_fn=_get_collaborator,
+        deep_link_fn=lambda audit: _safe_get_url(getattr(_get_collaborator(audit), 'application', None)),
+        source_label_fn=_collaborator_added_label,
+        metadata_fn=_collaborator_added_kwargs,
+    ))
+
+    logger.debug('keel.activity: harbor applications promotion rules registered (6 Track A rules)')
 
 
 # Helpers

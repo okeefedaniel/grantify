@@ -489,6 +489,67 @@ def notify_organization_claim_reviewed(claim):
     )
 
 
+def notify_collaborator_added(collaborator):
+    """Notify the invitee that they were added as a collaborator on an
+    Application (Wave 6b).
+
+    Only fires for internal users (the in-app + email surface assumes a
+    KeelUser); external-email-only invites get the audit row + activity
+    promotion only, since there's no DockLabs account yet to deliver to.
+    """
+    application = collaborator.application
+    user = collaborator.user
+    if user is None:
+        return
+
+    detail_path = reverse('applications:detail', kwargs={'pk': application.pk})
+    detail_url = build_absolute_url(detail_path)
+    role_label = collaborator.get_role_display()
+    inviter = (
+        collaborator.invited_by.get_full_name()
+        if collaborator.invited_by else 'A staff member'
+    )
+
+    subject = _('Added as %(role)s: %(title)s') % {
+        'role': role_label,
+        'title': application.project_title,
+    }
+    message = _(
+        '%(inviter)s added you as %(role)s on the application '
+        '"%(title)s".'
+    ) % {
+        'inviter': inviter,
+        'role': role_label,
+        'title': application.project_title,
+    }
+
+    try:
+        create_notification(
+            recipient=user,
+            title=_('Added as %(role)s') % {'role': role_label},
+            message=message,
+            link=detail_path,
+            priority='medium',
+        )
+        if user.email:
+            send_notification_email(
+                recipient_email=user.email,
+                subject=subject,
+                template_name='notifications/emails/generic.html',
+                context={
+                    'title': _('You were invited to collaborate'),
+                    'message': message,
+                    'link': detail_url,
+                    'product_name': 'Harbor',
+                },
+            )
+    except Exception:
+        logger.exception(
+            'Failed to send collaborator-added notification for collab %s',
+            collaborator.pk,
+        )
+
+
 def notify_new_user_registered(user):
     """Notify system admins that a new user has registered."""
     full_name = user.get_full_name() or user.username

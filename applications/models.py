@@ -12,13 +12,28 @@ from keel.core.models import (
     AbstractCollaborator,
     AbstractInternalNote,
     AbstractStatusHistory,
+    WorkflowModelMixin,
 )
 
 from core.validators import validate_document_file
 
 
-class Application(models.Model):
+class Application(WorkflowModelMixin, models.Model):
     """A grant application submitted by an organization for a grant program."""
+
+    # WorkflowModelMixin wiring — lazy import to avoid circular dep.
+    _workflow = None
+
+    @classmethod
+    def _get_workflow(cls):
+        if cls._workflow is None:
+            from applications.workflows import APPLICATION_WORKFLOW
+            cls._workflow = APPLICATION_WORKFLOW
+        return cls._workflow
+
+    @property
+    def WORKFLOW(self):
+        return self._get_workflow()
 
     COMMS_PRODUCT = 'harbor'
     COMMS_ENTITY_TYPE = 'application'
