@@ -35,7 +35,14 @@ class BudgetDetailView(AgencyStaffRequiredMixin, DetailView):
     context_object_name = 'budget'
 
     def get_queryset(self):
-        return Budget.objects.select_related('award', 'approved_by')
+        qs = Budget.objects.select_related('award', 'approved_by')
+        user = self.request.user
+        if user.is_superuser or getattr(user, 'role', '') == 'system_admin':
+            return qs
+        agency = getattr(user, 'agency', None)
+        if agency:
+            return qs.filter(award__agency=agency)
+        return qs.none()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -196,13 +203,23 @@ class DrawdownDetailView(LoginRequiredMixin, DetailView):
 # ---------------------------------------------------------------------------
 # Drawdown Approve  (POST only)
 # ---------------------------------------------------------------------------
+def _get_drawdown_for_officer(request, pk):
+    """Return a DrawdownRequest scoped to the requesting officer's agency."""
+    user = request.user
+    qs = DrawdownRequest.objects.select_related('award')
+    if not (user.is_superuser or getattr(user, 'role', '') == 'system_admin'):
+        agency = getattr(user, 'agency', None)
+        qs = qs.filter(award__agency=agency) if agency else qs.none()
+    return get_object_or_404(qs, pk=pk)
+
+
 class DrawdownApproveView(FiscalOfficerRequiredMixin, View):
     """POST-only endpoint to approve a drawdown request."""
 
     http_method_names = ['post']
 
     def post(self, request, pk):
-        drawdown = get_object_or_404(DrawdownRequest, pk=pk)
+        drawdown = _get_drawdown_for_officer(request, pk)
 
         if drawdown.status != DrawdownRequest.Status.SUBMITTED:
             return JsonResponse(
@@ -293,7 +310,14 @@ class BudgetUpdateView(AgencyStaffRequiredMixin, UpdateView):
     template_name = 'financial/budget_form.html'
 
     def get_queryset(self):
-        return Budget.objects.select_related('award')
+        qs = Budget.objects.select_related('award')
+        user = self.request.user
+        if user.is_superuser or getattr(user, 'role', '') == 'system_admin':
+            return qs
+        agency = getattr(user, 'agency', None)
+        if agency:
+            return qs.filter(award__agency=agency)
+        return qs.none()
 
     def form_valid(self, form):
         messages.success(self.request, _('Budget updated successfully.'))
@@ -311,7 +335,7 @@ class BudgetUpdateView(AgencyStaffRequiredMixin, UpdateView):
 # ---------------------------------------------------------------------------
 # Budget Line Item Create
 # ---------------------------------------------------------------------------
-class BudgetLineItemCreateView(LoginRequiredMixin, CreateView):
+class BudgetLineItemCreateView(AgencyStaffRequiredMixin, CreateView):
     """Add a line item to a budget."""
 
     model = BudgetLineItem
@@ -319,9 +343,12 @@ class BudgetLineItemCreateView(LoginRequiredMixin, CreateView):
     template_name = 'financial/lineitem_form.html'
 
     def dispatch(self, request, *args, **kwargs):
-        self.budget = get_object_or_404(
-            Budget.objects.select_related('award'), pk=kwargs['budget_id'],
-        )
+        budget_qs = Budget.objects.select_related('award')
+        user = request.user
+        if not (user.is_superuser or getattr(user, 'role', '') == 'system_admin'):
+            agency = getattr(user, 'agency', None)
+            budget_qs = budget_qs.filter(award__agency=agency) if agency else budget_qs.none()
+        self.budget = get_object_or_404(budget_qs, pk=kwargs['budget_id'])
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -377,7 +404,7 @@ class DrawdownDenyView(FiscalOfficerRequiredMixin, View):
     http_method_names = ['post']
 
     def post(self, request, pk):
-        drawdown = get_object_or_404(DrawdownRequest, pk=pk)
+        drawdown = _get_drawdown_for_officer(request, pk)
 
         if drawdown.status not in (
             DrawdownRequest.Status.SUBMITTED,
@@ -417,7 +444,7 @@ class DrawdownReturnView(FiscalOfficerRequiredMixin, View):
     http_method_names = ['post']
 
     def post(self, request, pk):
-        drawdown = get_object_or_404(DrawdownRequest, pk=pk)
+        drawdown = _get_drawdown_for_officer(request, pk)
 
         if drawdown.status not in (
             DrawdownRequest.Status.SUBMITTED,
