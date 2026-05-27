@@ -189,6 +189,10 @@ class SignatureRequestForm(forms.Form):
         )
 
 
+_PDF_MAGIC = b'%PDF-'
+_MAX_AWARD_PDF_BYTES = 10 * 1024 * 1024  # 10 MB
+
+
 class AwardLocalSignForm(forms.Form):
     """Upload a locally-signed award agreement when Manifest isn't deployed."""
 
@@ -202,4 +206,10 @@ class AwardLocalSignForm(forms.Form):
         f = self.cleaned_data['signed_pdf']
         if not f.name.lower().endswith('.pdf'):
             raise forms.ValidationError(_lazy('Only PDF files are accepted.'))
+        if f.size and f.size > _MAX_AWARD_PDF_BYTES:
+            raise forms.ValidationError(_lazy('File is larger than 10 MB.'))
+        head = f.read(5)
+        f.seek(0)
+        if head != _PDF_MAGIC:
+            raise forms.ValidationError(_lazy('Uploaded file is not a valid PDF document.'))
         return f
