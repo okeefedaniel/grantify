@@ -3,6 +3,7 @@ from decimal import Decimal
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.db.models import Sum
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -133,6 +134,15 @@ class DrawdownCreateView(LoginRequiredMixin, CreateView):
 
     def dispatch(self, request, *args, **kwargs):
         self.award = get_object_or_404(Award, pk=kwargs['award_id'])
+        if request.user.is_authenticated:
+            user = request.user
+            if not (
+                user.is_superuser
+                or user.role == 'system_admin'
+                or (user.is_agency_staff and user.agency_id and user.agency == self.award.agency)
+                or self.award.recipient_id == user.pk
+            ):
+                raise PermissionDenied
         return super().dispatch(request, *args, **kwargs)
 
     def _generate_request_number(self):
@@ -311,7 +321,7 @@ class BudgetUpdateView(AgencyStaffRequiredMixin, UpdateView):
 # ---------------------------------------------------------------------------
 # Budget Line Item Create
 # ---------------------------------------------------------------------------
-class BudgetLineItemCreateView(LoginRequiredMixin, CreateView):
+class BudgetLineItemCreateView(AgencyStaffRequiredMixin, CreateView):
     """Add a line item to a budget."""
 
     model = BudgetLineItem
@@ -322,6 +332,14 @@ class BudgetLineItemCreateView(LoginRequiredMixin, CreateView):
         self.budget = get_object_or_404(
             Budget.objects.select_related('award'), pk=kwargs['budget_id'],
         )
+        if request.user.is_authenticated:
+            user = request.user
+            if not (
+                user.is_superuser
+                or user.role == 'system_admin'
+                or (user.is_agency_staff and user.agency == self.budget.award.agency)
+            ):
+                raise PermissionDenied
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -349,9 +367,15 @@ class DrawdownUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'financial/drawdown_form.html'
 
     def get_queryset(self):
-        return DrawdownRequest.objects.filter(
+        qs = DrawdownRequest.objects.filter(
             status=DrawdownRequest.Status.DRAFT,
         ).select_related('award')
+        user = self.request.user
+        if user.is_superuser or user.role == 'system_admin':
+            return qs
+        if user.is_agency_staff and user.agency:
+            return qs.filter(award__agency=user.agency)
+        return qs.filter(submitted_by=user)
 
     def form_valid(self, form):
         messages.success(self.request, _('Drawdown request updated.'))
