@@ -65,7 +65,10 @@ class AgencyObjectMixin:
     def get_queryset(self):
         qs = super().get_queryset()
         user = self.request.user
-        if getattr(user, 'role', None) != 'system_admin' and user.agency_id:
+        if getattr(user, 'role', None) != 'system_admin':
+            # Always filter non-admins by agency. When agency_id is None the
+            # filter resolves to agency__isnull=True, yielding an empty
+            # queryset — correct fail-safe rather than leaking all records.
             qs = qs.filter(**{self.get_agency_field(): user.agency})
         return qs
 
