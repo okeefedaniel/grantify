@@ -165,7 +165,7 @@ class BulkAwardExportView(AgencyStaffRequiredMixin, View):
 
         # Agency scoping for non-system-admins
         user = request.user
-        if user.role != 'system_admin' and user.agency_id:
+        if user.role != 'system_admin':
             qs = qs.filter(agency=user.agency)
 
         response = HttpResponse(content_type='text/csv')

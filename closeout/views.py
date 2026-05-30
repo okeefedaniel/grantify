@@ -44,7 +44,7 @@ class CloseoutListView(LoginRequiredMixin, SortableListMixin, ListView):
             'award__organization', 'initiated_by',
         )
         user = self.request.user
-        if user.role != 'system_admin' and user.agency_id:
+        if user.role != 'system_admin':
             qs = qs.filter(award__agency=user.agency)
 
         status = self.request.GET.get('status')
@@ -77,9 +77,13 @@ class CloseoutDetailView(AgencyStaffRequiredMixin, DetailView):
     context_object_name = 'closeout'
 
     def get_queryset(self):
-        return Closeout.objects.select_related(
+        qs = Closeout.objects.select_related(
             'award', 'initiated_by', 'completed_by',
         )
+        user = self.request.user
+        if user.role != 'system_admin':
+            qs = qs.filter(award__agency=user.agency)
+        return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

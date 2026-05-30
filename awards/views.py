@@ -103,7 +103,7 @@ class AwardListView(AgencyStaffRequiredMixin, SortableListMixin, CSVExportMixin,
         )
 
         user = self.request.user
-        if getattr(user, 'role', '') != 'system_admin' and user.agency_id:
+        if getattr(user, 'role', '') != 'system_admin':
             qs = qs.filter(agency=user.agency)
 
         # Optional filters from query params (supports multiple values,
@@ -342,7 +342,7 @@ class AwardUpdateView(GrantManagerRequiredMixin, AgencyObjectMixin, UpdateView):
             'grant_program', 'agency', 'recipient', 'organization',
         )
         user = self.request.user
-        if getattr(user, 'role', '') != 'system_admin' and user.agency_id:
+        if getattr(user, 'role', '') != 'system_admin':
             qs = qs.filter(agency=user.agency)
         return qs
 
