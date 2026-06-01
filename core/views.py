@@ -22,7 +22,7 @@ from core.forms import (
     ClaimReviewForm, OrganizationContactForm, OrganizationForm,
     ProfileForm, RegistrationForm, UserRoleForm,
 )
-from core.mixins import SortableListMixin
+from core.mixins import AgencyStaffRequiredMixin, SortableListMixin
 from core.models import (
     Agency, AGENCY_STAFF_ROLES, GRANT_MANAGER_ROLES, Notification,
     Organization, OrganizationClaim, OrganizationContact, users_with_roles,
@@ -748,7 +748,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 # ---------------------------------------------------------------------------
 # Statewide Analytics Dashboard
 # ---------------------------------------------------------------------------
-class AnalyticsDashboardView(LoginRequiredMixin, TemplateView):
+class AnalyticsDashboardView(AgencyStaffRequiredMixin, TemplateView):
     """Statewide analytics dashboard for system administrators."""
 
     template_name = 'core/analytics.html'
